@@ -572,6 +572,12 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
         <button type="button" class="sec" id="btnSync">Sincronizar ahora</button>
         <button type="button" class="link peligro" id="btnDesconectar">Desconectar este celular</button>
       </div>
+      <details id="atajoDatos">
+        <summary>Datos para el atajo de iPhone</summary>
+        <p class="hint">Para el atajo "Anotar gasto" de la app Atajos. Copie cada dato y péguelo donde dice la guía. No comparta el atajo con nadie: lleva su clave.</p>
+        <div class="botones"><button type="button" class="sec" data-copiar="u">Copiar enlace del puente</button><button type="button" class="sec" data-copiar="k">Copiar clave</button></div>
+        <input type="text" id="atajoCopia" readonly aria-label="Dato copiado" hidden>
+      </details>
       <div class="botones" id="confirmDesc" hidden>
         <span class="hint">Se borra la copia de este celular; sus datos siguen en la hoja.</span>
         <button type="button" class="link peligro" id="btnDescSi">Sí, desconectar</button>
@@ -822,7 +828,15 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
     plan.esquema = 6;
     guardar('config', 'plan', plan);
   }
-  function migrar() { migrarA3(); migrarA4(); migrarA5(); migrarA6(); registrarHistorial(); }
+  /* Esquema 7 (24 oct 2026): la línea celular de $7.500 en la Nu (se cobra el 19). */
+  function migrarA7() {
+    if (!S.plan || (Number(S.plan.esquema) || 1) !== 6) return;
+    var plan = clone(S.plan); plan.suscripciones = Array.isArray(plan.suscripciones) ? plan.suscripciones : [];
+    if (!plan.suscripciones.some(function (x) { return /l[ií]nea/i.test(x.nombre || ''); })) plan.suscripciones.push({ id: 'linea-celular', nombre: 'Línea celular', monto: 7500, dia: 19, medio: 'tc_nu', desde: '2026-10-24' });
+    plan.esquema = 7;
+    guardar('config', 'plan', plan);
+  }
+  function migrar() { migrarA3(); migrarA4(); migrarA5(); migrarA6(); migrarA7(); registrarHistorial(); }
   /* Lo que tiene menos lo que debe, una foto por mes (se actualiza como mucho una vez al día). */
   function patrimonio() {
     var tiene = saldoCajita() + sum(apartadosVisibles(), saldoApartado) + esperadoDia().total;
@@ -2439,6 +2453,13 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
   $('estado').addEventListener('click', function () { sincronizar(); });
   $('btnSync').addEventListener('click', function () { sincronizar().then(function () { toast(estadoSync === 'ok' ? 'Todo al día' : 'Sin conexión por ahora'); }); });
   $('btnDesconectar').addEventListener('click', function () { $('confirmDesc').hidden = false; });
+  $('atajoDatos').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-copiar]'); if (!b || !CONN) return;
+    var cual = b.getAttribute('data-copiar'), v = cual === 'u' ? CONN.u : CONN.k, nom = cual === 'u' ? 'Enlace' : 'Clave', inp = $('atajoCopia');
+    function aMano() { inp.hidden = false; inp.value = v; inp.focus(); inp.select(); toast('Selecciónelo y cópielo'); }
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(v).then(function () { inp.hidden = true; inp.value = ''; toast(cual === 'u' ? 'Enlace copiado' : 'Clave copiada'); }, aMano);
+    else aMano();
+  });
   $('btnDescNo').addEventListener('click', function () { $('confirmDesc').hidden = true; });
   $('btnDescSi').addEventListener('click', function () {
     if (COLA.length) { toast('Hay cambios sin enviar. Sincronice primero.'); return; }
