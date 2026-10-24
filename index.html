@@ -578,17 +578,21 @@ button:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); 
   function esApp() { return window.navigator.standalone === true || (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches); }
   function ahoraISO() { return new Date().toISOString(); }
 
-  /* Quincenas: la del 15 va del 15 al 29 y la financia el pago del 15; la del 30 va del 30 al 14 y la financia el pago del 30 */
+  /* Quincenas: el pago entra al final del día, así que ese día todavía se gasta con la quincena anterior.
+     El pago del 15 cubre del 16 al 30 y el del 30 cubre del 31 (o del 1) al 15. En febrero, el pago del 28 cubre del 1 al 15.
+     "inicio" es el día del pago (así se guardan las marcas del ritual) y "desde" es el primer día que cubre. */
   function periodoDe(f) {
     var mes = mesDe(f), d = +f.slice(8), p30 = pago30(mes);
-    if (d >= 15 && d < p30) return { inicio: mes + '-15', fin: mes + '-' + pad(p30 - 1), tipo: '15', mesPago: mes, mesFondo: mes, parte: 'segunda' };
-    if (d >= p30) { var nx = addMes(mes, 1); return { inicio: mes + '-' + pad(p30), fin: nx + '-14', tipo: '30', mesPago: mes, mesFondo: nx, parte: 'primera' }; }
-    var pv = addMes(mes, -1);
-    return { inicio: pv + '-' + pad(pago30(pv)), fin: mes + '-14', tipo: '30', mesPago: pv, mesFondo: mes, parte: 'primera' };
+    if (d >= 16 && d <= p30) return { inicio: mes + '-15', desde: mes + '-16', fin: mes + '-' + pad(p30), tipo: '15', mesPago: mes, mesFondo: mes, parte: 'segunda' };
+    if (d > p30) { var nx = addMes(mes, 1), k = mes + '-' + pad(p30); return { inicio: k, desde: addDias(k, 1), fin: nx + '-15', tipo: '30', mesPago: mes, mesFondo: nx, parte: 'primera' }; }
+    var pv = addMes(mes, -1), kp = pv + '-' + pad(pago30(pv));
+    return { inicio: kp, desde: addDias(kp, 1), fin: mes + '-15', tipo: '30', mesPago: pv, mesFondo: mes, parte: 'primera' };
   }
   function perSig(p) { return periodoDe(addDias(p.fin, 1)); }
-  function perAnt(p) { return periodoDe(addDias(p.inicio, -1)); }
-  function perLabel(p) { return fCorta(p.inicio) + ' – ' + fCorta(p.fin); }
+  function perAnt(p) { return periodoDe(addDias(p.desde, -1)); }
+  function perLabel(p) { return fCorta(p.desde) + ' – ' + fCorta(p.fin); }
+  /* El día de pago, el ritual que toca es el de la quincena que empieza mañana. */
+  function periodoRitual() { var p = periodoDe(hoy()), n = perSig(p); return n.inicio <= hoy() ? n : p; }
 
   var S = {
     tab: 'hoy', per: periodoDe(hoy()), mes: mesDe(hoy()), dia: hoy(),
@@ -956,7 +960,7 @@ button:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); 
       // Suma el aporte de cada quincena que empezó después de la base y ya arrancó.
       var q = periodoDe(addDias(cb.fechaBase, 1)), n = 0;
       if (q.inicio <= cb.fechaBase) q = perSig(q);
-      for (; q.inicio <= t && n < 400; q = perSig(q), n++) s += presPer(c, q);
+      for (; q.inicio <= t && n < 400; q = perSig(q), n++) { if (q.inicio === t && !ritualEmpezado(q)) break; s += presPer(c, q); }
     }
     S.ingresos.forEach(function (i) { if (destinoDe(i) === key && despuesDeBase(i.fecha, i.creado, cb)) s += ingADestino(i); });
     S.gastos.forEach(function (g) { if (g.categoria === c.id && despuesDeBase(g.fecha, g.creado, cb)) s -= Number(g.monto) || 0; });
@@ -983,21 +987,28 @@ button:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); 
     if (!(mc && mc.hecho) && caj > 0) out.push({ key: 'cajita', nombre: 'Pasar a la Cajita', monto: caj });
     it.fij.forEach(function (f) { var k = 'fijo:' + f.id, m = marca(p.inicio, k); if (!(m && m.hecho)) out.push({ key: k, nombre: f.nombre, monto: it.val(k, montoFijo(f)) }); });
     it.bol.filter(esApartado).forEach(function (c) { var k = 'bol:' + c.id, m = marca(p.inicio, k); if (!(m && m.hecho)) out.push({ key: k, nombre: 'Apartar en ' + c.nombre, monto: presPer(c, p) }); });
-    return out.filter(function (x) { return x.monto > 0; });
+    return out.filter(function (x) { return x.monto > 0; }).map(function (x) { x.ini = p.inicio; return x; });
   }
+  /* Ya entró el pago: hay algo marcado en el ritual de esa quincena. */
+  function ritualEmpezado(p) { var d = S.pagos[p.inicio], mk = (d && d.marcas) || {}; return Object.keys(mk).some(function (k) { return mk[k] && mk[k].hecho; }); }
   function quedaDia(p) {
-    var u = usoEntre(p.inicio, p.fin), dia = (S.cats || []).filter(esDia), huerf = 0;
+    var u = usoEntre(p.desde, p.fin), dia = (S.cats || []).filter(esDia), huerf = 0;
     var reservas = sum((S.cats || []).filter(esReserva), saldoReserva);
     Object.keys(u.porCat).forEach(function (k) { if (!catPorId(k)) huerf += u.porCat[k]; });
-    var pres = sum(dia, function (c) { return presPer(c, p) + extraEntre(c.id, p.inicio, p.fin); });
+    var pres = sum(dia, function (c) { return presPer(c, p) + extraEntre(c.id, p.desde, p.fin); });
     var usado = sum(dia, function (c) { return u.porCat[c.id] || 0; }) + huerf;
-    var prestado = sum(dia, function (c) { return prestadoEntre(c.id, p.inicio, p.fin); });
+    var prestado = sum(dia, function (c) { return prestadoEntre(c.id, p.desde, p.fin); });
     return { pres: pres, usado: usado, prestado: prestado, gastado: usado - prestado, queda: pres - usado, uso: u, reservas: reservas };
   }
   function esperadoDia() {
-    var p = periodoDe(hoy()), q = quedaDia(p), pend = pendientesPeriodo(p);
+    var p = periodoDe(hoy()), q = quedaDia(p), pend = pendientesPeriodo(p), n = perSig(p), nueva = 0, diaPago = n.inicio === hoy();
+    // Día de pago con el ritual ya empezado: la plata del día de la quincena que arranca mañana ya está en el disponible.
+    if (diaPago && ritualEmpezado(n)) {
+      nueva = sum((S.cats || []).filter(esDia), function (c) { return presPer(c, n); });
+      pend = pend.concat(pendientesPeriodo(n));
+    }
     var tp = sum(pend, function (x) { return x.monto; });
-    return { periodo: p, queda: q.queda, reservas: q.reservas, pendientes: pend, pend: tp, total: q.queda + q.reservas + tp };
+    return { periodo: p, queda: q.queda, reservas: q.reservas, pendientes: pend, pend: tp, nueva: nueva, diaPago: diaPago && !ritualEmpezado(n), total: q.queda + q.reservas + tp + nueva };
   }
   function ultimoCuadre() { var f = ''; S.cuadres.forEach(function (c) { if (c.fecha > f) f = c.fecha; }); return f; }
   function cuadreToca() {
@@ -1172,7 +1183,7 @@ button:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); 
   }
   function filaReserva(c, p, g, cuadrable) {
     if (esEfectivo(c)) return filaEfectivo(c);
-    var s = saldoReserva(c), ap = presPer(c, p) + extraEntre(c.id, p.inicio, p.fin), id = esc(c.id);
+    var s = saldoReserva(c), ap = presPer(c, p) + extraEntre(c.id, p.desde, p.fin), id = esc(c.id);
     var pct = ap > 0 ? Math.min(100, Math.round(g / ap * 100)) : (g > 0 ? 100 : 0), libre = !(Number(c.presupuesto) > 0);
     var h = libre ? '<li class="bolsillo ' + (s < 0 ? 'estado-over' : 'estado-zero') + '"><div class="fila"><span class="nombre">' + esc(c.nombre) + '</span><span class="cifra">' + fmt(s) + '</span></div>' :
       '<li class="bolsillo ' + (s < 0 ? 'estado-over' : 'estado-ok') + '"><div class="fila"><span class="nombre">' + esc(c.nombre) + ' · acumula</span><span class="cifra">' + fmt(g) + ' / ' + fmt(ap) + '</span></div>' +
@@ -1186,7 +1197,7 @@ button:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); 
     return h + '</li>';
   }
   function ritmo(q, p) {
-    var t = hoy(), N = diasEntre(p.inicio, p.fin) + 1, k = Math.min(N, diasEntre(p.inicio, t) + 1), dia = 'Día ' + k + ' de ' + N;
+    var t = hoy(), N = diasEntre(p.desde, p.fin) + 1, k = Math.min(N, diasEntre(p.desde, t) + 1), dia = 'Día ' + k + ' de ' + N;
     if (q.queda < 0) return 'Se pasó ' + fmt(-q.queda) + ' del presupuesto de esta quincena.';
     if (q.pres <= 0) return dia + '.';
     var r = q.usado / Math.max(1, q.pres * k / N);
@@ -1200,10 +1211,10 @@ button:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); 
     return '<div><span class="k">' + esc(rs.length === 1 ? rs[0].nombre : 'Acumulado') + '</span><span class="v">' + fmt(sum(rs, saldoReserva)) + '</span></div>';
   }
   function renderHoy() {
-    var p = S.per, t = hoy(), actual = t >= p.inicio && t <= p.fin, futuro = p.inicio > t;
+    var p = S.per, t = hoy(), actual = t >= p.desde && t <= p.fin, futuro = p.desde > t;
     var q = quedaDia(p), u = q.uso, cats = S.cats || [], pres = q.pres, queda = q.queda;
     var porCobrar = sum(reembolsosPendientes(), function (g) { return g.monto; }) + totalMeDeben();
-    var sig = fCorta(addDias(p.fin, 1)), eyebrow, meta, big;
+    var sig = fCorta(perSig(p).inicio), eyebrow, meta, big;
     if (!cats.length) { eyebrow = 'Sin bolsillos'; big = '$ 0'; meta = 'Configure sus bolsillos en la pestaña Mes.'; }
     else if (actual) { eyebrow = 'Le queda hasta el pago del ' + sig; big = fmt(queda); meta = ritmo(q, p); }
     else if (futuro) { eyebrow = 'Presupuesto de la quincena'; big = fmt(pres); meta = 'Empieza con el pago del ' + fCorta(p.inicio) + '.'; }
@@ -1225,11 +1236,11 @@ button:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); 
     else {
       $('presTotal').textContent = 'Presupuesto ' + fmt(pres);
       var items = cats.filter(esDia).filter(function (c) {
-        if (u.porCat[c.id] > 0 || extraEntre(c.id, p.inicio, p.fin) > 0) return true;
+        if (u.porCat[c.id] > 0 || extraEntre(c.id, p.desde, p.fin) > 0) return true;
         if (!activo(c)) return false;
         return presPer(c, p) > 0 || (Number(c.presupuesto) === 0 && !(c.soloMeses && c.soloMeses.length));
       }).map(function (c) {
-        var ex = extraEntre(c.id, p.inicio, p.fin), pr = prestadoEntre(c.id, p.inicio, p.fin), notas = [];
+        var ex = extraEntre(c.id, p.desde, p.fin), pr = prestadoEntre(c.id, p.desde, p.fin), notas = [];
         if (ex) notas.push('entró ' + fmt(ex));
         if (pr) notas.push('prestó ' + fmt(pr));
         return filaBolsillo(c, presPer(c, p) + ex, u.porCat[c.id] || 0, notas, actual && Number(c.presupuesto) > 0);
@@ -1251,7 +1262,7 @@ button:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); 
     var box = $('apartados'), vis = apartadosVisibles();
     if (!vis.length) { box.hidden = true; return; }
     box.hidden = false;
-    var pAct = periodoDe(hoy());
+    var pAct = periodoRitual();
     var html = '<div class="sec-head" style="margin:0"><h2>Bolsillos en Bancolombia</h2><span class="num">' + fmt(sum(vis, saldoApartado)) + '</span></div>' +
       '<p class="hint">Los mismos bolsillos de su app de Bancolombia. Cuando pague algo de aquí, pase primero la plata al saldo disponible y anote el gasto en la categoría del bolsillo.</p>';
     vis.forEach(function (c) {
@@ -1332,10 +1343,11 @@ button:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); 
     var e = esperadoDia(), cj = (S.plan && S.plan.cajita) || {}, vis = apartadosVisibles();
     var h = '<div class="fila"><h2>Cuadre de la semana</h2><button type="button" class="link" data-cuadre-cancelar="1">Cerrar</button></div>' +
       '<p class="hint">Mire sus apps del banco y escriba lo que ve hoy. Lo que deje en blanco no se cambia.</p>' +
+      (e.diaPago ? '<p class="aviso">Hoy es día de pago. Si ya le entró la plata, haga primero el ritual en la pestaña Pago y vuelva al cuadre; si todavía no entra, siga normal.</p>' : '') +
       '<h3>1 · Su plata del día</h3><div class="row2">' + campoCuadre('cq-dispo', 'Saldo disponible Bancolombia') + campoCuadre('cq-efectivo', 'Efectivo (todo lo que tenga)') + '</div>';
     if (e.pendientes.length) {
       h += '<h3>2 · ¿Ya hizo esto de la quincena?</h3><p class="hint">Mientras no lo marque, la app cuenta esa plata como si siguiera en el disponible.</p>' +
-        e.pendientes.map(function (x) { return '<div class="fila" style="align-items:center"><span>' + esc(x.nombre) + ' · <b class="num">' + fmt(x.monto) + '</b></span><button type="button" class="link fuerte" data-cuadre-hecho="' + esc(x.key) + '" data-monto-hecho="' + x.monto + '">Ya lo hice</button></div>'; }).join('');
+        e.pendientes.map(function (x) { return '<div class="fila" style="align-items:center"><span>' + esc(x.nombre) + ' · <b class="num">' + fmt(x.monto) + '</b></span><button type="button" class="link fuerte" data-cuadre-hecho="' + esc(x.key) + '" data-ini="' + esc(x.ini) + '" data-monto-hecho="' + x.monto + '">Ya lo hice</button></div>'; }).join('');
     }
     h += '<h3>' + (e.pendientes.length ? '3' : '2') + ' · Apartados y Cajita</h3>' +
       vis.map(function (c) { return campoCuadre('cq-ap-' + c.id, c.nombre, 'La app calcula ' + fmt(saldoApartado(c))); }).join('') +
@@ -1424,8 +1436,8 @@ button:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); 
 
   function renderMovs(p) {
     var box = $('movs');
-    var items = gastosEntre(p.inicio, p.fin).map(function (g) { return { tipo: 'g', fecha: g.fecha, creado: g.creado || '', d: g }; });
-    S.prestamos.forEach(function (x) { if (x.fecha >= p.inicio && x.fecha <= p.fin) items.push({ tipo: 'p', fecha: x.fecha, creado: x.creado || '', d: x }); });
+    var items = gastosEntre(p.desde, p.fin).map(function (g) { return { tipo: 'g', fecha: g.fecha, creado: g.creado || '', d: g }; });
+    S.prestamos.forEach(function (x) { if (x.fecha >= p.desde && x.fecha <= p.fin) items.push({ tipo: 'p', fecha: x.fecha, creado: x.creado || '', d: x }); });
     items.sort(function (a, b) { if (a.fecha !== b.fecha) return a.fecha < b.fecha ? 1 : -1; return a.creado < b.creado ? 1 : -1; });
     $('nMov').textContent = items.length ? items.length + (items.length === 1 ? ' movimiento' : ' movimientos') : '';
     if (!items.length) { setHTML(box, '<p class="vacio">Todavía no hay movimientos en esta quincena. Anote el primero arriba.</p>'); return; }
@@ -1531,7 +1543,7 @@ button:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); 
   }
   function renderPlata() {
     var p = S.per, pend = prestamosPendientes(), total = sum(pend, saldoPrestamo);
-    var ings = S.ingresos.filter(function (i) { return i.fecha >= p.inicio && i.fecha <= p.fin; }).sort(function (a, b) { return a.fecha < b.fecha ? 1 : (a.fecha > b.fecha ? -1 : ((a.creado || '') < (b.creado || '') ? 1 : -1)); });
+    var ings = S.ingresos.filter(function (i) { return i.fecha >= p.desde && i.fecha <= p.fin; }).sort(function (a, b) { return a.fecha < b.fecha ? 1 : (a.fecha > b.fecha ? -1 : ((a.creado || '') < (b.creado || '') ? 1 : -1)); });
     var aCaj = sum(ings.filter(function (i) { return destinoDe(i) === 'cajita'; }), ingADestino);
     var aBol = sum(ings.filter(function (i) { return destinoDe(i).indexOf('bol:') === 0; }), ingADestino);
     var aDeu = sum(ings.filter(function (i) { return destinoDe(i).indexOf('deuda:') === 0; }), ingADestino);
@@ -1613,9 +1625,9 @@ button:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); 
         '<input type="text" inputmode="numeric" id="m-' + esc(k.replace(/[^a-z0-9-]/gi, '_')) + '" data-monto="' + esc(k) + '" value="' + miles(presPer(c, p)) + '" aria-label="Valor de ' + esc(c.nombre) + '"></div>'; }).join('') + '</details>' : '';
     var secAps = aps.map(function (c) { var k = 'bol:' + c.id; return paso(k, c.nombre, 'Pasar al bolsillo ' + c.nombre + ' en Bancolombia', presPer(c, p), h(k)); }).join('');
     var pct = Math.round(total ? hechos / total * 100 : 0);
-    var extras = sum(S.ingresos.filter(function (i) { return i.fecha >= p.inicio && i.fecha <= p.fin; }), function (i) { return i.monto; });
+    var extras = sum(S.ingresos.filter(function (i) { return i.fecha >= p.desde && i.fecha <= p.fin; }), function (i) { return i.monto; });
     html += '<div class="sec-head" style="margin:0"><h2>Pago del ' + fLarga(p.inicio) + '</h2></div>';
-    html += '<p class="hint">Cubre del ' + fCorta(p.inicio) + ' al ' + fCorta(p.fin) + '. Vaya marcando en este orden.</p>';
+    html += '<p class="hint">La plata le entra al final del día y cubre del ' + fCorta(p.desde) + ' al ' + fCorta(p.fin) + '. Vaya marcando en este orden.</p>';
     var prt = proteccion();
     if (prt.activo && p.inicio >= (prt.desde || '')) html += '<p class="aviso">Modo protección: Vida social, Transporte y Gastos hormiga van con tope, y lo que sobre va al colchón.</p>';
     if (p.inicio < inicioApp()) html += '<p class="aviso">Esta quincena empezó antes de que usara la app (el ' + fCorta(inicioApp()) + '). Tómela solo como referencia: los valores son el plan, no lo que pasó. El ritual de verdad arranca con el próximo pago.</p>';
@@ -2003,7 +2015,12 @@ button:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); 
   });
 
   /* ---------- Eventos ---------- */
-  function irA(tab) { S.tab = tab; try { history.replaceState(null, '', '#' + tab); } catch (err) {} render(); window.scrollTo(0, 0); }
+  function irA(tab) {
+    var hoyP = periodoDe(hoy()), rit = periodoRitual();
+    if (tab === 'pago' && S.per.inicio === hoyP.inicio) S.per = rit;
+    else if (tab !== 'pago' && S.tab === 'pago' && S.per.inicio === rit.inicio) S.per = hoyP;
+    S.tab = tab; try { history.replaceState(null, '', '#' + tab); } catch (err) {} render(); window.scrollTo(0, 0);
+  }
   document.addEventListener('input', function (e) {
     var t = e.target; if (!t.matches || !t.matches('input[inputmode="numeric"]')) return;
     var dig = t.value.replace(/\D/g, '').replace(/^0+/, '').slice(0, 11); t.value = dig ? Number(dig).toLocaleString('es-CO') : '';
@@ -2025,7 +2042,7 @@ button:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); 
   });
   $('prev').addEventListener('click', function () { if (S.tab === 'mes') S.mes = addMes(S.mes, -1); else S.per = perAnt(S.per); S.confirmDel = null; S.cuadrar = null; render(); });
   $('next').addEventListener('click', function () { if (S.tab === 'mes') S.mes = addMes(S.mes, 1); else S.per = perSig(S.per); S.confirmDel = null; S.cuadrar = null; render(); });
-  $('perLabel').addEventListener('click', function () { S.per = periodoDe(hoy()); S.mes = mesDe(hoy()); render(); });
+  $('perLabel').addEventListener('click', function () { S.per = S.tab === 'pago' ? periodoRitual() : periodoDe(hoy()); S.mes = mesDe(hoy()); render(); });
   $('estado').addEventListener('click', function () { sincronizar(); });
   $('btnSync').addEventListener('click', function () { sincronizar().then(function () { toast(estadoSync === 'ok' ? 'Todo al día' : 'Sin conexión por ahora'); }); });
   $('btnDesconectar').addEventListener('click', function () { $('confirmDesc').hidden = false; });
@@ -2085,8 +2102,8 @@ button:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); 
       return;
     }
     if ((b = t.closest('[data-cuadre-hecho]'))) {
-      var key = b.getAttribute('data-cuadre-hecho'), pa = periodoDe(hoy());
-      marcar(pa.inicio, key, { hecho: true, monto: Number(b.getAttribute('data-monto-hecho')) || 0 });
+      var key = b.getAttribute('data-cuadre-hecho'), ini = b.getAttribute('data-ini') || periodoDe(hoy()).inicio;
+      marcar(ini, key, { hecho: true, monto: Number(b.getAttribute('data-monto-hecho')) || 0 });
       return;
     }
     if ((b = t.closest('[data-cuadre-accion]'))) { S.cuadreAccion = b.getAttribute('data-cuadre-accion'); actualizarCuadre(); return; }
@@ -2099,8 +2116,8 @@ button:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); 
     if (t.closest('[data-cuadrar-no]')) { S.cuadrar = null; render(); return; }
     if ((b = t.closest('[data-cuadrar-si]'))) {
       var cid = b.getAttribute('data-cuadrar-si'), cat = catPorId(cid), inp = $('cq-' + cid); if (!cat || !inp) return;
-      var real = num(inp.value), p = S.per, u = usoEntre(p.inicio, p.fin);
-      var nuevo = Math.max(0, real + (u.porCat[cid] || 0) - extraEntre(cid, p.inicio, p.fin));
+      var real = num(inp.value), p = S.per, u = usoEntre(p.desde, p.fin);
+      var nuevo = Math.max(0, real + (u.porCat[cid] || 0) - extraEntre(cid, p.desde, p.fin));
       S.cuadrar = null;
       marcar(p.inicio, 'bol:' + cid, { monto: nuevo });
       toast(cat.nombre + ': le quedan ' + fmt(real));
@@ -2375,7 +2392,7 @@ button:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); 
     if (document.visibilityState !== 'visible' || !CONN) return;
     if (S.dia !== hoy()) {
       // Cambió el día con la app abierta: volver a la quincena y al mes de hoy.
-      S.dia = hoy(); S.per = periodoDe(S.dia); S.mes = mesDe(S.dia);
+      S.dia = hoy(); S.per = S.tab === 'pago' ? periodoRitual() : periodoDe(S.dia); S.mes = mesDe(S.dia);
       if (!S.editId) $('fecha').value = S.dia;
       $('ingFecha').value = S.dia; $('presFecha').value = S.dia;
     }
@@ -2389,6 +2406,7 @@ button:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); 
     $('fecha').value = hoy(); $('ingFecha').value = hoy(); $('presFecha').value = hoy();
     var h = (location.hash || '').replace('#', '');
     if (TABS.indexOf(h) >= 0) S.tab = h;
+    if (S.tab === 'pago') S.per = periodoRitual();
     CONN = lsGet(LS.conn, null);
     if (!CONN) { mostrarConectar(); return; }
     D = normalizar(lsGet(LS.datos, null));
