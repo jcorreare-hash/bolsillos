@@ -397,6 +397,7 @@ button:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); 
 .bloqueo { position: fixed; inset: 0; z-index: 90; background: var(--bg); display: grid; align-content: center; justify-items: center; gap: 14px; padding: 24px; text-align: center; }
 .bloqueo textarea { max-width: 360px; }
 body.qa-abierta { overflow: hidden; }
+#hero .tc-linea { font-size: 0.86rem; margin-top: 2px; }
 .aj-head { display: flex; align-items: center; gap: 6px; }
 .aj-head h2 { margin: 0; font-size: 1.35rem; }
 .aj-volver { border: 0; background: none; color: var(--accent); font: inherit; font-weight: 700; display: inline-flex; align-items: center; gap: 2px; padding: 8px 6px 8px 0; cursor: pointer; }
@@ -689,7 +690,7 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
   ];
   var MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
   var DIAS = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
-  var VERSION_APP = '8';
+  var VERSION_APP = '8.1';
   var TABS = ['hoy', 'plata', 'pago', 'metas', 'mes', 'ajustes'];
   var COLECCIONES = ['gastos', 'ingresos', 'dias', 'deudas', 'pagos', 'config', 'prestamos', 'abonos', 'cuadres', 'retiros'];
   var LS = { conn: 'bolsillos.conexion', datos: 'bolsillos.datos', cola: 'bolsillos.cola', sync: 'bolsillos.sync', navegador: 'bolsillos.navegador', puente: 'bolsillos.puente', discreto: 'bolsillos.discreto', bloqueo: 'bolsillos.bloqueo' };
@@ -903,7 +904,36 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
     plan.esquema = 7;
     guardar('config', 'plan', plan);
   }
-  function migrar() { migrarA3(); migrarA4(); migrarA5(); migrarA6(); migrarA7(); registrarHistorial(); }
+  /* Esquema 8 (25 oct 2026): las compras con tarjeta ya no salen de la plata del día. Los cuadres hechos antes las habían
+     restado, así que se corrige la diferencia que dejaron (para que "Le queda" siga igual a la plata real). */
+  function migrarA8() {
+    if (!S.plan || (Number(S.plan.esquema) || 1) !== 7) return;
+    var plan = clone(S.plan);
+    S.cuadres.slice().forEach(function (c) {
+      if (!c.creado) return;
+      var p = periodoDe(c.fecha), tc = new Date(c.creado).getTime();
+      var tarj = sum(S.gastos.filter(function (g) {
+        if (!medio(g.medio).tarjeta || g.fecha < p.desde || g.fecha > c.fecha) return false;
+        var cat = catPorId(g.categoria); if (cat && !esDia(cat)) return false;
+        var tg = new Date(g.creado || (g.fecha + 'T00:00:00')).getTime();
+        return !(tg > tc);
+      }), function (g) { return Number(g.monto) || 0; });
+      if (!tarj) return;
+      var dif = Number(c.diferencia) || 0, nueva = dif - tarj;
+      var aj = S.ingresos.filter(function (i) { return i.tipo === 'ajuste' && i.creado === c.creado; })[0];
+      var gd = S.gastos.filter(function (g) { return g.creado === c.creado && /Diferencia del cuadre/.test(g.nota || ''); })[0];
+      if (aj) borrar('ingresos', aj.id);
+      if (gd) borrar('gastos', gd.id);
+      if (aj || gd) {
+        if (nueva >= 2000) guardar('ingresos', aj ? aj.id : nuevoId(), { fecha: c.fecha, mes: mesDe(c.fecha), monto: nueva, tipo: 'ajuste', destino: aj ? aj.destino : 'bol:' + catSinDetalle(), concepto: 'Diferencia del cuadre', creado: c.creado });
+        else if (nueva <= -2000) guardar('gastos', gd ? gd.id : nuevoId(), { fecha: c.fecha, mes: mesDe(c.fecha), monto: -nueva, categoria: catSinDetalle(), medio: 'efectivo', nota: 'Diferencia del cuadre (sin detalle)', creado: c.creado });
+      }
+      guardar('cuadres', c.id, Object.assign({}, c, { esperado: (Number(c.esperado) || 0) + tarj, diferencia: nueva }));
+    });
+    plan.esquema = 8;
+    guardar('config', 'plan', plan);
+  }
+  function migrar() { migrarA3(); migrarA4(); migrarA5(); migrarA6(); migrarA7(); migrarA8(); registrarHistorial(); }
   /* Lo que tiene menos lo que debe, una foto por mes (se actualiza como mucho una vez al día). */
   function patrimonio() {
     var tiene = saldoCajita() + sum(apartadosVisibles(), saldoApartado) + esperadoDia().total;
@@ -1058,20 +1088,21 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
   function extraEntre(cid, a, b) { return sum(S.ingresos.filter(function (i) { return destinoDe(i) === 'bol:' + cid && i.fecha >= a && i.fecha <= b; }), ingADestino); }
   function prestadoEntre(cid, a, b) { return sum(S.prestamos.filter(function (x) { return x.origen === 'bol:' + cid && x.fecha >= a && x.fecha <= b; }), function (x) { return x.monto; }); }
   function usoEntre(a, b) {
-    var porCat = {}, gastado = 0, prestado = 0, tarj = 0;
+    var porCat = {}, caja = {}, conTarjeta = {}, porTarjeta = {}, gastado = 0, prestado = 0, tarj = 0;
     gastosEntre(a, b).forEach(function (g) {
       var m = Number(g.monto) || 0, c = catPorId(g.categoria);
       porCat[g.categoria] = (porCat[g.categoria] || 0) + m;
       if (!(c && c.reembolsable)) gastado += m;
-      if (medio(g.medio).tarjeta) tarj += m;
+      if (medio(g.medio).tarjeta) { tarj += m; conTarjeta[g.categoria] = (conTarjeta[g.categoria] || 0) + m; porTarjeta[g.medio] = (porTarjeta[g.medio] || 0) + m; }
+      else caja[g.categoria] = (caja[g.categoria] || 0) + m;
     });
     S.prestamos.forEach(function (x) {
       if (x.fecha < a || x.fecha > b || String(x.origen || '').indexOf('bol:') !== 0) return;
       var id = x.origen.slice(4), m = Number(x.monto) || 0, c = catPorId(id);
-      porCat[id] = (porCat[id] || 0) + m;
+      porCat[id] = (porCat[id] || 0) + m; caja[id] = (caja[id] || 0) + m;
       if (!(c && c.reembolsable)) prestado += m;
     });
-    return { porCat: porCat, gastado: gastado, prestado: prestado, tarj: tarj };
+    return { porCat: porCat, caja: caja, conTarjeta: conTarjeta, porTarjeta: porTarjeta, gastado: gastado, prestado: prestado, tarj: tarj };
   }
 
   function itemsPago(p) {
@@ -1207,7 +1238,7 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
       for (; q.inicio <= t && n < 400; q = perSig(q), n++) { if (q.inicio === t && !ritualEmpezado(q)) break; s += presPer(c, q); }
     }
     S.ingresos.forEach(function (i) { if (destinoDe(i) === key && despuesDeBase(i.fecha, i.creado, cb)) s += ingADestino(i); });
-    S.gastos.forEach(function (g) { if (g.categoria === c.id && despuesDeBase(g.fecha, g.creado, cb)) s -= Number(g.monto) || 0; });
+    S.gastos.forEach(function (g) { if (g.categoria === c.id && !medio(g.medio).tarjeta && despuesDeBase(g.fecha, g.creado, cb)) s -= Number(g.monto) || 0; });
     S.prestamos.forEach(function (x) { if (x.origen === key && despuesDeBase(x.fecha, x.creado, cb)) s -= Number(x.monto) || 0; });
     S.ingresos.forEach(function (i) { if (i.tipo === 'mover' && i.origen === key && despuesDeBase(i.fecha, i.creado, cb)) s -= Number(i.monto) || 0; });
     return s;
@@ -1221,7 +1252,7 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
       if (destinoDe(i) === key) s += ingADestino(i);
       if (c.reembolsable && Number(i.repone)) s += Number(i.repone);
     });
-    S.gastos.forEach(function (g) { if (g.categoria === c.id && despuesDeBase(g.fecha, g.creado, cb)) s -= Number(g.monto) || 0; });
+    S.gastos.forEach(function (g) { if (g.categoria === c.id && !medio(g.medio).tarjeta && despuesDeBase(g.fecha, g.creado, cb)) s -= Number(g.monto) || 0; });
     S.prestamos.forEach(function (x) { if (x.origen === key && despuesDeBase(x.fecha, x.creado, cb)) s -= Number(x.monto) || 0; });
     S.ingresos.forEach(function (i) { if (i.tipo === 'mover' && i.origen === key && despuesDeBase(i.fecha, i.creado, cb)) s -= Number(i.monto) || 0; });
     return s;
@@ -1238,13 +1269,15 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
   /* Ya entró el pago: hay algo marcado en el ritual de esa quincena. */
   function ritualEmpezado(p) { var d = S.pagos[p.inicio], mk = (d && d.marcas) || {}; return Object.keys(mk).some(function (k) { return mk[k] && mk[k].hecho; }); }
   function quedaDia(p) {
-    var u = usoEntre(p.desde, p.fin), dia = (S.cats || []).filter(esDia), huerf = 0;
+    var u = usoEntre(p.desde, p.fin), dia = (S.cats || []).filter(esDia), huerf = 0, tarjDia = 0;
     var reservas = sum((S.cats || []).filter(esReserva), saldoReserva);
-    Object.keys(u.porCat).forEach(function (k) { if (!catPorId(k)) huerf += u.porCat[k]; });
+    // Las compras con tarjeta de crédito no salen de la plata del día: suman a la deuda de la tarjeta.
+    Object.keys(u.caja).forEach(function (k) { if (!catPorId(k)) huerf += u.caja[k]; });
+    Object.keys(u.conTarjeta).forEach(function (k) { var c = catPorId(k); if (!c || esDia(c)) tarjDia += u.conTarjeta[k]; });
     var pres = sum(dia, function (c) { return presPer(c, p) + extraEntre(c.id, p.desde, p.fin) - salidaEntre(c.id, p.desde, p.fin); });
-    var usado = sum(dia, function (c) { return u.porCat[c.id] || 0; }) + huerf;
+    var usado = sum(dia, function (c) { return u.caja[c.id] || 0; }) + huerf;
     var prestado = sum(dia, function (c) { return prestadoEntre(c.id, p.desde, p.fin); });
-    return { pres: pres, usado: usado, prestado: prestado, gastado: usado - prestado, queda: pres - usado, uso: u, reservas: reservas };
+    return { pres: pres, usado: usado, prestado: prestado, gastado: usado - prestado, queda: pres - usado, uso: u, reservas: reservas, tarj: u.tarj, tarjDia: tarjDia };
   }
   function esperadoDia() {
     var p = periodoDe(hoy()), q = quedaDia(p), pend = pendientesPeriodo(p), n = perSig(p), nueva = 0, diaPago = n.inicio === hoy();
@@ -1446,6 +1479,11 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
     var r = q.usado / Math.max(1, q.pres * k / N);
     return dia + ' · ' + (r <= 0.85 ? '<b>Va bien</b>' : (r <= 1.1 ? '<b>Va al ritmo</b>' : '<b class="rapido">Va rápido</b>'));
   }
+  function destinoTarjeta(pt) {
+    var ks = Object.keys(pt || {}).filter(function (k) { return pt[k] > 0; });
+    if (ks.length === 1) { var d = S.deudas.filter(function (x) { return x.tarjeta === ks[0]; })[0]; return 'suma a la deuda de ' + (d ? corto(d) : medio(ks[0]).nombre); }
+    return 'suma a la deuda de las tarjetas';
+  }
   function renderHoy() {
     var p = S.per, t = hoy(), actual = t >= p.desde && t <= p.fin, futuro = p.desde > t;
     var q = quedaDia(p), cats = S.cats || [], pres = q.pres, queda = q.queda;
@@ -1461,8 +1499,8 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
       '<div class="cab"><p class="eyebrow">' + esc(eyebrow) + '</p>' + infoBtn('hero', true) + '</div>' +
       '<p class="big' + (queda < 0 ? ' neg' : '') + '">' + big + '</p>' +
       (pres > 0 ? '<div class="hero-bar' + (queda < 0 ? ' neg' : '') + '" role="img" aria-label="Le queda el ' + pct + '%"><i style="width:' + (queda < 0 ? 100 : pct) + '%"></i></div>' : '') +
-      '<p class="meta">' + meta + '</p>' +
-      infoTxt('hero', 'Es la plata del día (alimentación, hormiga y lo que haya en esas categorías) que le queda hasta el próximo pago, del ' + fCorta(p.desde) + ' al ' + fCorta(p.fin) + '. "Va bien" compara lo que lleva gastado con los días que han pasado.') +
+      '<p class="meta">' + meta + '</p>' + (q.tarj > 0 ? '<p class="meta tc-linea">Con tarjeta esta quincena: <b>' + fmt(q.tarj) + '</b> · ' + esc(destinoTarjeta(q.uso.porTarjeta)) + '</p>' : '') +
+      infoTxt('hero', 'Es la plata del día (alimentación, hormiga y lo que haya en esas categorías) que le queda hasta el próximo pago, del ' + fCorta(p.desde) + ' al ' + fCorta(p.fin) + '. Lo que paga con tarjeta de crédito no sale de aquí: se suma a la deuda de la tarjeta y se paga con el extracto. "Va bien" compara lo que lleva gastado con los días que han pasado.') +
       '<div class="stats"><div><span class="k">Gastado</span><span class="v">' + fmt(q.gastado) + '</span></div>' +
       '<div><span class="k">Por asignar</span><span class="v">' + fmt(pa ? saldoReserva(pa) : 0) + '</span></div>' +
       '<div><span class="k">Por cobrar</span><span class="v">' + fmt(porCobrar) + '</span></div></div>' +
@@ -1512,14 +1550,14 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
   function baldosas(p, q) {
     var u = q.uso, cats = S.cats || [], out = [];
     cats.filter(esDia).forEach(function (c) {
-      var g = u.porCat[c.id] || 0, total = presPer(c, p) + extraEntre(c.id, p.desde, p.fin) - salidaEntre(c.id, p.desde, p.fin);
-      if (!(g > 0 || total > 0)) return;
-      out.push({ c: c, val: total - g, total: total, sub: total > 0 ? 'de ' + fmt(total) : 'fuera del plan', pct: total > 0 ? (total - g) / total : 0 });
+      var g = u.caja[c.id] || 0, gt = u.conTarjeta[c.id] || 0, total = presPer(c, p) + extraEntre(c.id, p.desde, p.fin) - salidaEntre(c.id, p.desde, p.fin);
+      if (!(g > 0 || gt > 0 || total > 0)) return;
+      out.push({ c: c, val: total - g, total: total, sub: (total > 0 ? 'de ' + fmt(total) : 'fuera del plan') + (gt ? ' · ' + fmt(gt) + ' con tarjeta' : ''), pct: total > 0 ? (total - g) / total : 0 });
     });
     cats.filter(function (c) { return esReserva(c) && !esEfectivo(c); }).forEach(function (c) { out.push({ c: c, val: saldoReserva(c), sub: 'sin asignar' }); });
     apartadosVisibles().forEach(function (c) { var s = saldoApartado(c), m = Number((c.meta || {}).monto) || 0; out.push({ c: c, val: s, banco: true, sub: m ? 'meta ' + fmt(m) : '', pct: m ? s / m : null }); });
     cats.filter(esEfectivo).forEach(function (c) { var s = saldoReserva(c), m = Number((c.meta || {}).monto) || 0; out.push({ c: c, val: s, efectivo: true, sub: 'en la billetera', pct: m ? s / m : null }); });
-    var huerf = 0; Object.keys(u.porCat).forEach(function (k) { if (!catPorId(k)) huerf += u.porCat[k]; });
+    var huerf = 0; Object.keys(u.caja).forEach(function (k) { if (!catPorId(k)) huerf += u.caja[k]; });
     if (huerf > 0) out.push({ c: { id: '', nombre: 'Sin categoría', color: '#6E6A62', icono: 'etiqueta' }, val: -huerf, sub: 'toque para asignarles una', huerf: true });
     return out;
   }
@@ -1581,13 +1619,13 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
   function leerQA() { var Q = S.qa; if (!Q) return; if ($('qaNota')) Q.nota = $('qaNota').value; if ($('qaFecha')) Q.fecha = $('qaFecha').value || hoy(); if ($('qaMovMonto')) Q.movMonto = $('qaMovMonto').value; if ($('qaCuadrar')) Q.cuadrarVal = $('qaCuadrar').value; }
   function catsParaAnotar(mes) { return (S.cats || []).filter(function (c) { return activo(c) && activaEn(c, mes) && !esEfectivo(c); }); }
   function infoCategoria(c) {
-    var p = periodoDe(S.qa.fecha || hoy()), q = quedaDia(p), g = q.uso.porCat[c.id] || 0, h = '', id = esc(c.id);
+    var p = periodoDe(S.qa.fecha || hoy()), q = quedaDia(p), g = q.uso.caja[c.id] || 0, gt = q.uso.conTarjeta[c.id] || 0, h = '', id = esc(c.id);
     var destinos = [{ v: 'cajita', n: 'Cajita' }].concat((S.cats || []).filter(function (x) { return x.id !== c.id && activo(x) && !esEfectivo(x) && (enDisponible(x) || esApartado(x)) && (presMes(x, mesDe(hoy())) > 0 || esReserva(x) || esApartado(x)); }).map(function (x) { return { v: 'bol:' + x.id, n: x.nombre }; }));
     var real;
     if (esDia(c)) {
       var total = presPer(c, p) + extraEntre(c.id, p.desde, p.fin) - salidaEntre(c.id, p.desde, p.fin);
       real = total - g;
-      h += '<p>Esta quincena: <b>' + fmt(total) + '</b> · gastado <b>' + fmt(g) + '</b> · quedan <b>' + fmt(real) + '</b>.</p>';
+      h += '<p>Esta quincena: <b>' + fmt(total) + '</b> · gastado <b>' + fmt(g) + '</b> · quedan <b>' + fmt(real) + '</b>.</p>' + (gt ? '<p class="hint">Además ' + fmt(gt) + ' con tarjeta: no salen de aquí, suman a la deuda de la tarjeta.</p>' : '');
     } else if (esReserva(c)) { real = saldoReserva(c); h += '<p>Tiene <b>' + fmt(real) + '</b> ' + (esEfectivo(c) ? 'en efectivo.' : 'sin asignar en el saldo disponible.') + '</p>'; }
     else {
       real = saldoApartado(c); var m = c.meta || {}, pr = periodoRitual(), ap = presPer(c, pr), mk = marca(pr.inicio, 'bol:' + c.id);
@@ -1609,7 +1647,7 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
     var h = '<div class="grab"></div>';
     if (Q.desdeBaldosa && c) {
       var p = periodoDe(Q.fecha || hoy()), sub = '';
-      if (esDia(c)) { var q = quedaDia(p), tot = presPer(c, p) + extraEntre(c.id, p.desde, p.fin) - salidaEntre(c.id, p.desde, p.fin); sub = 'Quedan ' + fmt(tot - (q.uso.porCat[c.id] || 0)) + (tot > 0 ? ' de ' + fmt(tot) : ''); }
+      if (esDia(c)) { var q = quedaDia(p), tot = presPer(c, p) + extraEntre(c.id, p.desde, p.fin) - salidaEntre(c.id, p.desde, p.fin); sub = 'Quedan ' + fmt(tot - (q.uso.caja[c.id] || 0)) + (tot > 0 ? ' de ' + fmt(tot) : ''); }
       else if (esReserva(c)) sub = 'Tiene ' + fmt(saldoReserva(c));
       else sub = 'En el banco ' + fmt(saldoApartado(c));
       h += '<div class="qa-head"><span class="ico-cat" style="--c:' + e.c + '">' + svg(e.i, 22) + '</span><h2>' + esc(c.nombre) + '<small>' + sub + '</small></h2>' +
@@ -2703,7 +2741,7 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
       var real = num(Q.cuadrarVal);
       if (esDia(cat)) {
         var p = periodoDe(Q.fecha || hoy()), u = usoEntre(p.desde, p.fin);
-        var nuevo = Math.max(0, real + (u.porCat[cid] || 0) - extraEntre(cid, p.desde, p.fin) + salidaEntre(cid, p.desde, p.fin));
+        var nuevo = Math.max(0, real + (u.caja[cid] || 0) - extraEntre(cid, p.desde, p.fin) + salidaEntre(cid, p.desde, p.fin));
         cerrarQA(); marcar(p.inicio, 'bol:' + cid, { monto: nuevo });
       } else {
         var cats = clone(S.cats || []);

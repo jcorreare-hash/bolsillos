@@ -1,6 +1,6 @@
 /* Cuentas Claras: guarda la app en el celular para que abra sin señal.
    Los datos nunca pasan por aquí: van directo a la hoja de Google. */
-const VERSION = 'cuentas-claras-v8';
+const VERSION = 'cuentas-claras-v8-1';
 const ARCHIVOS = [
   './',
   './index.html',
