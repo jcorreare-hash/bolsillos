@@ -53,7 +53,9 @@
 }
 
 * { box-sizing: border-box; }
-html, body { background: var(--bg); margin: 0; }
+html, body { background: var(--bg); margin: 0; touch-action: manipulation; }
+/* Sin zoom por doble toque: el teclado y los botones responden a cada toque, aunque sean seguidos. */
+button, a, input, select, textarea, label, summary, .hoja, #qa, .teclado { touch-action: manipulation; }
 body {
   color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.45;
   -webkit-text-size-adjust: 100%; -webkit-tap-highlight-color: transparent;
@@ -121,7 +123,7 @@ input[type="text"], input[type="date"], input[type="month"], select, textarea {
   width: 100%; min-width: 0; border: 1px solid var(--line); background: var(--surface); color: var(--ink);
   border-radius: 10px; padding: 10px 11px; min-height: 44px; font: inherit; font-size: 16px;
 }
-textarea { min-height: 96px; resize: vertical; font-family: ui-monospace, Menlo, monospace; font-size: 14px; word-break: break-all; }
+textarea { min-height: 96px; resize: vertical; font-family: ui-monospace, Menlo, monospace; font-size: 16px; word-break: break-all; }
 input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--accent); flex: none; }
 input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 .primary { border: 0; background: var(--accent); color: var(--accent-ink); border-radius: 12px; padding: 14px; min-height: 50px; font: inherit; font-weight: 700; font-size: 1.02rem; cursor: pointer; }
@@ -364,7 +366,7 @@ button:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); 
 .qa .chips .chip { padding: 7px 12px; min-height: 36px; font-size: 0.88rem; }
 .qa-extra { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 9.5em); gap: 8px; }
 .teclado { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
-.teclado button { height: 50px; border-radius: 14px; border: 0; background: var(--bg); color: var(--ink); font: inherit; font-size: 1.45rem; font-weight: 600; cursor: pointer; display: grid; place-items: center; }
+.teclado button { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; height: 50px; border-radius: 14px; border: 0; background: var(--bg); color: var(--ink); font: inherit; font-size: 1.45rem; font-weight: 600; cursor: pointer; display: grid; place-items: center; }
 .teclado button:active { background: var(--surface-2); }
 .seg { display: grid; grid-template-columns: 1fr 1fr; background: var(--surface-2); border-radius: 12px; padding: 3px; gap: 3px; }
 .seg button { border: 0; border-radius: 9px; background: none; font: inherit; font-weight: 700; font-size: 0.92rem; padding: 9px; color: var(--muted); cursor: pointer; }
