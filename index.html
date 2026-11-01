@@ -690,7 +690,7 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
   ];
   var MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
   var DIAS = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
-  var VERSION_APP = '8.1';
+  var VERSION_APP = '8.2';
   var TABS = ['hoy', 'plata', 'pago', 'metas', 'mes', 'ajustes'];
   var COLECCIONES = ['gastos', 'ingresos', 'dias', 'deudas', 'pagos', 'config', 'prestamos', 'abonos', 'cuadres', 'retiros'];
   var LS = { conn: 'bolsillos.conexion', datos: 'bolsillos.datos', cola: 'bolsillos.cola', sync: 'bolsillos.sync', navegador: 'bolsillos.navegador', puente: 'bolsillos.puente', discreto: 'bolsillos.discreto', bloqueo: 'bolsillos.bloqueo' };
@@ -1119,15 +1119,36 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
     if (cj.baseCreado && creado) return creado > cj.baseCreado;
     return fecha > (cj.fechaBase || '0000');
   }
-  function saldoCajita() {
-    var cj = (S.plan && S.plan.cajita) || {}, s = Number(cj.saldoBase) || 0, fb = cj.fechaBase || '0000';
-    Object.keys(S.pagos).forEach(function (k) { if (k <= fb) return; var m = marca(k, 'cajita'); if (m && m.hecho) s += Number(m.monto) || 0; });
-    S.ingresos.forEach(function (i) { if (destinoDe(i) === 'cajita' && despuesDeBase(i.fecha, i.creado, cj)) s += ingADestino(i); });
-    S.prestamos.forEach(function (x) { if (x.origen === 'cajita' && despuesDeBase(x.fecha, x.creado, cj)) s -= Number(x.monto) || 0; });
-    S.abonos.forEach(function (a) { if (a.origen === 'cajita' && despuesDeBase(a.fecha, a.creado, cj)) s -= Number(a.monto) || 0; });
-    S.retiros.forEach(function (r) { if (despuesDeBase(r.fecha, r.creado, cj)) s -= Number(r.monto) || 0; });
-    return s;
+  /* La Cajita rinde cada día: tasa efectiva anual de Nu (se cambia en "Corregir el saldo con la app de Nu"). */
+  var TASA_CAJITA = 9.35;
+  function tasaCajita() { var cj = (S.plan && S.plan.cajita) || {}; var t = cj.tasa != null ? Number(cj.tasa) : TASA_CAJITA; return isFinite(t) && t > 0 ? t : 0; }
+  function crecer(s, dias) { var t = tasaCajita(); return (s > 0 && dias > 0 && t > 0) ? s * Math.pow(1 + t / 100, dias / 365) : s; }
+  function tasaCajTxt(t) { return String(Math.round(t * 100) / 100).replace('.', ','); }
+  function leerTasa(x) {
+    var s = String(x == null ? '' : x).replace(/[%\s]/g, '');
+    if (s.indexOf(',') >= 0) s = s.replace(/\./g, '').replace(',', '.');
+    var v = parseFloat(s); return isFinite(v) && v >= 0 && v <= 40 ? v : null;
   }
+  function movsCajita() {
+    var cj = (S.plan && S.plan.cajita) || {}, fb = cj.fechaBase || '0000', out = [];
+    Object.keys(S.pagos).forEach(function (k) { if (k <= fb) return; var m = marca(k, 'cajita'); if (m && m.hecho) out.push({ f: k, v: Number(m.monto) || 0 }); });
+    S.ingresos.forEach(function (i) { if (destinoDe(i) === 'cajita' && despuesDeBase(i.fecha, i.creado, cj)) out.push({ f: i.fecha, v: ingADestino(i) }); });
+    S.prestamos.forEach(function (x) { if (x.origen === 'cajita' && despuesDeBase(x.fecha, x.creado, cj)) out.push({ f: x.fecha, v: -(Number(x.monto) || 0) }); });
+    S.abonos.forEach(function (a) { if (a.origen === 'cajita' && despuesDeBase(a.fecha, a.creado, cj)) out.push({ f: a.fecha, v: -(Number(a.monto) || 0) }); });
+    S.retiros.forEach(function (r) { if (despuesDeBase(r.fecha, r.creado, cj)) out.push({ f: r.fecha, v: -(Number(r.monto) || 0) }); });
+    return out;
+  }
+  /* Saldo de la Cajita: lo que puso y sacó desde el último saldo real, más los rendimientos de cada día. */
+  function estadoCajita() {
+    var cj = (S.plan && S.plan.cajita) || {}, s = Number(cj.saldoBase) || 0, fb = cj.fechaBase || '0000', t = hoy();
+    var d = fb === '0000' ? t : (fb > t ? t : fb), rend = 0;
+    movsCajita().map(function (e) { var f = e.f < d ? d : e.f; return { f: f > t ? t : f, v: e.v }; })
+      .sort(function (a, b) { return a.f < b.f ? -1 : (a.f > b.f ? 1 : 0); })
+      .forEach(function (e) { var n = crecer(s, diasEntre(d, e.f)); rend += n - s; s = n + e.v; d = e.f; });
+    var fin = crecer(s, diasEntre(d, t)); rend += fin - s;
+    return { saldo: Math.round(fin), rend: Math.round(rend), desde: fb === '0000' ? '' : fb };
+  }
+  function saldoCajita() { return estadoCajita().saldo; }
 
   /* La Cajita en dos partes: primero el colchón; lo que pase de ahí cuenta para la moto. */
   function metaColchon() { var cj = (S.plan && S.plan.cajita) || {}; return Number(cj.meta) || 12000000; }
@@ -1137,13 +1158,14 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
   }
   /* Lo que el plan le deja en la Cajita en cada pago que falta (lo ya marcado en el ritual ya está en el saldo). */
   function proyeccionCajita(n) {
-    var s = saldoCajita(), out = [], q = periodoDe(hoy()), ini = inicioApp();
+    var s = saldoCajita(), out = [], q = periodoDe(hoy()), ini = inicioApp(), d = hoy();
     for (var k = 0; k < 40 && out.length < n; k++, q = perSig(q)) {
       if (q.inicio < ini) continue;
       var mc = marca(q.inicio, 'cajita');
       if (mc && mc.hecho) continue;
       var v = (mc && mc.monto != null) ? Number(mc.monto) : itemsPago(q).cajDef;
-      s += v; out.push({ fecha: q.inicio, aporte: v, saldo: s });
+      if (q.inicio > d) { s = crecer(s, diasEntre(d, q.inicio)); d = q.inicio; }
+      s = Math.round(s + v); out.push({ fecha: q.inicio, aporte: v, saldo: s });
     }
     return out;
   }
@@ -1226,6 +1248,10 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
   function tipoDe(c) { return c.tipo || (c.reembolsable ? 'fondo' : 'dia'); }
   function activo(c) { return c.activo !== false; }
   function esDia(c) { return tipoDe(c) === 'dia' && !c.reembolsable; }
+  function nombresDia() {
+    var p = periodoDe(hoy()), l = (S.cats || []).filter(function (c) { return esDia(c) && presPer(c, p) > 0; }).map(function (c) { return c.nombre.toLowerCase(); });
+    return l.length ? l.join(', ').replace(/, ([^,]*)$/, ' y $1') : 'alimentación y gastos hormiga';
+  }
   function esReserva(c) { return tipoDe(c) === 'reserva'; }
   function enDisponible(c) { return esDia(c) || esReserva(c); }
   function esApartado(c) { var t = tipoDe(c); return t === 'apartado' || t === 'fondo'; }
@@ -1500,7 +1526,7 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
       '<p class="big' + (queda < 0 ? ' neg' : '') + '">' + big + '</p>' +
       (pres > 0 ? '<div class="hero-bar' + (queda < 0 ? ' neg' : '') + '" role="img" aria-label="Le queda el ' + pct + '%"><i style="width:' + (queda < 0 ? 100 : pct) + '%"></i></div>' : '') +
       '<p class="meta">' + meta + '</p>' + (q.tarj > 0 ? '<p class="meta tc-linea">Con tarjeta esta quincena: <b>' + fmt(q.tarj) + '</b> · ' + esc(destinoTarjeta(q.uso.porTarjeta)) + '</p>' : '') +
-      infoTxt('hero', 'Es la plata del día (alimentación, hormiga y lo que haya en esas categorías) que le queda hasta el próximo pago, del ' + fCorta(p.desde) + ' al ' + fCorta(p.fin) + '. Lo que paga con tarjeta de crédito no sale de aquí: se suma a la deuda de la tarjeta y se paga con el extracto. "Va bien" compara lo que lleva gastado con los días que han pasado.') +
+      infoTxt('hero', 'Es la plata del día (' + nombresDia() + ') que le queda hasta el próximo pago, del ' + fCorta(p.desde) + ' al ' + fCorta(p.fin) + '. No es el saldo del banco: allá también están lo que tiene por asignar, la reserva y los pagos de la quincena que no ha hecho; el cuadre de la semana revisa que todo coincida. Lo que paga con tarjeta de crédito no sale de aquí: se suma a la deuda de la tarjeta y se paga con el extracto. "Va bien" compara lo que lleva gastado con los días que han pasado.') +
       '<div class="stats"><div><span class="k">Gastado</span><span class="v">' + fmt(q.gastado) + '</span></div>' +
       '<div><span class="k">Por asignar</span><span class="v">' + fmt(pa ? saldoReserva(pa) : 0) + '</span></div>' +
       '<div><span class="k">Por cobrar</span><span class="v">' + fmt(porCobrar) + '</span></div></div>' +
@@ -2119,12 +2145,13 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
     return h + '</div>';
   }
   function tarjetaCajita() {
-    var saldo = saldoCajita(), mc = metaColchon(), mm = metaMoto(), t = hoy();
+    var ec = estadoCajita(), saldo = ec.saldo, mc = metaColchon(), mm = metaMoto(), t = hoy(), tz = tasaCajita();
     var col = Math.max(0, Math.min(saldo, mc)), pctC = Math.round(col / mc * 100), moto = Math.max(0, saldo - mc);
     var pctM = mm.cajita ? Math.min(100, Math.round(moto / mm.cajita * 100)) : 0;
     var h = '<section class="card">' + cab('La Cajita de Nu', 'cajita') +
-      infoTxt('cajita', 'Todo su ahorro está en una sola Cajita. Primero se llena el colchón (para emergencias y meses sin contrato); lo que pase de ' + fmt(mc) + ' cuenta para la moto. Si saca plata, anótelo con "Saqué de la Cajita": así la app no le pierde la pista.') +
+      infoTxt('cajita', 'Todo su ahorro está en una sola Cajita. Primero se llena el colchón (para emergencias y meses sin contrato); lo que pase de ' + fmt(mc) + ' cuenta para la moto. La app le suma sola los rendimientos de cada día con la tasa de Nu; si la cifra no coincide con Nu, use "Corregir el saldo con la app de Nu". Si saca plata, anótelo con "Saqué de la Cajita": así la app no le pierde la pista.') +
       '<p class="grande">' + fmt(saldo) + '</p>' +
+      (tz ? '<p class="hint" data-rend="1" style="margin-top:-4px">Rinde ' + tasaCajTxt(tz) + '% E.A.: unos ' + fmt(crecer(saldo, 30) - saldo) + ' al mes' + (ec.rend >= 1 && ec.desde ? ' · lleva ' + fmt(ec.rend) + ' desde el ' + fCorta(ec.desde) : '') + '.</p>' : '') +
       '<div class="parte"><div class="fila"><span class="nombre">Colchón</span><span class="cifra">' + fmt(col) + ' / ' + fmt(mc) + '</span></div>' +
       '<div class="barra acc" role="img" aria-label="Colchón: ' + pctC + '% de la meta"><i style="width:' + pctC + '%"></i></div></div>';
     if (mm.total) {
@@ -2162,7 +2189,7 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
         return '<div class="fecha-item"><b>' + fCorta(r.fecha) + '</b><span>' + fmt(r.monto) + ' · ' + esc(r.motivo || 'Sin motivo') + ' · ' + (r.valido === 'si' ? '<span class="delta-ok">Emergencia</span>' : '<span class="delta-mal">No era emergencia</span>') + acc + '</span></div>';
       }).join('') + '</details>';
     }
-    h += '<details data-abre="cajreal"' + (S.abiertos.cajreal ? ' open' : '') + '><summary style="font-size:0.95rem">Corregir el saldo con la app de Nu</summary><div class="row2" style="align-items:end;margin-top:8px"><div><label for="cajReal" class="lbl">Saldo real de hoy en Nu</label><input id="cajReal" type="text" inputmode="numeric" placeholder="$ 0"></div><button type="button" class="sec" data-cajreal="1">Actualizar</button></div></details>';
+    h += '<details data-abre="cajreal"' + (S.abiertos.cajreal ? ' open' : '') + '><summary style="font-size:0.95rem">Corregir el saldo con la app de Nu</summary><div class="row2" style="margin-top:8px"><div><label for="cajReal" class="lbl">Saldo real de hoy en Nu</label><input id="cajReal" type="text" inputmode="numeric" placeholder="$ 0"></div><div><label for="cajTasa" class="lbl">Tasa (% E.A.)</label><input id="cajTasa" type="text" inputmode="decimal" value="' + esc(tasaCajTxt(tz)) + '"></div></div><p class="hint">La tasa sale en la Cajita, en la app de Nu.</p><div class="botones"><button type="button" class="sec" data-cajreal="1">Actualizar</button></div></details>';
     return h + '</section>';
   }
   var PREGUNTAS = [['emergencia', '¿Es una emergencia de verdad?'], ['inevitable', '¿Era inevitable?'], ['urgente', '¿Tenía que ser ya, sin esperar a la próxima quincena?']];
@@ -2990,9 +3017,14 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
       return;
     }
     if (t.closest('[data-cajreal]')) {
-      var v = num(($('cajReal') || {}).value); if (!v) { toast('Escriba el saldo que ve en Nu.'); return; }
-      var plan = clone(S.plan || {}); plan.cajita = Object.assign({}, plan.cajita || {}, { saldoBase: v, fechaBase: hoy(), baseCreado: ahoraISO() });
-      guardar('config', 'plan', plan); toast('Saldo de la Cajita actualizado'); return;
+      var v = num(($('cajReal') || {}).value), tsRaw = String(($('cajTasa') || {}).value || '').trim(), ts = leerTasa(tsRaw);
+      if (tsRaw && ts == null) { toast('Escriba la tasa como la ve en Nu, por ejemplo 9,35.'); return; }
+      var cambiaTasa = ts != null && Math.abs(ts - tasaCajita()) > 0.001;
+      if (!v && !cambiaTasa) { toast('Escriba el saldo que ve en Nu.'); return; }
+      // Sin saldo nuevo, la tasa cambia desde hoy: el saldo de hoy (con lo que ya rindió) queda como base.
+      var plan = clone(S.plan || {}); plan.cajita = Object.assign({}, plan.cajita || {}, { saldoBase: v || saldoCajita(), fechaBase: hoy(), baseCreado: ahoraISO() });
+      if (ts != null) plan.cajita.tasa = ts;
+      guardar('config', 'plan', plan); toast(v ? 'Saldo de la Cajita actualizado' : 'Tasa de la Cajita actualizada: ' + tasaCajTxt(ts) + '% E.A.'); return;
     }
     if ((b = t.closest('[data-deuda-editar]'))) { S.editDeuda = b.getAttribute('data-deuda-editar'); S.confirmDeuda = null; S.pagoDeuda = null; render(); return; }
     if ((b = t.closest('[data-deuda-quitar]'))) { S.confirmDeuda = b.getAttribute('data-deuda-quitar'); S.editDeuda = null; S.pagoDeuda = null; render(); return; }
