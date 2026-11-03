@@ -150,6 +150,14 @@ input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px
 /* Conectar */
 .conectar { display: grid; gap: 16px; padding-top: 8px; }
 .conectar ol { margin: 0; padding-left: 1.2em; display: grid; gap: 6px; }
+.ini-fila { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 7em); gap: 8px; align-items: end; padding-top: 12px; margin-top: 4px; border-top: 1px solid var(--line); }
+.ini-fila .ancho { grid-column: 1 / -1; }
+.ini-fila.dos { grid-template-columns: minmax(0, 1fr) minmax(0, 9em); border-top: 0; margin-top: 0; padding-top: 8px; }
+.ini-deuda { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; padding-top: 12px; border-top: 1px solid var(--line); }
+.ini-deuda .ancho { grid-column: 1 / -1; }
+.ini-fila label, .ini-deuda label { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; display: grid; gap: 4px; min-width: 0; }
+.guia ol { margin: 8px 0 0; padding-left: 1.2em; display: grid; gap: 10px; font-size: 0.93rem; }
+.guia code { font-size: 0.86em; background: var(--surface-2); padding: 1px 5px; border-radius: 6px; }
 .logo { width: 72px; height: 72px; border-radius: 17px; }
 .lema { color: var(--muted); font-style: italic; }
 
@@ -470,12 +478,35 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
     </div>
     <form id="formConectar" class="card" autocomplete="off" novalidate>
       <h2>Conecte la app con su hoja</h2>
-      <p class="hint">Abra la app de Google Sheets, entre a su hoja de datos, pestaña <b>conexion</b>, y copie la celda A2.</p>
+      <p class="hint">Abra su hoja de Google, pestaña <b>conexion</b>, y copie la celda A2. Si todavía no tiene hoja, abra la guía de abajo.</p>
       <div><label for="codigo" class="lbl">Código de conexión</label><textarea id="codigo" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="Pegue aquí el código"></textarea></div>
       <p id="conectarError" class="aviso error" hidden></p>
       <button type="submit" class="primary" id="btnConectar">Conectar</button>
     </form>
+    <details class="card guia" id="guiaConectar">
+      <summary><b>¿Primera vez? Así crea y conecta su hoja</b></summary>
+      <p class="hint">Unos 10 minutos, mejor desde un computador. Cada persona tiene su propia hoja: sus registros nunca se mezclan con los de nadie.</p>
+      <ol>
+        <li><b>Use su cuenta personal de Google</b>, no la del trabajo: en una cuenta de la empresa, los administradores pueden ver sus archivos.</li>
+        <li>Entre a <b>sheets.new</b> para crear una hoja en blanco y póngale de nombre <b>Cuentas Claras</b>.</li>
+        <li>En el menú de la hoja, <b>Extensiones › Apps Script</b>. Borre lo que aparece, pegue el código del puente y toque <b>Guardar</b>.<br><button type="button" class="sec" data-copiar-guia="puente" style="margin-top:8px">Copiar el código del puente</button></li>
+        <li>Arriba a la derecha, <b>Implementar › Nueva implementación</b>. En el engranaje elija <b>Aplicación web</b>. En "Ejecutar como" deje <b>Yo</b> y en "Quién tiene acceso" elija <b>Cualquier persona</b>. Toque <b>Implementar</b>.</li>
+        <li>Google le pide permiso: <b>Autorizar acceso</b> y elija su cuenta. Si sale "Google no verificó esta app", toque <b>Configuración avanzada › Ir a… › Permitir</b>. Es su propio código, en su propia cuenta.</li>
+        <li>En Apps Script, en la barra de arriba, elija la función <code>crearCodigo</code> y toque <b>Ejecutar</b>. Si le dice que no encontró el enlace, copie la URL de la aplicación web (termina en <code>/exec</code>), péguela en la celda <b>C2</b> de la pestaña <b>conexion</b> de su hoja y vuelva a ejecutar.</li>
+        <li>En su hoja, pestaña <b>conexion</b>, copie la celda <b>A2</b> y péguela arriba, en "Código de conexión". En el celular puede abrirla con la app de Google Sheets.</li>
+      </ol>
+      <p class="hint">Ese código es la llave de sus datos: no se lo pase a nadie.</p>
+      <h3>¿Se enreda? Pídale ayuda a su Claude</h3>
+      <p class="hint">Copie este mensaje y péguelo en Claude: le explica la app y le ayuda paso a paso a conectarla y a armar su plan, sin pedirle claves.</p>
+      <button type="button" class="sec" data-copiar-guia="prompt">Copiar mensaje para Claude</button>
+      <textarea id="guiaCopia" readonly hidden aria-label="Texto para copiar" style="margin-top:8px;min-height:9em"></textarea>
+    </details>
   </section>
+</div>
+
+<!-- EMPEZAR: la primera vez, con una hoja nueva -->
+<div class="app" id="pantallaInicio" hidden>
+  <section class="conectar" id="inicioBody"></section>
 </div>
 
 <!-- APP -->
@@ -526,7 +557,7 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
   <!-- PLATA -->
   <section id="tab-plata" class="tab" hidden>
     <div id="plataResumen" class="resumen"><p class="eyebrow">Entró extra</p><p class="big">$ —</p></div>
-    <p id="puenteAviso" class="aviso error" hidden>Para guardar ingresos y préstamos falta actualizar el puente de su hoja. Los pasos están en el chat con Claude.</p>
+    <p id="puenteAviso" class="aviso error" hidden>Para guardar ingresos y préstamos falta actualizar el puente de su hoja: vuelva a pegar el código del puente en Apps Script y publique una versión nueva.</p>
 
     <form id="formIngreso" class="card" autocomplete="off" novalidate>
       <div class="cab"><h2>Registrar un ingreso</h2><span id="ingInfoBtn"></span></div>
@@ -632,7 +663,7 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
       </div>
       <details id="atajoDatos">
         <summary>Datos para el atajo de iPhone</summary>
-        <p class="hint">Para el atajo "Anotar gasto" de la app Atajos. Copie cada dato y péguelo donde dice la guía. No comparta el atajo con nadie: lleva su clave.</p>
+        <p class="hint">Para el atajo "Anotar gasto" de la app Atajos. Copie cada dato y péguelo en la acción "Obtener contenido de URL" del atajo. No comparta el atajo con nadie: lleva su clave.</p>
         <div class="botones"><button type="button" class="sec" data-copiar="u">Copiar enlace del puente</button><button type="button" class="sec" data-copiar="k">Copiar clave</button></div>
         <input type="text" id="atajoCopia" readonly aria-label="Dato copiado" hidden>
       </details>
@@ -681,16 +712,24 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
 (function () {
   'use strict';
 
-  var MEDIOS = [
+  var MEDIOS_BASE = [
     { id: 'debito', nombre: 'Débito / bolsillo' },
     { id: 'nequi', nombre: 'Transferencia' },
-    { id: 'efectivo', nombre: 'Efectivo' },
-    { id: 'tc_nu', nombre: 'Tarjeta Nu', tarjeta: true },
-    { id: 'tc_amex', nombre: 'Tarjeta Amex', tarjeta: true }
+    { id: 'efectivo', nombre: 'Efectivo' }
   ];
+  var MEDIOS = MEDIOS_BASE.slice();
+  /* Las tarjetas de crédito salen de las deudas que tienen "tarjeta": cada una es un medio de pago. */
+  function armarMedios() {
+    // Primero la tarjeta que más usa (por número de gastos); a igual uso, el orden de las deudas.
+    var usos = {}; (S.gastos || []).forEach(function (g) { usos[g.medio] = (usos[g.medio] || 0) + 1; });
+    var tcs = (S.deudas || []).filter(function (d) { return d.tarjeta; }).map(function (d, i) { return { id: d.tarjeta, nombre: d.alias || d.nombre, tarjeta: true, n: usos[d.tarjeta] || 0, i: i }; });
+    tcs.sort(function (a, b) { return b.n - a.n || a.i - b.i; });
+    MEDIOS = MEDIOS_BASE.concat(tcs.map(function (m) { return { id: m.id, nombre: m.nombre, tarjeta: true }; }));
+  }
+  function tarjetas() { return MEDIOS.filter(function (m) { return m.tarjeta; }); }
   var MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
   var DIAS = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
-  var VERSION_APP = '8.2';
+  var VERSION_APP = '9.0';
   var TABS = ['hoy', 'plata', 'pago', 'metas', 'mes', 'ajustes'];
   var COLECCIONES = ['gastos', 'ingresos', 'dias', 'deudas', 'pagos', 'config', 'prestamos', 'abonos', 'cuadres', 'retiros'];
   var LS = { conn: 'bolsillos.conexion', datos: 'bolsillos.datos', cola: 'bolsillos.cola', sync: 'bolsillos.sync', navegador: 'bolsillos.navegador', puente: 'bolsillos.puente', discreto: 'bolsillos.discreto', bloqueo: 'bolsillos.bloqueo' };
@@ -757,7 +796,7 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
   function num(s) { return parseInt(String(s == null ? '' : s).replace(/\D/g, ''), 10) || 0; }
   function miles(n) { return n ? Math.round(Number(n)).toLocaleString('es-CO') : ''; }
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
-  function medio(id) { for (var i = 0; i < MEDIOS.length; i++) if (MEDIOS[i].id === id) return MEDIOS[i]; return { id: id, nombre: id || 'Sin medio' }; }
+  function medio(id) { for (var i = 0; i < MEDIOS.length; i++) if (MEDIOS[i].id === id) return MEDIOS[i]; return { id: id, nombre: id ? String(id).replace(/^tc_/, 'Tarjeta ') : 'Sin medio', tarjeta: /^tc_/.test(id || '') }; }
   function sum(arr, f) { var t = 0; arr.forEach(function (x) { t += Number(f ? f(x) : x) || 0; }); return t; }
   function clone(o) { return JSON.parse(JSON.stringify(o)); }
   function nuevoId() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
@@ -815,6 +854,7 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
     var p = {}; D.pagos.forEach(function (d) { p[d.id] = d; }); S.pagos = p;
     var di = {}; D.dias.forEach(function (d) { di[d.id] = d; }); S.dias = di;
     S.deudas = D.deudas.slice().sort(function (a, b) { return (a.orden || 0) - (b.orden || 0); });
+    armarMedios();
     S.cargado = true;
   }
   function aplicarLocal(op) {
@@ -824,116 +864,7 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
     var doc = Object.assign({}, op.doc, { id: op.id });
     if (i >= 0) arr[i] = doc; else arr.push(doc);
   }
-  /* Una sola vez, con los datos reales de la hoja (acordado con Jorge el 24 de octubre de 2026):
-     - Vida social acumula: lo que no se gasta pasa a la siguiente quincena (vive en el disponible).
-     - La Nmax pasa a ser el bolsillo "Transporte y mantenimiento" del banco (gasolina, aceite, mantenimiento y papeles).
-     - La caja menor es un fondo fijo de $200.000 que se repone con reembolsos, no con el sueldo.
-     - Tokens y Suscripciones dejan de ser bolsillos: las suscripciones se pagan como fijo con la tarjeta Nu. */
-  function migrarA3() {
-    if (!S.plan || (Number(S.plan.esquema) || 1) >= 3 || !S.cats || !S.cats.length) return;
-    var out = S.cats.map(function (c0) {
-      var c = clone(c0);
-      if (c.id === 'nmax') return Object.assign(c, { nombre: 'Transporte y mantenimiento', tipo: 'apartado', presupuesto: 175000, primera: 87500,
-        porMes: { '2026-10': 327740, '2026-11': 327740, '2026-12': 327740, '2027-01': 327740 },
-        meta: { monto: 700000, fecha: '2027-01-20', texto: 'papeles de la moto (SOAT y tecnomecánica)' } });
-      if (c.id === 'vida-social') return Object.assign(c, { tipo: 'reserva', presupuesto: 600000, primera: 300000, fechaBase: '2026-10-14' });
-      if (c.id === 'tokens' || c.id === 'suscripciones') return Object.assign(c, { tipo: 'dia', presupuesto: 0, activo: false });
-      if (c.reembolsable) { delete c.primera; return Object.assign(c, { tipo: 'fondo', presupuesto: 0, meta: { monto: 200000, texto: 'fondo fijo para adelantos del trabajo' } }); }
-      return Object.assign({ tipo: 'dia' }, c);
-    });
-    var plan = clone(S.plan);
-    (plan.fijos || []).forEach(function (f) { if (f.id === 'nu') f.nombre = 'Tarjeta Nu (suscripciones)'; });
-    plan.esquema = 3;
-    guardar('config', 'presupuesto', { categorias: out });
-    guardar('config', 'plan', plan);
-  }
-  /* Esquema 4 (24 oct 2026): "Por asignar" para la plata del disponible que todavía no tiene uso,
-     y Suscripciones inactiva (ya se pagan como fijo con la tarjeta Nu). */
-  function migrarA4() {
-    if (!S.plan || (Number(S.plan.esquema) || 1) !== 3 || !S.cats || !S.cats.length) return;
-    var out = S.cats.map(function (c0) { var c = clone(c0); if (c.id === 'suscripciones') c.activo = false; return c; });
-    if (!out.some(function (c) { return c.id === 'por-asignar' || c.id === 'saldo-normal'; })) out.push({ id: 'por-asignar', nombre: 'Por asignar', presupuesto: 0, reembolsable: false, tipo: 'reserva', saldoBase: 0, fechaBase: hoy(), baseCreado: ahoraISO() });
-    guardar('config', 'presupuesto', { categorias: out });
-    guardar('config', 'plan', Object.assign({}, S.plan, { esquema: 4 }));
-  }
-  /* Esquema 5 (24 oct 2026, lo acordado con Jorge en el chat):
-     - Efectivo de reserva: $100.000 fijos en la billetera; se completan con el próximo pago.
-     - PILA de enero de 2027 sobre el mínimo (paga mes en curso; si al 22 de enero no hay contrato, marca el retiro al 31).
-     - La Cajita en dos partes: colchón de $12.000.000 y moto grande ($70.000.000 menos lo que ponga la Nmax).
-     - Modo protección para enero sin contrato y orden de la plata extra (80/20). */
-  function migrarA5() {
-    if (!S.plan || (Number(S.plan.esquema) || 1) !== 4 || !S.cats || !S.cats.length) return;
-    var q = periodoDe(hoy()), mc = marca(q.inicio, 'cajita');
-    if (q.inicio < hoy() || (mc && mc.hecho)) q = perSig(q);
-    var out = S.cats.map(function (c0) { var c = clone(c0); if (c.id === 'saldo-normal' && /saldo normal/i.test(c.nombre || '')) c.nombre = 'Por asignar'; return c; });
-    var nuevoEf = !out.some(function (c) { return c.efectivo; });
-    if (nuevoEf) out.push({ id: 'efectivo-reserva', nombre: 'Efectivo de reserva', presupuesto: 0, reembolsable: false, tipo: 'reserva', efectivo: true, meta: { monto: 100000 }, saldoBase: 0, fechaBase: addDias(q.inicio, -1), baseCreado: ahoraISO() });
-    var plan = clone(S.plan);
-    plan.fijos = plan.fijos || [];
-    if (!plan.fijos.some(function (f) { return f.id === 'pila-ene27'; })) plan.fijos.push({ id: 'pila-ene27', nombre: 'PILA de enero (sobre el mínimo)', monto: 521800, dia: 15, desde: '2027-01', hasta: '2027-01' });
-    plan.cajita = Object.assign({ meta: 12000000 }, plan.cajita || {});
-    if (!plan.cajita.moto) plan.cajita.moto = { monto: 70000000, abono: 11000000, texto: 'Moto grande' };
-    if (!plan.proteccion) plan.proteccion = { activo: false, topes: { 'vida-social': 200000, 'nmax': 100000, 'hormiga': 80000 } };
-    if (!plan.reparto) plan.reparto = { pct: 20, gusto: 'bol:vida-social', fase2: '2027-02-01', escalera: ['amex', 'icetex'] };
-    plan.fechas = plan.fechas || [];
-    if (!plan.fechas.some(function (f) { return f.fecha === '2027-01-22'; })) plan.fechas.push({ fecha: '2027-01-22', texto: 'Si no hay contrato: active el modo protección en Metas y marque el retiro de la PILA al 31 de enero' });
-    plan.esquema = 5;
-    guardar('config', 'presupuesto', { categorias: out });
-    guardar('config', 'plan', plan);
-    if (nuevoEf) marcar(q.inicio, 'bol:efectivo-reserva', { monto: 100000 });
-  }
-  /* Esquema 6 (24 oct 2026): suscripciones y gastos del año. */
-  function migrarA6() {
-    if (!S.plan || (Number(S.plan.esquema) || 1) !== 5) return;
-    var plan = clone(S.plan);
-    if (!Array.isArray(plan.suscripciones)) plan.suscripciones = [
-      { id: 'netflix', nombre: 'Netflix', monto: 44900, dia: 12, medio: 'tc_nu', desde: '2026-10-01' },
-      { id: 'apple-music', nombre: 'Apple Music Familiar', monto: 30500, dia: 10, medio: 'tc_nu', desde: '2026-10-01' },
-      { id: 'icloud', nombre: 'iCloud+ 200 GB', monto: 12900, dia: 2, medio: 'tc_nu', desde: '2026-10-01' },
-      { id: 'google-ia', nombre: 'Google One (IA)', monto: 20000, dia: 22, medio: 'tc_nu', desde: '2026-10-01', sube: { fecha: '2026-12-22', monto: 80000 } }
-    ];
-    if (!Array.isArray(plan.anuales)) plan.anuales = catPorId('nmax') ? [{ id: 'soat-nmax', nombre: 'SOAT y tecnomecánica de la Nmax', monto: 700000, fecha: '2027-01-27', anual: true, bolsillo: 'nmax', desde: '2026-10' }] : [];
-    plan.esquema = 6;
-    guardar('config', 'plan', plan);
-  }
-  /* Esquema 7 (24 oct 2026): la línea celular de $7.500 en la Nu (se cobra el 19). */
-  function migrarA7() {
-    if (!S.plan || (Number(S.plan.esquema) || 1) !== 6) return;
-    var plan = clone(S.plan); plan.suscripciones = Array.isArray(plan.suscripciones) ? plan.suscripciones : [];
-    if (!plan.suscripciones.some(function (x) { return /l[ií]nea/i.test(x.nombre || ''); })) plan.suscripciones.push({ id: 'linea-celular', nombre: 'Línea celular', monto: 7500, dia: 19, medio: 'tc_nu', desde: '2026-10-24' });
-    plan.esquema = 7;
-    guardar('config', 'plan', plan);
-  }
-  /* Esquema 8 (25 oct 2026): las compras con tarjeta ya no salen de la plata del día. Los cuadres hechos antes las habían
-     restado, así que se corrige la diferencia que dejaron (para que "Le queda" siga igual a la plata real). */
-  function migrarA8() {
-    if (!S.plan || (Number(S.plan.esquema) || 1) !== 7) return;
-    var plan = clone(S.plan);
-    S.cuadres.slice().forEach(function (c) {
-      if (!c.creado) return;
-      var p = periodoDe(c.fecha), tc = new Date(c.creado).getTime();
-      var tarj = sum(S.gastos.filter(function (g) {
-        if (!medio(g.medio).tarjeta || g.fecha < p.desde || g.fecha > c.fecha) return false;
-        var cat = catPorId(g.categoria); if (cat && !esDia(cat)) return false;
-        var tg = new Date(g.creado || (g.fecha + 'T00:00:00')).getTime();
-        return !(tg > tc);
-      }), function (g) { return Number(g.monto) || 0; });
-      if (!tarj) return;
-      var dif = Number(c.diferencia) || 0, nueva = dif - tarj;
-      var aj = S.ingresos.filter(function (i) { return i.tipo === 'ajuste' && i.creado === c.creado; })[0];
-      var gd = S.gastos.filter(function (g) { return g.creado === c.creado && /Diferencia del cuadre/.test(g.nota || ''); })[0];
-      if (aj) borrar('ingresos', aj.id);
-      if (gd) borrar('gastos', gd.id);
-      if (aj || gd) {
-        if (nueva >= 2000) guardar('ingresos', aj ? aj.id : nuevoId(), { fecha: c.fecha, mes: mesDe(c.fecha), monto: nueva, tipo: 'ajuste', destino: aj ? aj.destino : 'bol:' + catSinDetalle(), concepto: 'Diferencia del cuadre', creado: c.creado });
-        else if (nueva <= -2000) guardar('gastos', gd ? gd.id : nuevoId(), { fecha: c.fecha, mes: mesDe(c.fecha), monto: -nueva, categoria: catSinDetalle(), medio: 'efectivo', nota: 'Diferencia del cuadre (sin detalle)', creado: c.creado });
-      }
-      guardar('cuadres', c.id, Object.assign({}, c, { esperado: (Number(c.esperado) || 0) + tarj, diferencia: nueva }));
-    });
-    plan.esquema = 8;
-    guardar('config', 'plan', plan);
-  }
-  function migrar() { migrarA3(); migrarA4(); migrarA5(); migrarA6(); migrarA7(); migrarA8(); registrarHistorial(); }
+  function migrar() { registrarHistorial(); }
   /* Lo que tiene menos lo que debe, una foto por mes (se actualiza como mucho una vez al día). */
   function patrimonio() {
     var tiene = saldoCajita() + sum(apartadosVisibles(), saldoApartado) + esperadoDia().total;
@@ -1021,6 +952,13 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
   }
 
   /* ---------- Utilidades del modelo ---------- */
+  /* Nombres de cada persona (su banco, dónde ahorra): se escogen en la configuración inicial y viven en plan.app. */
+  function appCfg() { return (S.plan && S.plan.app) || {}; }
+  function banco() { return String(appCfg().banco || '').trim(); }
+  function enBanco() { return banco() ? 'en ' + banco() : 'en el banco'; }
+  function delBanco() { return banco() ? 'de ' + banco() : 'del banco'; }
+  function nombreAhorro() { return String(appCfg().ahorro || '').trim() || 'Cajita de ahorro'; }
+  function entidadAhorro() { return String(appCfg().entidad || '').trim() || 'su banco'; }
   function catPorId(id) { var c = S.cats || []; for (var i = 0; i < c.length; i++) if (c[i].id === id) return c[i]; return null; }
   function activaEn(c, mes) { return !(c.soloMeses && c.soloMeses.length && c.soloMeses.indexOf(mes) < 0); }
   function presMes(c, mes) { if (c.anual) return provisionesMes(c.id, mes); if (!activaEn(c, mes)) return 0; var o = c.porMes && c.porMes[mes]; return Number(o != null ? o : c.presupuesto) || 0; }
@@ -1119,8 +1057,8 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
     if (cj.baseCreado && creado) return creado > cj.baseCreado;
     return fecha > (cj.fechaBase || '0000');
   }
-  /* La Cajita rinde cada día: tasa efectiva anual de Nu (se cambia en "Corregir el saldo con la app de Nu"). */
-  var TASA_CAJITA = 9.35;
+  /* La Cajita rinde cada día a su tasa efectiva anual (plan.cajita.tasa; se cambia en "Corregir el saldo"). Sin tasa, no rinde. */
+  var TASA_CAJITA = 0;
   function tasaCajita() { var cj = (S.plan && S.plan.cajita) || {}; var t = cj.tasa != null ? Number(cj.tasa) : TASA_CAJITA; return isFinite(t) && t > 0 ? t : 0; }
   function crecer(s, dias) { var t = tasaCajita(); return (s > 0 && dias > 0 && t > 0) ? s * Math.pow(1 + t / 100, dias / 365) : s; }
   function tasaCajTxt(t) { return String(Math.round(t * 100) / 100).replace('.', ','); }
@@ -1151,10 +1089,10 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
   function saldoCajita() { return estadoCajita().saldo; }
 
   /* La Cajita en dos partes: primero el colchón; lo que pase de ahí cuenta para la moto. */
-  function metaColchon() { var cj = (S.plan && S.plan.cajita) || {}; return Number(cj.meta) || 12000000; }
+  function metaColchon() { var cj = (S.plan && S.plan.cajita) || {}; return Number(cj.meta) || Math.max(1000000, Math.round(costoMes(false) * 3 / 100000) * 100000); }
   function metaMoto() {
     var m = ((S.plan && S.plan.cajita) || {}).moto || {}, total = Number(m.monto) || 0, abono = Number(m.abono) || 0;
-    return { total: total, abono: abono, cajita: Math.max(0, total - abono), texto: m.texto || 'Moto grande' };
+    return { total: total, abono: abono, cajita: Math.max(0, total - abono), texto: m.texto || 'Meta grande', abonoTexto: m.abonoTexto || 'otros ahorros' };
   }
   /* Lo que el plan le deja en la Cajita en cada pago que falta (lo ya marcado en el ritual ya está en el saldo). */
   function proyeccionCajita(n) {
@@ -1197,8 +1135,13 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
     });
     return tot;
   }
-  /* Orden de la plata extra: el 80% va al primer paso que falte; hasta enero de 2027, todo al colchón. */
-  function reparto() { return Object.assign({ pct: 20, gusto: 'bol:vida-social', fase2: '2027-02-01', escalera: ['amex', 'icetex'] }, (S.plan && S.plan.reparto) || {}); }
+  /* Orden de la plata extra: el 80% va al primer paso que falte. Con "fase2", hasta esa fecha todo va al colchón.
+     Si el plan no dice el orden de las deudas, van primero las de interés más alto. */
+  function reparto() {
+    var r = Object.assign({ pct: 20, gusto: '', fase2: '', escalera: [] }, (S.plan && S.plan.reparto) || {});
+    if (!r.escalera || !r.escalera.length) r.escalera = S.deudas.slice().sort(function (a, b) { return (Number(b.tasa) || 0) - (Number(a.tasa) || 0) || (a.orden || 0) - (b.orden || 0); }).map(function (d) { return d.id; });
+    return r;
+  }
   function escalera() {
     var s = saldoCajita(), mc = metaColchon(), mm = metaMoto(), pasos = [];
     pasos.push({ id: 'colchon', nombre: 'Colchón de ' + fmt(mc), listo: s >= mc, dest: 'cajita', destNombre: 'la Cajita (colchón)', detalle: s >= mc ? 'Completo' : 'Lleva ' + fmt(Math.max(0, s)) + ' · faltan ' + fmt(mc - Math.max(0, s)) });
@@ -1208,7 +1151,7 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
       pasos.push({ id: id, nombre: d.nombre, listo: sd <= 0, dest: 'deuda:' + id, destNombre: d.nombre, detalle: sd > 0 ? 'Debe ' + fmt(sd) : 'Pagada' });
     });
     var am = Math.max(0, s - mc);
-    if (mm.total) pasos.push({ id: 'moto', nombre: mm.texto, listo: am >= mm.cajita, dest: 'cajita', destNombre: 'la Cajita (moto)', detalle: fmt(am) + ' de ' + fmt(mm.cajita) });
+    if (mm.total) pasos.push({ id: 'moto', nombre: mm.texto, listo: am >= mm.cajita, dest: 'cajita', destNombre: 'la Cajita (' + mm.texto.toLowerCase() + ')', detalle: fmt(am) + ' de ' + fmt(mm.cajita) });
     return pasos;
   }
   function prioridadExtra(fecha) {
@@ -1454,6 +1397,8 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
   /* ---------- Render ---------- */
   function render() {
     if (!CONN || !D) return;
+    if (esHojaNueva()) { mostrarInicio(); return; }
+    if (!$('pantallaInicio').hidden) { $('pantallaInicio').hidden = true; $('pantallaApp').hidden = false; $('tabbar').hidden = false; }
     TABS.forEach(function (t) {
       $('tab-' + t).hidden = t !== S.tab;
       var b = document.querySelector('[data-tab="' + t + '"]');
@@ -1596,9 +1541,9 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
         '<span><span class="b-nom">' + esc(x.c.nombre) + '</span><span class="b-val">' + fmt(x.val) + '</span>' + (x.sub ? '<span class="b-sub">' + x.sub + '</span>' : '') +
         (pct != null ? '<span class="barra"><i style="width:' + pct + '%"></i></span>' : '') + '</span></button>';
     }).join('');
-    html += '<button type="button" class="baldosa oscura" data-ir="metas" aria-label="Cajita de Nu, ' + fmt(saldoCajita()) + '"><span class="b-top">' + svg('cajita', 24) + '</span><span><span class="b-nom">Cajita de Nu</span><span class="b-val">' + fmt(saldoCajita()) + '</span><span class="b-sub">colchón ' + Math.max(0, Math.min(100, Math.round(saldoCajita() / metaColchon() * 100))) + '%</span></span></button>';
+    html += '<button type="button" class="baldosa oscura" data-ir="metas" aria-label="' + esc(nombreAhorro()) + ', ' + fmt(saldoCajita()) + '"><span class="b-top">' + svg('cajita', 24) + '</span><span><span class="b-nom">' + esc(nombreAhorro()) + '</span><span class="b-val">' + fmt(saldoCajita()) + '</span><span class="b-sub">colchón ' + Math.max(0, Math.min(100, Math.round(saldoCajita() / metaColchon() * 100))) + '%</span></span></button>';
     setHTML($('plataCab'), '<div class="sec-head" style="margin-bottom:8px"><div class="cab" style="flex:1"><h2>Su plata</h2>' + infoBtn('mosaico') + '</div><span class="num">' + (q.pres ? 'Quincena ' + fmt(q.pres) : '') + '</span></div>' +
-      infoTxt('mosaico', 'Toque una baldosa para anotar un gasto ahí o ver sus opciones (cuadrar, mover plata). Las que dicen BANCO son sus bolsillos de Bancolombia; las demás están juntas en el saldo disponible. Lo que dice cada una es lo que le queda.'));
+      infoTxt('mosaico', 'Toque una baldosa para anotar un gasto ahí o ver sus opciones (cuadrar, mover plata). Las que dicen BANCO son sus bolsillos ' + esc(delBanco()) + '; las demás están juntas en el saldo disponible. Lo que dice cada una es lo que le queda.'));
     setHTML($('mosaico'), html);
   }
 
@@ -1626,7 +1571,7 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
     var f = hoy();
     guardar('ingresos', nuevoId(), { fecha: f, mes: mesDe(f), monto: b.monto, tipo: 'barrido', destino: dest, concepto: 'Sobrante de la quincena del ' + perLabel(b.prev), creado: ahoraISO() });
     marcar(b.prev.inicio, 'barrido', { hecho: true, monto: b.monto, destino: dest });
-    toast(dest === 'cajita' ? 'Pase ' + fmt(b.monto) + ' a la Cajita de Nu' : fmt(b.monto) + ' quedaron en Por asignar');
+    toast(dest === 'cajita' ? 'Pase ' + fmt(b.monto) + ' a la ' + nombreAhorro() : fmt(b.monto) + ' quedaron en Por asignar');
   }
 
   /* ---------- Hoja para anotar: teclado, categoría, medio. Dos o tres toques. ---------- */
@@ -1655,7 +1600,7 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
     } else if (esReserva(c)) { real = saldoReserva(c); h += '<p>Tiene <b>' + fmt(real) + '</b> ' + (esEfectivo(c) ? 'en efectivo.' : 'sin asignar en el saldo disponible.') + '</p>'; }
     else {
       real = saldoApartado(c); var m = c.meta || {}, pr = periodoRitual(), ap = presPer(c, pr), mk = marca(pr.inicio, 'bol:' + c.id);
-      h += '<p>En el bolsillo de Bancolombia: <b>' + fmt(real) + '</b>' + (Number(m.monto) ? ' · meta ' + fmt(m.monto) + (m.fecha ? ' para el ' + fCorta(m.fecha) : '') : '') + '.</p>';
+      h += '<p>En el bolsillo ' + esc(delBanco()) + ': <b>' + fmt(real) + '</b>' + (Number(m.monto) ? ' · meta ' + fmt(m.monto) + (m.fecha ? ' para el ' + fCorta(m.fecha) : '') : '') + '.</p>';
       if (ap > 0) h += '<p class="hint">Aporte de la quincena: ' + fmt(ap) + (mk && mk.hecho ? ' ✓' : ' (en el ritual de Pago)') + '.</p>';
       if (c.reembolsable) h += '<p class="hint">Fondo fijo: se repone con los reembolsos, en Plata.</p>';
     }
@@ -1787,14 +1732,14 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
     var h = '<div class="fila"><h2>Cuadre de la semana</h2><button type="button" class="link" data-cuadre-cancelar="1">Cerrar</button></div>' +
       '<p class="hint">Mire sus apps del banco y escriba lo que ve hoy. Lo que deje en blanco no se cambia.</p>' +
       (e.diaPago ? '<p class="aviso">Hoy es día de pago. Si ya le entró la plata, haga primero el ritual en la pestaña Pago y vuelva al cuadre; si todavía no entra, siga normal.</p>' : '') +
-      '<h3>1 · Su plata del día</h3><div class="row2">' + campoCuadre('cq-dispo', 'Saldo disponible Bancolombia') + campoCuadre('cq-efectivo', 'Efectivo (todo lo que tenga)') + '</div>';
+      '<h3>1 · Su plata del día</h3><div class="row2">' + campoCuadre('cq-dispo', 'Saldo disponible ' + (banco() ? banco() : 'en el banco')) + campoCuadre('cq-efectivo', 'Efectivo (todo lo que tenga)') + '</div>';
     if (e.pendientes.length) {
       h += '<h3>2 · ¿Ya hizo esto de la quincena?</h3><p class="hint">Mientras no lo marque, la app cuenta esa plata como si siguiera en el disponible.</p>' +
         e.pendientes.map(function (x) { return '<div class="fila" style="align-items:center"><span>' + esc(x.nombre) + ' · <b class="num">' + fmt(x.monto) + '</b></span><button type="button" class="link fuerte" data-cuadre-hecho="' + esc(x.key) + '" data-ini="' + esc(x.ini) + '" data-monto-hecho="' + x.monto + '">Ya lo hice</button></div>'; }).join('');
     }
     h += '<h3>' + (e.pendientes.length ? '3' : '2') + ' · Apartados y Cajita</h3>' +
       vis.map(function (c) { return campoCuadre('cq-ap-' + c.id, c.nombre, 'La app calcula ' + fmt(saldoApartado(c))); }).join('') +
-      campoCuadre('cq-cajita', 'Cajita de Nu', 'La app calcula ' + fmt(saldoCajita())) +
+      campoCuadre('cq-cajita', nombreAhorro(), 'La app calcula ' + fmt(saldoCajita())) +
       '<div id="cuadreRes" class="reparto">' + resultadoCuadre() + '</div>' +
       '<button type="button" class="primary" data-cuadre-guardar="1">Guardar cuadre</button>';
     setHTML(el, h);
@@ -1815,7 +1760,7 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
     if (Math.abs(r.diff) >= 2000) {
       if (r.diff > 0 && S.cuadreAccion && S.cuadreAccion !== 'nada') {
         guardar('ingresos', nuevoId(), { fecha: f, mes: mesDe(f), monto: r.diff, tipo: 'ajuste', destino: S.cuadreAccion, concepto: 'Diferencia del cuadre', creado: iso1 });
-        msg = S.cuadreAccion === 'cajita' ? 'Cuadre guardado. Pase ' + fmt(r.diff) + ' a la Cajita de Nu.' : 'Cuadre guardado. Sumé ' + fmt(r.diff) + ' a ' + nombreLugar(S.cuadreAccion) + '.';
+        msg = S.cuadreAccion === 'cajita' ? 'Cuadre guardado. Pase ' + fmt(r.diff) + ' a la ' + nombreAhorro() + '.' : 'Cuadre guardado. Sumé ' + fmt(r.diff) + ' a ' + nombreLugar(S.cuadreAccion) + '.';
       } else if (r.diff < 0 && S.cuadreAccion === 'gasto') {
         guardar('gastos', nuevoId(), { fecha: f, mes: mesDe(f), monto: -r.diff, categoria: catSinDetalle(), medio: 'efectivo', nota: 'Diferencia del cuadre (sin detalle)', creado: iso1 });
         msg = 'Cuadre guardado. Anoté ' + fmt(-r.diff) + ' como gasto sin detalle.';
@@ -2042,13 +1987,13 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
       '<details data-abre="dia-' + p.inicio + '"' + (S.abiertos['dia-' + p.inicio] ? ' open' : '') + '><summary style="font-size:0.95rem">Ver o ajustar por categoría</summary>' +
       delDia.map(function (c) { var k = 'bol:' + c.id; return '<div class="paso sin-check"><div class="paso-txt"><span class="paso-nombre">' + esc(c.nombre) + '</span><span class="paso-nota">' + (esEfectivo(c) ? 'Billetes para la billetera' : esReserva(c) ? 'Acumula: lo que no gaste pasa a la siguiente' : 'Para esta quincena') + '</span></div>' +
         '<input type="text" inputmode="numeric" id="m-' + esc(k.replace(/[^a-z0-9-]/gi, '_')) + '" data-monto="' + esc(k) + '" value="' + miles(presPer(c, p)) + '" aria-label="Valor de ' + esc(c.nombre) + '"></div>'; }).join('') + '</details>' : '';
-    var secAps = aps.map(function (c) { var k = 'bol:' + c.id; return paso(k, c.nombre, 'Pasar al bolsillo ' + c.nombre + ' en Bancolombia', presPer(c, p), h(k)); }).join('');
+    var secAps = aps.map(function (c) { var k = 'bol:' + c.id; return paso(k, c.nombre, 'Pasar al bolsillo ' + c.nombre + ' ' + enBanco(), presPer(c, p), h(k)); }).join('');
     var pct = Math.round(total ? hechos / total * 100 : 0);
     var extras = sum(S.ingresos.filter(function (i) { return ingresoReal(i) && i.fecha >= p.desde && i.fecha <= p.fin; }), function (i) { return i.monto; });
     html += cab('Pago del ' + fLarga(p.inicio), 'pago');
     html += '<p class="hint">Cubre del ' + fCorta(p.desde) + ' al ' + fCorta(p.fin) + '.</p>' + infoTxt('pago', 'La plata le entra al final del día de pago. Vaya marcando en orden: primero la Cajita, luego los pagos fijos, después lo que va a los bolsillos del banco. Lo que queda es la plata del día. Si un valor cambia, escríbalo antes de marcarlo.');
     var prt = proteccion();
-    if (prt.activo && p.inicio >= (prt.desde || '')) html += '<p class="aviso">Modo protección: Vida social, Transporte y Gastos hormiga van con tope, y lo que sobre va al colchón.</p>';
+    if (prt.activo && p.inicio >= (prt.desde || '')) html += '<p class="aviso">Modo protección: ' + esc(topesTxt()) + ' como tope, y lo que sobre va al colchón.</p>';
     if (p.inicio < inicioApp()) html += '<p class="aviso">Esta quincena empezó antes de que usara la app (el ' + fCorta(inicioApp()) + '). Tómela solo como referencia: los valores son el plan, no lo que pasó. El ritual de verdad arranca con el próximo pago.</p>';
     html += '<div class="progreso"><span>' + hechos + ' de ' + total + ' hechos</span><span>' + pct + '%</span></div>';
     html += '<div class="barra acc"><i style="width:' + pct + '%"></i></div>';
@@ -2148,8 +2093,8 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
     var ec = estadoCajita(), saldo = ec.saldo, mc = metaColchon(), mm = metaMoto(), t = hoy(), tz = tasaCajita();
     var col = Math.max(0, Math.min(saldo, mc)), pctC = Math.round(col / mc * 100), moto = Math.max(0, saldo - mc);
     var pctM = mm.cajita ? Math.min(100, Math.round(moto / mm.cajita * 100)) : 0;
-    var h = '<section class="card">' + cab('La Cajita de Nu', 'cajita') +
-      infoTxt('cajita', 'Todo su ahorro está en una sola Cajita. Primero se llena el colchón (para emergencias y meses sin contrato); lo que pase de ' + fmt(mc) + ' cuenta para la moto. La app le suma sola los rendimientos de cada día con la tasa de Nu; si la cifra no coincide con Nu, use "Corregir el saldo con la app de Nu". Si saca plata, anótelo con "Saqué de la Cajita": así la app no le pierde la pista.') +
+    var h = '<section class="card">' + cab('La ' + esc(nombreAhorro()), 'cajita') +
+      infoTxt('cajita', 'Todo su ahorro está en una sola Cajita. Primero se llena el colchón (para emergencias y meses sin ingreso)' + (mm.total ? '; lo que pase de ' + fmt(mc) + ' cuenta para ' + esc(mm.texto.toLowerCase()) : '') + '. ' + (tz ? 'La app le suma sola los rendimientos de cada día con su tasa; ' : '') + 'si la cifra no coincide con ' + esc(entidadAhorro()) + ', use "Corregir el saldo". Si saca plata, anótelo con "Saqué de la Cajita": así la app no le pierde la pista.') +
       '<p class="grande">' + fmt(saldo) + '</p>' +
       (tz ? '<p class="hint" data-rend="1" style="margin-top:-4px">Rinde ' + tasaCajTxt(tz) + '% E.A.: unos ' + fmt(crecer(saldo, 30) - saldo) + ' al mes' + (ec.rend >= 1 && ec.desde ? ' · lleva ' + fmt(ec.rend) + ' desde el ' + fCorta(ec.desde) : '') + '.</p>' : '') +
       '<div class="parte"><div class="fila"><span class="nombre">Colchón</span><span class="cifra">' + fmt(col) + ' / ' + fmt(mc) + '</span></div>' +
@@ -2163,15 +2108,15 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
       }
       if (S.editMoto) {
         h += '<div class="editor" style="margin-top:2px"><div class="row2"><div><label class="lbl" for="motoTotal">Meta total</label><input id="motoTotal" type="text" inputmode="numeric" value="' + miles(mm.total) + '"></div>' +
-          '<div><label class="lbl" for="motoAbono">Lo que pone la Nmax</label><input id="motoAbono" type="text" inputmode="numeric" value="' + miles(mm.abono) + '"></div></div>' +
+          '<div><label class="lbl" for="motoAbono">Lo que ponen ' + esc(mm.abonoTexto) + '</label><input id="motoAbono" type="text" inputmode="numeric" value="' + miles(mm.abono) + '"></div></div>' +
           '<div class="botones"><button type="button" class="sec accent" data-moto-guardar="1">Guardar</button><button type="button" class="link" data-moto-cancelar="1">Cancelar</button></div></div>';
-      } else h += '<p class="hint">Meta ' + fmt(mm.total) + (mm.abono ? ' menos ' + fmt(mm.abono) + ' de la Nmax' : '') + ' · <button type="button" class="link" style="padding:0;min-height:0" data-moto-editar="1">Ajustar</button></p>';
+      } else h += '<p class="hint">Meta ' + fmt(mm.total) + (mm.abono ? ' menos ' + fmt(mm.abono) + ' de ' + esc(mm.abonoTexto) : '') + ' · <button type="button" class="link" style="padding:0;min-height:0" data-moto-editar="1">Ajustar</button></p>';
       h += '</div>';
     }
     var rt = ritmoCajita();
     if (rt != null && rt > 0) {
       var fC = Math.max(0, mc - saldo), fM = mm.total ? Math.max(0, mc + mm.cajita - saldo) : 0;
-      h += '<p class="hint">A su ritmo (' + fmt(rt) + ' al mes)' + (fC ? ': colchón hacia ' + mesLabel(addMes(mesDe(t), Math.ceil(fC / rt))) : '') + (fM ? (fC ? ', moto hacia ' : ': moto hacia ') + mesLabel(addMes(mesDe(t), Math.ceil(fM / rt))) : '') + '.</p>';
+      h += '<p class="hint">A su ritmo (' + fmt(rt) + ' al mes)' + (fC ? ': colchón hacia ' + mesLabel(addMes(mesDe(t), Math.ceil(fC / rt))) : '') + (fM ? (fC ? ', ' : ': ') + esc(mm.texto.toLowerCase()) + ' hacia ' + mesLabel(addMes(mesDe(t), Math.ceil(fM / rt))) : '') + '.</p>';
     }
     var pj = proyeccionCajita(8);
     if (pj.length) {
@@ -2189,7 +2134,7 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
         return '<div class="fecha-item"><b>' + fCorta(r.fecha) + '</b><span>' + fmt(r.monto) + ' · ' + esc(r.motivo || 'Sin motivo') + ' · ' + (r.valido === 'si' ? '<span class="delta-ok">Emergencia</span>' : '<span class="delta-mal">No era emergencia</span>') + acc + '</span></div>';
       }).join('') + '</details>';
     }
-    h += '<details data-abre="cajreal"' + (S.abiertos.cajreal ? ' open' : '') + '><summary style="font-size:0.95rem">Corregir el saldo con la app de Nu</summary><div class="row2" style="margin-top:8px"><div><label for="cajReal" class="lbl">Saldo real de hoy en Nu</label><input id="cajReal" type="text" inputmode="numeric" placeholder="$ 0"></div><div><label for="cajTasa" class="lbl">Tasa (% E.A.)</label><input id="cajTasa" type="text" inputmode="decimal" value="' + esc(tasaCajTxt(tz)) + '"></div></div><p class="hint">La tasa sale en la Cajita, en la app de Nu.</p><div class="botones"><button type="button" class="sec" data-cajreal="1">Actualizar</button></div></details>';
+    h += '<details data-abre="cajreal"' + (S.abiertos.cajreal ? ' open' : '') + '><summary style="font-size:0.95rem">Corregir el saldo con la app de ' + esc(entidadAhorro()) + '</summary><div class="row2" style="margin-top:8px"><div><label for="cajReal" class="lbl">Saldo real de hoy</label><input id="cajReal" type="text" inputmode="numeric" placeholder="$ 0"></div><div><label for="cajTasa" class="lbl">Tasa (% E.A.)</label><input id="cajTasa" type="text" inputmode="decimal" value="' + esc(tasaCajTxt(tz)) + '"></div></div><p class="hint">La tasa (efectiva anual) sale en la app de ' + esc(entidadAhorro()) + '. Si su ahorro no da intereses, deje 0.</p><div class="botones"><button type="button" class="sec" data-cajreal="1">Actualizar</button></div></details>';
     return h + '</section>';
   }
   var PREGUNTAS = [['emergencia', '¿Es una emergencia de verdad?'], ['inevitable', '¿Era inevitable?'], ['urgente', '¿Tenía que ser ya, sin esperar a la próxima quincena?']];
@@ -2209,6 +2154,11 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
       '<div class="botones"><button type="button" class="sec accent" data-retiro-guardar="1">' + (alguna ? 'Registrarlo igual' : 'Registrar retiro') + '</button><button type="button" class="link" data-retiro-cancelar="1">Cancelar</button></div></div>';
     return h;
   }
+  function topesSugeridos() {
+    var t = {};
+    (S.cats || []).forEach(function (c) { if (!esDia(c) || !activo(c) || /aliment|comida|mercado/i.test(c.nombre || '') || !(Number(c.presupuesto) > 0)) return; t[c.id] = Math.round(Number(c.presupuesto) / 2 / 1000) * 1000; });
+    return t;
+  }
   function topesTxt() {
     var tp = proteccion().topes || {}, l = Object.keys(tp).map(function (id) { var c = catPorId(id); return c ? c.nombre + ' ' + fmt(tp[id]) : null; }).filter(Boolean);
     return l.length ? l.join(', ').replace(/, ([^,]*)$/, ' y $1') + ' al mes' : 'los bolsillos con tope';
@@ -2216,13 +2166,13 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
   function tarjetaRespaldo() {
     var saldo = saldoCajita(), mc = metaColchon(), col = Math.max(0, Math.min(saldo, mc)), cP = costoMes(true), cN = costoMes(false), pr = proteccion(), t = hoy();
     var h = '<section class="card">' + cab('Meses de respaldo', 'respaldo') +
-      infoTxt('respaldo', 'Cuánto le dura el colchón si no entra ni un peso. En modo protección gasta unos ' + fmt(cP) + ' al mes; viviendo normal, unos ' + fmt(cN) + ' (' + (cN > 0 ? mesesTxt(col / cN) : '—') + '). El modo protección es para usarlo si al 22 de enero no hay contrato: baja ' + esc(topesTxt()) + ' y manda lo extra al colchón.') +
+      infoTxt('respaldo', 'Cuánto le dura el colchón si no entra ni un peso. En modo protección gasta unos ' + fmt(cP) + ' al mes; viviendo normal, unos ' + fmt(cN) + ' (' + (cN > 0 ? mesesTxt(col / cN) : '—') + '). El modo protección es para cuando se quede sin ingreso: baja ' + esc(topesTxt()) + ' y manda lo extra al colchón.') +
       '<p class="grande">' + (cP > 0 ? mesesTxt(col / cP) : '—') + '</p>';
     var ene = (t.slice(5, 7) === '01' ? t.slice(0, 4) : String(Number(t.slice(0, 4)) + 1)) + '-01', pe = null;
     proyeccionCajita(8).forEach(function (x) { if (mesDe(x.fecha) === ene) pe = x; });
     if (pe && cP > 0) h += '<p class="hint">Con el plan, el ' + fCorta(pe.fecha) + ': <b>' + mesesTxt(Math.max(0, Math.min(pe.saldo, mc)) / cP) + '</b>.</p>';
     if (pr.activo) h += '<p class="aviso">Modo protección activo desde el ' + fCorta(pr.desde) + '.</p><div class="botones"><button type="button" class="link" data-proteccion="off">Desactivar el modo protección</button></div>';
-    else if (S.confirmProteccion) h += '<p class="aviso">Desde el próximo pago: ' + esc(topesTxt()) + ', y lo extra al colchón. Recuerde marcar el retiro de la PILA. ¿Lo activa?</p><div class="botones"><button type="button" class="sec accent" data-proteccion="on">Sí, activar</button><button type="button" class="link" data-proteccion="no">No</button></div>';
+    else if (S.confirmProteccion) h += '<p class="aviso">Desde el próximo pago: ' + esc(topesTxt()) + ', y lo extra al colchón.' + (planL('fijos').some(function (f) { return /pila|seguridad social/i.test(f.nombre || ''); }) ? ' Recuerde marcar el retiro de la seguridad social (PILA) si deja de trabajar.' : '') + ' ¿Lo activa?</p><div class="botones"><button type="button" class="sec accent" data-proteccion="on">Sí, activar</button><button type="button" class="link" data-proteccion="no">No</button></div>';
     else h += '<div class="botones"><button type="button" class="sec" data-proteccion="pedir">Activar modo protección</button></div>';
     return h + '</section>';
   }
@@ -2230,7 +2180,7 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
     var r = reparto(), t = hoy(), pasos = escalera(), fase1 = t < r.fase2, prot = proteccionActiva();
     var actual = (prot || fase1) ? 'colchon' : ((pasos.filter(function (x) { return !x.listo; })[0] || {}).id);
     var h = '<section class="card">' + cab('Prioridades para la plata extra', 'escalera') +
-      infoTxt('escalera', 'Cuando entre plata nueva (comisiones, negocios, sobrantes), este es el orden sugerido. Usted escoge el destino al registrarla en Plata. ' + (prot ? 'Con el modo protección, todo va al colchón.' : (fase1 ? 'Hasta el ' + fCorta(addDias(r.fase2, -1)) + ' todo va al colchón: enero no tiene contrato asegurado.' : ''))) + '<ol class="escalera">';
+      infoTxt('escalera', 'Cuando entre plata nueva (comisiones, negocios, sobrantes), este es el orden sugerido. Usted escoge el destino al registrarla en Plata. ' + (prot ? 'Con el modo protección, todo va al colchón.' : (fase1 ? 'Hasta el ' + fCorta(addDias(r.fase2, -1)) + ' todo va al colchón.' : ''))) + '<ol class="escalera">';
     pasos.forEach(function (p, i) {
       var cls = p.listo ? 'hecho' : (p.id === actual ? 'ahora' : '');
       var pill = p.listo ? '<span class="pill pagado">Listo</span>' : (p.id === actual ? '<span class="pill ahora">Ahora</span>' : (fase1 && p.id !== 'colchon' ? '<span class="pill">Desde ' + mesCorto(r.fase2) + '</span>' : ''));
@@ -2251,7 +2201,7 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
     var l = planL('anuales').slice().sort(function (a, b) { return (proximaAnual(a) || '9') < (proximaAnual(b) || '9') ? -1 : 1; }), mes = mesDe(hoy());
     var tot = sum(l, function (a) { return a.anual ? a.monto : (proximaAnual(a) ? a.monto : 0); });
     var h = '<section class="card">' + cab('Gastos del año', 'anuales', '<span class="num">' + fmt(tot) + '</span>') +
-      infoTxt('anuales', 'Lo que no se paga todos los meses: SOAT, regalos, cumpleaños, cambio de celular. La app reparte cada uno en las quincenas que faltan y lo suma al bolsillo "Gastos del año" de Bancolombia, que aparece en el ritual de Pago. Si ya se ahorra en otro bolsillo (como el SOAT en Transporte), solo se muestra aquí.');
+      infoTxt('anuales', 'Lo que no se paga todos los meses: SOAT, regalos, cumpleaños, cambio de celular. La app reparte cada uno en las quincenas que faltan y lo suma al bolsillo "Gastos del año" ' + esc(delBanco()) + ', que aparece en el ritual de Pago. Si ya se ahorra en otro bolsillo (como el SOAT en Transporte), solo se muestra aquí.');
     h += '<div class="lista-mini">' + (l.length ? l.map(function (a) {
       var f = proximaAnual(a), b = a.bolsillo ? catPorId(a.bolsillo) : null, prov = provisionAnual(a, mes), sub;
       if (!f) sub = 'Ya pasó';
@@ -2288,7 +2238,7 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
       infoTxt('suscripciones', 'Lo que se cobra solo cada mes. La app las suma sola a la deuda de la tarjeta el día del cobro: no las anote como gasto. También puede agregarlas o quitarlas dentro de cada tarjeta, en "Lo que debo". Le aviso en "Próximos 7 días". Al año suman ' + fmt(luego * 12) + '.');
     h += '<div class="lista-mini">' + itemsSus(l, 'general') + '</div>';
     if (luego > tot) h += '<p class="hint">Cuando terminen las promociones: ' + fmt(luego) + ' al mes.</p>';
-    h += S.editSus && S.susDonde === 'general' ? formSus('tc_nu') : '<button type="button" class="sec" data-sus-nueva="general" style="justify-self:start">Agregar suscripción</button>';
+    h += S.editSus && S.susDonde === 'general' ? formSus(tarjetas().length ? tarjetas()[0].id : 'debito') : '<button type="button" class="sec" data-sus-nueva="general" style="justify-self:start">Agregar suscripción</button>';
     return h + '</section>';
   }
   function susDeTarjeta(d) {
@@ -2300,7 +2250,7 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
       (S.editSus && S.susDonde === donde ? formSus(d.tarjeta) : '<button type="button" class="sec" data-sus-nueva="' + esc(donde) + '" style="justify-self:start">Agregar suscripción a ' + esc(corto(d)) + '</button>') + '</details>';
   }
   function formSus(medioDef) {
-    var x = S.editSus === 'nueva' ? { nombre: '', monto: 0, dia: '', medio: medioDef || 'tc_nu' } : (planL('suscripciones').filter(function (y) { return y.id === S.editSus; })[0] || {});
+    var x = S.editSus === 'nueva' ? { nombre: '', monto: 0, dia: '', medio: medioDef || (tarjetas().length ? tarjetas()[0].id : 'debito') } : (planL('suscripciones').filter(function (y) { return y.id === S.editSus; })[0] || {});
     return '<div class="editor"><div class="row2"><div><label class="lbl" for="suNombre">Cuál</label><input id="suNombre" type="text" maxlength="40" autocapitalize="words" value="' + esc(x.nombre) + '" placeholder="Ej: Spotify"></div>' +
       '<div><label class="lbl" for="suMonto">Cuánto al mes</label><input id="suMonto" type="text" inputmode="numeric" value="' + miles(x.monto) + '" placeholder="$ 0"></div></div>' +
       '<div class="row2"><div><label class="lbl" for="suDia">Día del cobro</label><input id="suDia" type="text" inputmode="numeric" maxlength="2" value="' + esc(x.dia || '') + '" placeholder="Ej: 12"></div>' +
@@ -2322,6 +2272,8 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
         infoTxt('deudas', 'Cada tarjeta suma lo que compre con ella, sus suscripciones el día del cobro y, en cada corte, los intereses y la cuota de manejo estimados; resta los pagos que registre aquí, en el ritual o con un ingreso. El día después de cada corte la app le pide revisar el extracto para dejar el saldo igual al del banco.');
       if (!S.deudas.length) html += '<p class="vacio">No hay deudas activas registradas.</p>';
       S.deudas.forEach(function (d) { html += tarjetaDeuda(d); });
+      html += S.nuevaDeuda ? '<div class="editor" id="nuevaDeuda"><h3>Deuda o tarjeta nueva</h3>' + filaDeudaIni() + '<p class="hint">Si tiene cuota, queda como pago fijo en el ritual del día de pago.</p><div class="botones"><button type="button" class="sec accent" data-deuda-crear="1">Guardar</button><button type="button" class="link" data-deuda-crear-no="1">Cancelar</button></div></div>'
+        : '<div class="botones"><button type="button" class="sec" data-deuda-nueva="1">Agregar deuda o tarjeta</button></div>';
       html += '</section>' + tarjetaSuscripciones();
       var deben = totalMeDeben();
       if (deben) html += '<section class="card"><div class="fila"><h2>Me deben</h2><span class="num">' + fmt(deben) + '</span></div><button type="button" class="link fuerte" data-ir-plata="1" style="justify-self:start">Ver quién le debe</button></section>';
@@ -2519,7 +2471,7 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
     setHTML($('aparienciaCard'), '<h2>Apariencia</h2><div class="chips">' + [['auto', 'Automático'], ['claro', 'Claro'], ['oscuro', 'Oscuro']].map(function (x) { return '<button type="button" class="chip" data-elegir-tema="' + x[0] + '" aria-pressed="' + (t === x[0]) + '">' + x[1] + '</button>'; }).join('') + '</div>' +
       '<p class="hint">' + (t === 'auto' ? 'Sigue al iPhone: clara de día, oscura si el iPhone está en modo oscuro.' : 'Siempre ' + (t === 'claro' ? 'clara' : 'oscura') + ', sin importar el iPhone.') + '</p>');
     setHTML($('acercaCard'), '<h2>Acerca de la app</h2><div class="aj-fila"><span>Cuentas Claras · versión ' + VERSION_APP + '</span><button type="button" class="sec" data-actualizar="1">Buscar actualización</button></div>' +
-      '<p class="hint">Cuando suba archivos nuevos a GitHub, toque aquí y la app se actualiza sin tener que abrirla dos veces.</p>');
+      '<p class="hint">Si hay una versión nueva de la app, se instala con este botón sin tener que cerrarla y abrirla dos veces.</p>');
   }
   function buscarActualizacion(btn) {
     if (btn) btn.disabled = true;
@@ -2649,10 +2601,159 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
     $('instalar').hidden = esApp() || lsGet(LS.navegador, false);
   }
   function mostrarApp() {
-    $('pantallaConectar').hidden = true; $('pantallaApp').hidden = false; $('tabbar').hidden = false;
+    $('pantallaConectar').hidden = true;
+    if (esHojaNueva()) { mostrarInicio(); return; }
+    $('pantallaInicio').hidden = true; $('pantallaApp').hidden = false; $('tabbar').hidden = false;
     render();
   }
+
+  /* ---------- Primera vez: armar el plan con una hoja nueva ---------- */
+  function esHojaNueva() { return !!S.cargado && !(S.cats && S.cats.length) && !(S.plan && S.plan.inicioApp); }
+  /* Con qué pago se cubre una cuota: si vence del 1 al 15, con el del 30 anterior; si vence del 16 en adelante, con el del 15. */
+  function diaRitual(diaPago) { var d = Number(diaPago) || 0; return d && d > 15 ? 15 : 30; }
+  var FIJOS_SUG = [['Arriendo o administración', 30], ['Servicios públicos', 15], ['Internet y celular', 15], ['Seguridad social (PILA)', 15]];
+  var CATS_SUG = ['Alimentación', 'Transporte', 'Gastos hormiga', 'Vida social'];
+  function filaFijoIni(n, dia) {
+    return '<div class="ini-fila" data-ini-fijo><label class="ancho">Nombre<input type="text" class="i-nombre" maxlength="60" value="' + esc(n || '') + '"></label>' +
+      '<label>Valor al mes<input type="text" class="i-monto" inputmode="numeric" placeholder="$ 0"></label>' +
+      '<label>Con el pago del<select class="i-dia"><option value="15"' + (dia === 15 ? ' selected' : '') + '>15</option><option value="30"' + (dia !== 15 ? ' selected' : '') + '>30</option></select></label></div>';
+  }
+  function filaCatIni(n) {
+    return '<div class="ini-fila dos" data-ini-cat><label>Nombre<input type="text" class="i-nombre" maxlength="40" value="' + esc(n || '') + '"></label>' +
+      '<label>Al mes<input type="text" class="i-monto" inputmode="numeric" placeholder="$ 0"></label></div>';
+  }
+  function filaDeudaIni(pref) {
+    var x = pref || '';
+    return '<div class="ini-deuda" data-ini-deuda><label class="ancho">Nombre<input type="text" class="i-nombre" maxlength="60" placeholder="Ej: Tarjeta Visa, crédito de libre inversión"></label>' +
+      '<label class="ancho">Tipo<select class="i-tipo"><option value="tarjeta">Tarjeta de crédito</option><option value="credito">Crédito o préstamo</option></select></label>' +
+      '<label>Debe hoy<input type="text" class="i-saldo" inputmode="numeric" placeholder="$ 0"></label>' +
+      '<label>Paga al mes<input type="text" class="i-cuota" inputmode="numeric" placeholder="Cuota o pago mínimo"></label>' +
+      '<label>Día en que vence<input type="text" class="i-dpago" inputmode="numeric" maxlength="2" placeholder="1 a 31"></label>' +
+      '<label>Día de corte<input type="text" class="i-corte" inputmode="numeric" maxlength="2" placeholder="Solo tarjetas"></label>' +
+      '<label class="ancho">Interés mensual (%)<input type="text" class="i-tasa" inputmode="decimal" placeholder="Opcional, ej: 2,1"></label>' + x + '</div>';
+  }
+  function mostrarInicio() {
+    $('pantallaConectar').hidden = true; $('pantallaApp').hidden = true; $('tabbar').hidden = true;
+    var el = $('pantallaInicio'); if (!el.hidden) return; // no borrar lo que ya escribió
+    el.hidden = false;
+    setHTML($('inicioBody'),
+      '<img class="logo" src="icons/icon-180.png" alt=""><div><h1 class="marca">Cuentas <span>Claras</span></h1><p class="lema">Armemos su plan. Son unos 5 minutos y todo se puede cambiar después en Ajustes.</p></div>' +
+      '<div class="card"><h2>1 · Lo que le entra</h2><p class="hint">La app trabaja por quincenas: el pago del 15 cubre del 16 a fin de mes y el del 30 cubre del 1 al 15. Si le pagan una vez al mes, ponga todo en el día en que le pagan.</p>' +
+      '<div class="row2"><div><label class="lbl" for="in-p15">Pago del 15</label><input id="in-p15" type="text" inputmode="numeric" placeholder="$ 0"></div><div><label class="lbl" for="in-p30">Pago del 30</label><input id="in-p30" type="text" inputmode="numeric" placeholder="$ 0"></div></div>' +
+      '<div class="row2"><div><label class="lbl" for="in-ing">De dónde viene</label><input id="in-ing" type="text" maxlength="40" value="Sueldo"></div><div><label class="lbl" for="in-banco">Su banco</label><input id="in-banco" type="text" maxlength="30" placeholder="Ej: Bancolombia"></div></div></div>' +
+      '<div class="card"><h2>2 · Pagos fijos</h2><p class="hint">Lo que paga cada mes sí o sí. Deje en blanco lo que no tenga. Las cuotas de sus deudas van en el paso 4.</p><div id="in-fijos">' + FIJOS_SUG.map(function (f) { return filaFijoIni(f[0], f[1]); }).join('') + '</div>' +
+      '<div class="botones"><button type="button" class="sec" data-ini-agregar="fijo">Agregar otro</button></div></div>' +
+      '<div class="card"><h2>3 · El día a día</h2><p class="hint">Cuánto quiere gastar al mes en cada cosa; la app lo parte en las dos quincenas. Gastos hormiga son los pequeños: café, antojos, propinas. Para lo que no estaba en el plan, la app crea sola "Fuera del plan".</p><div id="in-cats">' + CATS_SUG.map(filaCatIni).join('') + '</div>' +
+      '<div class="botones"><button type="button" class="sec" data-ini-agregar="cat">Agregar otra</button></div>' +
+      '<div style="margin-top:12px"><label class="lbl" for="in-queda">¿Cuánto le queda hoy para el día a día hasta el próximo pago?</label><input id="in-queda" type="text" inputmode="numeric" placeholder="Opcional"><span class="hint">Así la app arranca con lo que de verdad tiene en esta quincena.</span></div></div>' +
+      '<div class="card"><h2>4 · Deudas y tarjetas</h2><p class="hint">Opcional. Cada tarjeta de crédito queda también como forma de pago al anotar un gasto, y lo que compre con ella suma a su deuda.</p><div id="in-deudas"></div>' +
+      '<div class="botones"><button type="button" class="sec" data-ini-agregar="deuda">Agregar deuda o tarjeta</button></div></div>' +
+      '<div class="card"><h2>5 · Su ahorro</h2><p class="hint">Primero se llena el colchón para emergencias; lo que pase de ahí va a su meta grande (un viaje, estudiar, la cuota inicial de algo), si tiene una.</p>' +
+      '<div class="row2"><div><label class="lbl" for="in-donde">Dónde ahorra</label><input id="in-donde" type="text" maxlength="30" placeholder="Ej: Nu"></div><div><label class="lbl" for="in-ahorro">Tiene hoy</label><input id="in-ahorro" type="text" inputmode="numeric" placeholder="$ 0"></div></div>' +
+      '<div class="row2"><div><label class="lbl" for="in-meta">Meta del colchón</label><input id="in-meta" type="text" inputmode="numeric" placeholder="Opcional"></div><div><label class="lbl" for="in-tasa">Rinde (% E.A.)</label><input id="in-tasa" type="text" inputmode="decimal" placeholder="Opcional"></div></div>' +
+      '<p class="hint">Lo ideal es un colchón de 3 a 6 meses de gastos. Si deja la meta en blanco, la app le pone 3 meses.</p>' +
+      '<div class="row2"><div><label class="lbl" for="in-mg">Meta grande</label><input id="in-mg" type="text" maxlength="40" placeholder="Opcional: un viaje"></div><div><label class="lbl" for="in-mgv">Cuánto</label><input id="in-mgv" type="text" inputmode="numeric" placeholder="$ 0"></div></div></div>' +
+      '<p id="inicioError" class="aviso error" hidden></p>' +
+      '<button type="button" class="primary" data-ini-guardar="1">Empezar a usar la app</button>' +
+      '<p class="hint" style="text-align:center">Sus datos quedan solo en su hoja de Google.</p>');
+  }
+  function leerFilas(sel, f) { var out = []; document.querySelectorAll(sel).forEach(function (el) { var x = f(el); if (x) out.push(x); }); return out; }
+  function valDe(el, c) { var i = el.querySelector(c); return i ? String(i.value || '').trim() : ''; }
+  function dia31(v) { var n = num(v); return n >= 1 && n <= 31 ? n : 0; }
+  /* Una deuda nueva (y, si tiene cuota, su pago fijo en el ritual). La usan la configuración inicial y "Agregar deuda". */
+  function armarDeuda(x, orden) {
+    // "Debe hoy" es lo que debía al empezar el día: lo que compre hoy con la tarjeta ya suma.
+    var id = slug(x.nombre), d = { id: id, nombre: x.nombre, saldoBase: x.saldo || 0, fechaBase: addDias(hoy(), -1), cuota: x.cuota || 0, orden: orden };
+    if (x.diaPago) d.diaPago = x.diaPago;
+    if (x.tipo === 'tarjeta') { d.tarjeta = 'tc_' + id; if (x.corte) d.corte = x.corte; }
+    if (x.tasa != null) d.tasa = x.tasa;
+    var fijo = x.cuota ? { id: 'f-' + id, nombre: (x.tipo === 'tarjeta' ? 'Pago de ' : 'Cuota de ') + x.nombre, monto: 0, dia: diaRitual(x.diaPago), deuda: id } : null;
+    return { deuda: d, fijo: fijo };
+  }
+  function leerDeuda(el) {
+    var nombre = valDe(el, '.i-nombre'); if (!nombre) return null;
+    var tasaTxt = valDe(el, '.i-tasa'), tasa = tasaTxt ? parseFloat(tasaTxt.replace(',', '.')) : null;
+    return { nombre: nombre, tipo: valDe(el, '.i-tipo') || 'credito', saldo: num(valDe(el, '.i-saldo')), cuota: num(valDe(el, '.i-cuota')), diaPago: dia31(valDe(el, '.i-dpago')), corte: dia31(valDe(el, '.i-corte')), tasa: isFinite(tasa) && tasa >= 0 && tasa < 15 ? Math.round(tasa * 100) / 100 : null };
+  }
+  /* Varios cambios de una vez: se aplican todos y la pantalla se dibuja una sola vez. */
+  function guardarVarios(ops) {
+    ops.forEach(function (o) { var op = { op: 'put', col: o[0], id: String(o[1]), doc: sinId(o[2]) }; aplicarLocal(op); COLA = COLA.filter(function (x) { return !(x.col === op.col && x.id === op.id); }); COLA.push(op); });
+    lsSet(LS.cola, COLA); lsSet(LS.datos, D); derivar(); render(); programarEnvio();
+  }
+  function guardarInicio() {
+    var err = $('inicioError'); err.hidden = true;
+    var falla = function (m) { err.textContent = m; err.hidden = false; err.scrollIntoView({ block: 'center' }); };
+    var t = hoy(), iso = ahoraISO(), p15 = num($('in-p15').value), p30 = num($('in-p30').value), nomIng = $('in-ing').value.trim() || 'Sueldo';
+    if (!p15 && !p30) return falla('Escriba al menos uno de los dos pagos (el del 15 o el del 30).');
+    var cats = leerFilas('[data-ini-cat]', function (el) { var n = valDe(el, '.i-nombre'), m = num(valDe(el, '.i-monto')); return n && m > 0 ? { tipo: 'dia', id: slug(n), nombre: n, presupuesto: m, reembolsable: false } : null; });
+    if (!cats.length) return falla('Ponga cuánto quiere gastar al mes en al menos una cosa del día a día.');
+    cats.push({ tipo: 'dia', id: 'fuera-del-plan', nombre: 'Fuera del plan', presupuesto: 0, reembolsable: false });
+    cats.push({ id: 'por-asignar', nombre: 'Por asignar', presupuesto: 0, reembolsable: false, tipo: 'reserva', saldoBase: 0, fechaBase: addDias(periodoDe(t).inicio, -1), baseCreado: iso });
+    var fijos = leerFilas('[data-ini-fijo]', function (el) { var n = valDe(el, '.i-nombre'), m = num(valDe(el, '.i-monto')); return n && m > 0 ? { id: slug(n), nombre: n, monto: m, dia: Number(valDe(el, '.i-dia')) === 15 ? 15 : 30 } : null; });
+    var deudas = [], ops = [];
+    leerFilas('[data-ini-deuda]', leerDeuda).forEach(function (x, i) { var a = armarDeuda(x, i + 1); deudas.push(a.deuda); if (a.fijo) fijos.push(a.fijo); });
+    var ingresos = [];
+    if (p15) ingresos.push({ id: 'ing-15', nombre: nomIng, monto: p15, dia: 15 });
+    if (p30) ingresos.push({ id: 'ing-30', nombre: nomIng, monto: p30, dia: 30 });
+    var gastoMes = sum(cats, function (c) { return c.presupuesto; }) + sum(fijos, function (f) { return Number(f.monto) || 0; }) + sum(deudas, function (d) { return d.cuota; });
+    var meta = num($('in-meta').value) || Math.max(1000000, Math.round(gastoMes * 3 / 100000) * 100000);
+    var donde = $('in-donde').value.trim(), tasa = leerTasa($('in-tasa').value);
+    var cajita = { meta: meta, saldoBase: num($('in-ahorro').value), fechaBase: t, baseCreado: iso };
+    if (tasa) cajita.tasa = tasa;
+    var mgv = num($('in-mgv').value); if (mgv) cajita.moto = { monto: mgv, abono: 0, texto: $('in-mg').value.trim() || 'Meta grande' };
+    var plan = { ingresos: ingresos, fijos: fijos, inicioApp: t, cajita: cajita, fechas: [], esquema: 9, proteccion: { activo: false }, reparto: { pct: 20 }, suscripciones: [], anuales: [],
+      app: { banco: $('in-banco').value.trim(), entidad: donde, ahorro: donde ? 'Cajita de ' + donde : '' } };
+    // Lo que le queda hoy: la plata del día de esta quincena se ajusta a lo que de verdad tiene.
+    var queda = num($('in-queda').value), per = periodoDe(t);
+    if (queda) {
+      var parte = per.parte, mesF = per.mesFondo, base = cats.filter(function (c) { return c.presupuesto > 0; });
+      var tot = sum(base, function (c) { return parteMes(c, mesF, parte); }), marcas = {}, acum = 0;
+      base.forEach(function (c, i) { var v = i === base.length - 1 ? queda - acum : Math.round(parteMes(c, mesF, parte) * queda / (tot || 1)); acum += v; marcas['bol:' + c.id] = { monto: Math.max(0, v) }; });
+      ops.push(['pagos', per.inicio, { marcas: marcas, actualizado: iso }]);
+    }
+    ops.unshift(['config', 'plan', plan]);
+    ops.unshift(['config', 'presupuesto', { categorias: cats }]);
+    deudas.forEach(function (d) { ops.push(['deudas', d.id, d]); });
+    $('pantallaInicio').hidden = true;
+    guardarVarios(ops);
+    mostrarApp(); window.scrollTo(0, 0);
+    toast('¡Listo! Haga su primer cuadre cuando pueda: así la app arranca con lo que de verdad tiene.');
+  }
+  $('pantallaInicio').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-ini-agregar]');
+    if (b) {
+      var k = b.getAttribute('data-ini-agregar'), box = $(k === 'fijo' ? 'in-fijos' : k === 'cat' ? 'in-cats' : 'in-deudas');
+      box.insertAdjacentHTML('beforeend', k === 'fijo' ? filaFijoIni('', 30) : k === 'cat' ? filaCatIni('') : filaDeudaIni());
+      var ult = box.lastElementChild.querySelector('input'); if (ult) ult.focus();
+      return;
+    }
+    if (e.target.closest('[data-ini-guardar]')) guardarInicio();
+  });
   $('usarNavegador').addEventListener('click', function () { lsSet(LS.navegador, true); $('instalar').hidden = true; });
+  /* Guía de la primera vez: copiar el código del puente y el mensaje para Claude. */
+  function textoPrompt() {
+    var link = location.origin + location.pathname.replace(/index\.html$/, '');
+    return 'Hola, Claude. Voy a empezar a usar Cuentas Claras, una app web de finanzas personales (' + link + '). La app no guarda mis datos: los guarda en mi propia hoja de Google, conectada con un "puente" de Apps Script que yo mismo publico. Ayúdame paso a paso, con palabras sencillas y una cosa a la vez:\n\n' +
+      '1. Conectar la app. Crear una hoja en blanco con mi cuenta personal de Google (no la del trabajo), pegar el código del puente en Extensiones › Apps Script, implementarlo como aplicación web (Ejecutar como: Yo; Quién tiene acceso: Cualquier persona), autorizar los permisos, ejecutar la función crearCodigo y pegar en la app el código de la celda A2 de la pestaña "conexion". Antes de seguir, pregúntame en qué paso voy y qué veo en la pantalla.\n\n' +
+      '2. Armar mi plan. Hazme preguntas, una por una, sobre lo que me entra en cada quincena (el 15 y el 30), mis pagos fijos, lo que gasto en el día a día, mis deudas y tarjetas, y mi ahorro. Luego propónme presupuestos realistas por categoría y una meta de colchón de 3 a 6 meses de gastos, para llenar la configuración inicial de la app.\n\n' +
+      '3. Enseñarme a usarla: anotar cada gasto y con qué lo pagué, el ritual del día de pago (primero el ahorro, luego los pagos fijos, luego los bolsillos), el cuadre de cada semana y la revisión del extracto de las tarjetas.\n\n' +
+      'Importante: nunca me pidas el código de conexión, la clave ni contraseñas. Eso es solo mío.';
+  }
+  function copiarTexto(txt, listo) {
+    var ta = $('guiaCopia');
+    var mostrar = function () { ta.value = txt; ta.hidden = false; ta.focus(); ta.select(); toast('Selecciónelo todo y cópielo'); };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(function () { ta.hidden = true; toast(listo); }, mostrar);
+    else mostrar();
+  }
+  $('guiaConectar').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-copiar-guia]'); if (!b) return;
+    if (b.getAttribute('data-copiar-guia') === 'prompt') { copiarTexto(textoPrompt(), 'Mensaje copiado: péguelo en Claude'); return; }
+    b.disabled = true;
+    fetch('./puente.gs?v=' + Date.now(), { cache: 'no-store' }).then(function (r) { if (!r.ok) throw new Error('http'); return r.text(); })
+      .then(function (txt) { copiarTexto(txt, 'Código del puente copiado: péguelo en Apps Script'); })
+      .catch(function () { toast('No se pudo traer el código del puente. Revise la señal e intente otra vez.'); })
+      .then(function () { b.disabled = false; });
+  });
   $('formConectar').addEventListener('submit', function (e) {
     e.preventDefault();
     var err = $('conectarError'); err.hidden = true;
@@ -3009,7 +3110,7 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
       var acc = b.getAttribute('data-proteccion');
       if (acc === 'pedir') { S.confirmProteccion = true; render(); return; }
       if (acc === 'no') { S.confirmProteccion = false; render(); return; }
-      var pp = clone(S.plan || {}); pp.proteccion = Object.assign({ topes: { 'vida-social': 200000, 'nmax': 100000, 'hormiga': 80000 } }, pp.proteccion || {});
+      var pp = clone(S.plan || {}); pp.proteccion = Object.assign({ topes: topesSugeridos() }, pp.proteccion || {});
       if (acc === 'on') { pp.proteccion.activo = true; pp.proteccion.desde = hoy(); }
       else { pp.proteccion.activo = false; delete pp.proteccion.desde; }
       S.confirmProteccion = false; guardar('config', 'plan', pp);
@@ -3018,13 +3119,22 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
     }
     if (t.closest('[data-cajreal]')) {
       var v = num(($('cajReal') || {}).value), tsRaw = String(($('cajTasa') || {}).value || '').trim(), ts = leerTasa(tsRaw);
-      if (tsRaw && ts == null) { toast('Escriba la tasa como la ve en Nu, por ejemplo 9,35.'); return; }
+      if (tsRaw && ts == null) { toast('Escriba la tasa como la ve en su banco, por ejemplo 9,35.'); return; }
       var cambiaTasa = ts != null && Math.abs(ts - tasaCajita()) > 0.001;
-      if (!v && !cambiaTasa) { toast('Escriba el saldo que ve en Nu.'); return; }
+      if (!v && !cambiaTasa) { toast('Escriba el saldo que ve en ' + entidadAhorro() + '.'); return; }
       // Sin saldo nuevo, la tasa cambia desde hoy: el saldo de hoy (con lo que ya rindió) queda como base.
       var plan = clone(S.plan || {}); plan.cajita = Object.assign({}, plan.cajita || {}, { saldoBase: v || saldoCajita(), fechaBase: hoy(), baseCreado: ahoraISO() });
       if (ts != null) plan.cajita.tasa = ts;
       guardar('config', 'plan', plan); toast(v ? 'Saldo de la Cajita actualizado' : 'Tasa de la Cajita actualizada: ' + tasaCajTxt(ts) + '% E.A.'); return;
+    }
+    if (t.closest('[data-deuda-nueva]')) { S.nuevaDeuda = true; render(); var nd0 = document.querySelector('#nuevaDeuda .i-nombre'); if (nd0) nd0.focus(); return; }
+    if (t.closest('[data-deuda-crear-no]')) { S.nuevaDeuda = false; render(); return; }
+    if (t.closest('[data-deuda-crear]')) {
+      var xd0 = leerDeuda($('nuevaDeuda')); if (!xd0) { toast('Escriba el nombre de la deuda.'); return; }
+      var a0 = armarDeuda(xd0, S.deudas.length + 1), ops0 = [['deudas', a0.deuda.id, a0.deuda]];
+      if (a0.fijo) ops0.push(['config', 'plan', Object.assign({}, S.plan || {}, { fijos: planL('fijos').concat([a0.fijo]) })]);
+      S.nuevaDeuda = false; guardarVarios(ops0);
+      toast(xd0.tipo === 'tarjeta' ? 'Tarjeta agregada: ya aparece como forma de pago' : 'Deuda agregada'); return;
     }
     if ((b = t.closest('[data-deuda-editar]'))) { S.editDeuda = b.getAttribute('data-deuda-editar'); S.confirmDeuda = null; S.pagoDeuda = null; render(); return; }
     if ((b = t.closest('[data-deuda-quitar]'))) { S.confirmDeuda = b.getAttribute('data-deuda-quitar'); S.editDeuda = null; S.pagoDeuda = null; render(); return; }
