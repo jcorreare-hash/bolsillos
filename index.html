@@ -150,6 +150,16 @@ input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px
 /* Conectar */
 .conectar { display: grid; gap: 16px; padding-top: 8px; }
 .conectar ol { margin: 0; padding-left: 1.2em; display: grid; gap: 6px; }
+.hero-total { margin-top: 10px; border-top: 1px solid var(--hero-line); padding-top: 10px; }
+.hero-total summary { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; cursor: pointer; list-style: none; font-size: 0.9rem; color: var(--hero-muted, rgba(255,255,255,0.78)); }
+.hero-total summary::-webkit-details-marker { display: none; }
+.hero-total summary b { font-size: 1.12rem; color: var(--hero-ink, #fff); white-space: nowrap; }
+.hero-total .ht-tit { display: grid; gap: 1px; }
+.hero-total .ht-tit small { font-size: 0.78rem; opacity: 0.85; }
+.hero-total .ht-tit small::after { content: ' ›'; }
+.hero-total[open] .ht-tit small::after { content: ' ⌄'; }
+.ht-filas { display: grid; gap: 4px; margin-top: 8px; font-size: 0.86rem; color: var(--hero-muted, rgba(255,255,255,0.78)); }
+.ht-filas div { display: flex; justify-content: space-between; gap: 10px; }
 .ini-fila { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 7em); gap: 8px; align-items: end; padding-top: 12px; margin-top: 4px; border-top: 1px solid var(--line); }
 .ini-fila .ancho { grid-column: 1 / -1; }
 .ini-fila.dos { grid-template-columns: minmax(0, 1fr) minmax(0, 9em); border-top: 0; margin-top: 0; padding-top: 8px; }
@@ -729,7 +739,7 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
   function tarjetas() { return MEDIOS.filter(function (m) { return m.tarjeta; }); }
   var MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
   var DIAS = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
-  var VERSION_APP = '9.0';
+  var VERSION_APP = '9.1';
   var TABS = ['hoy', 'plata', 'pago', 'metas', 'mes', 'ajustes'];
   var COLECCIONES = ['gastos', 'ingresos', 'dias', 'deudas', 'pagos', 'config', 'prestamos', 'abonos', 'cuadres', 'retiros'];
   var LS = { conn: 'bolsillos.conexion', datos: 'bolsillos.datos', cola: 'bolsillos.cola', sync: 'bolsillos.sync', navegador: 'bolsillos.navegador', puente: 'bolsillos.puente', discreto: 'bolsillos.discreto', bloqueo: 'bolsillos.bloqueo' };
@@ -1008,7 +1018,7 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
 
   /* Ingresos extra, préstamos y cuentas por cobrar */
   function destinoDe(i) { return i.destino || 'cajita'; }
-  function ingADestino(i) { return Math.max(0, (Number(i.monto) || 0) - (Number(i.repone) || 0)); }
+  function ingADestino(i) { var m = Number(i.monto) || 0; if (i.tipo === 'ajuste' && m < 0) return m; return Math.max(0, m - (Number(i.repone) || 0)); }
   function nombreLugar(d) {
     if (!d || d === 'cajita') return 'la Cajita';
     if (String(d).indexOf('deuda:') === 0) { var x = deudaPorId(String(d).slice(6)); return x ? x.nombre : 'una deuda'; }
@@ -1198,8 +1208,23 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
   function esReserva(c) { return tipoDe(c) === 'reserva'; }
   function enDisponible(c) { return esDia(c) || esReserva(c); }
   function esApartado(c) { var t = tipoDe(c); return t === 'apartado' || t === 'fondo'; }
+  /* Lo que sobró de un pago después de la Cajita, los pagos fijos y los bolsillos: si pasó menos a la Cajita de lo que
+     daba, o entró un ingreso que no tenía destino, esa plata sigue en el disponible y queda en Por asignar. */
+  function sobranteRitual(p) {
+    var mc = marca(p.inicio, 'cajita'); if (!(mc && mc.hecho)) return 0;
+    var it = itemsPago(p);
+    var ingH = sum(it.ing, function (i) { var m = marca(p.inicio, 'ing:' + i.id); return m && m.hecho ? it.val('ing:' + i.id, Number(i.monto) || 0) : 0; });
+    // Si pasó a la Cajita más de lo que daba (o falta marcar un ingreso), no resta: el cuadre lo revisa.
+    return Math.max(0, Math.round(ingH - it.tFij - it.tBol - (Number(mc.monto) || 0)));
+  }
+  function sobrantesDesde(fb) {
+    var s = 0, t = hoy(), ini = inicioApp();
+    Object.keys(S.pagos).forEach(function (k) { if (k <= fb || k < ini || k > t) return; s += sobranteRitual(periodoDe(addDias(k, 1))); });
+    return s;
+  }
   function saldoReserva(c) {
     var cb = { fechaBase: c.fechaBase || '0000', baseCreado: c.baseCreado }, s = Number(c.saldoBase) || 0, key = 'bol:' + c.id, t = hoy();
+    var pa0 = catPorAsignar(); if (pa0 && pa0.id === c.id) s += sobrantesDesde(cb.fechaBase);
     if (cb.fechaBase !== '0000') {
       // Suma el aporte de cada quincena que empezó después de la base y ya arrancó.
       var q = periodoDe(addDias(cb.fechaBase, 1)), n = 0;
@@ -1455,6 +1480,15 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
     if (ks.length === 1) { var d = S.deudas.filter(function (x) { return x.tarjeta === ks[0]; })[0]; return 'suma a la deuda de ' + (d ? corto(d) : medio(ks[0]).nombre); }
     return 'suma a la deuda de las tarjetas';
   }
+  /* Disponible total: lo que debería tener entre el saldo disponible del banco y la billetera. */
+  function lineaTotal(q) {
+    var e = esperadoDia(), filas = [['Le queda para el día a día', q.queda]];
+    (S.cats || []).filter(esReserva).forEach(function (c) { var v = saldoReserva(c); if (Math.round(v)) filas.push([c.nombre + (esEfectivo(c) ? ' (en efectivo)' : ''), v]); });
+    if (e.pend) filas.push(['Pagos de la quincena sin marcar', e.pend]);
+    if (e.nueva) filas.push(['Plata del día de la quincena que empieza', e.nueva]);
+    return '<details class="hero-total" data-abre="total"' + (S.abiertos.total ? ' open' : '') + '><summary><span class="ht-tit">Disponible total<small>' + esc(banco() || 'Banco') + ' + billetera</small></span><b class="num">' + fmt(e.total) + '</b></summary>' +
+      '<div class="ht-filas">' + filas.map(function (f) { return '<div><span>' + esc(f[0]) + '</span><span class="num">' + fmt(f[1]) + '</span></div>'; }).join('') + '</div></details>';
+  }
   function renderHoy() {
     var p = S.per, t = hoy(), actual = t >= p.desde && t <= p.fin, futuro = p.desde > t;
     var q = quedaDia(p), cats = S.cats || [], pres = q.pres, queda = q.queda;
@@ -1471,7 +1505,8 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
       '<p class="big' + (queda < 0 ? ' neg' : '') + '">' + big + '</p>' +
       (pres > 0 ? '<div class="hero-bar' + (queda < 0 ? ' neg' : '') + '" role="img" aria-label="Le queda el ' + pct + '%"><i style="width:' + (queda < 0 ? 100 : pct) + '%"></i></div>' : '') +
       '<p class="meta">' + meta + '</p>' + (q.tarj > 0 ? '<p class="meta tc-linea">Con tarjeta esta quincena: <b>' + fmt(q.tarj) + '</b> · ' + esc(destinoTarjeta(q.uso.porTarjeta)) + '</p>' : '') +
-      infoTxt('hero', 'Es la plata del día (' + nombresDia() + ') que le queda hasta el próximo pago, del ' + fCorta(p.desde) + ' al ' + fCorta(p.fin) + '. No es el saldo del banco: allá también están lo que tiene por asignar, la reserva y los pagos de la quincena que no ha hecho; el cuadre de la semana revisa que todo coincida. Lo que paga con tarjeta de crédito no sale de aquí: se suma a la deuda de la tarjeta y se paga con el extracto. "Va bien" compara lo que lleva gastado con los días que han pasado.') +
+      (actual && cats.length ? lineaTotal(q) : '') +
+      infoTxt('hero', 'Es la plata del día (' + nombresDia() + ') que le queda hasta el próximo pago, del ' + fCorta(p.desde) + ' al ' + fCorta(p.fin) + '. No es el saldo del banco: allá también están lo que tiene por asignar, la reserva y los pagos de la quincena que no ha hecho. Todo eso junto es el disponible total, que debe coincidir con lo que tiene ' + esc(enBanco()) + ' (sin los bolsillos) más la billetera; el cuadre de la semana revisa que coincida. Lo que paga con tarjeta de crédito no sale de aquí: se suma a la deuda de la tarjeta y se paga con el extracto. "Va bien" compara lo que lleva gastado con los días que han pasado.') +
       '<div class="stats"><div><span class="k">Gastado</span><span class="v">' + fmt(q.gastado) + '</span></div>' +
       '<div><span class="k">Por asignar</span><span class="v">' + fmt(pa ? saldoReserva(pa) : 0) + '</span></div>' +
       '<div><span class="k">Por cobrar</span><span class="v">' + fmt(porCobrar) + '</span></div></div>' +
@@ -1710,9 +1745,11 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
         (S.cats || []).filter(enDisponible).filter(function (c) { return activo(c) && !esEfectivo(c) && (esReserva(c) || Number(c.presupuesto) > 0); }).map(function (c) { var k = 'bol:' + c.id; return '<button type="button" class="chip" data-cuadre-accion="' + esc(k) + '" aria-pressed="' + (acc === k) + '">Sumarla a ' + esc(c.nombre) + '</button>'; }).join('') +
         '<button type="button" class="chip" data-cuadre-accion="nada" aria-pressed="' + (acc === 'nada') + '">Dejarla así</button></div>';
     } else {
-      if (!acc || (acc !== 'gasto' && acc !== 'nada')) acc = S.cuadreAccion = 'nada';
-      h += '<div class="fuerte mal"><span>Le falta</span><span class="num">' + fmt(-r.diff) + '</span></div><span>Puede ser un gasto que no anotó.</span><div class="chips">' +
+      var paF = catPorAsignar(), paS = paF ? saldoReserva(paF) : 0, puedePA = paF && paS >= -r.diff;
+      if (!acc || (acc !== 'gasto' && acc !== 'nada' && !(acc === 'menos-pa' && puedePA))) acc = S.cuadreAccion = 'nada';
+      h += '<div class="fuerte mal"><span>Le falta</span><span class="num">' + fmt(-r.diff) + '</span></div><span>Puede ser un gasto que no anotó' + (puedePA ? ', o plata de Por asignar que ya se usó' : '') + '.</span><div class="chips">' +
         '<button type="button" class="chip" data-cuadre-accion="nada" aria-pressed="' + (acc === 'nada') + '">Ya lo busco y lo anoto</button>' +
+        (puedePA ? '<button type="button" class="chip" data-cuadre-accion="menos-pa" aria-pressed="' + (acc === 'menos-pa') + '">Sacarlo de Por asignar (' + fmt(paS) + ')</button>' : '') +
         '<button type="button" class="chip" data-cuadre-accion="gasto" aria-pressed="' + (acc === 'gasto') + '">Anotarlo como gasto sin detalle</button></div>';
     }
     return h;
@@ -1761,6 +1798,9 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
       if (r.diff > 0 && S.cuadreAccion && S.cuadreAccion !== 'nada') {
         guardar('ingresos', nuevoId(), { fecha: f, mes: mesDe(f), monto: r.diff, tipo: 'ajuste', destino: S.cuadreAccion, concepto: 'Diferencia del cuadre', creado: iso1 });
         msg = S.cuadreAccion === 'cajita' ? 'Cuadre guardado. Pase ' + fmt(r.diff) + ' a la ' + nombreAhorro() + '.' : 'Cuadre guardado. Sumé ' + fmt(r.diff) + ' a ' + nombreLugar(S.cuadreAccion) + '.';
+      } else if (r.diff < 0 && S.cuadreAccion === 'menos-pa' && catPorAsignar()) {
+        guardar('ingresos', nuevoId(), { fecha: f, mes: mesDe(f), monto: r.diff, tipo: 'ajuste', destino: 'bol:' + catPorAsignar().id, concepto: 'Diferencia del cuadre (sale de Por asignar)', creado: iso1 });
+        msg = 'Cuadre guardado. Saqué ' + fmt(-r.diff) + ' de Por asignar.';
       } else if (r.diff < 0 && S.cuadreAccion === 'gasto') {
         guardar('gastos', nuevoId(), { fecha: f, mes: mesDe(f), monto: -r.diff, categoria: catSinDetalle(), medio: 'efectivo', nota: 'Diferencia del cuadre (sin detalle)', creado: iso1 });
         msg = 'Cuadre guardado. Anoté ' + fmt(-r.diff) + ' como gasto sin detalle.';
@@ -1991,7 +2031,7 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
     var pct = Math.round(total ? hechos / total * 100 : 0);
     var extras = sum(S.ingresos.filter(function (i) { return ingresoReal(i) && i.fecha >= p.desde && i.fecha <= p.fin; }), function (i) { return i.monto; });
     html += cab('Pago del ' + fLarga(p.inicio), 'pago');
-    html += '<p class="hint">Cubre del ' + fCorta(p.desde) + ' al ' + fCorta(p.fin) + '.</p>' + infoTxt('pago', 'La plata le entra al final del día de pago. Vaya marcando en orden: primero la Cajita, luego los pagos fijos, después lo que va a los bolsillos del banco. Lo que queda es la plata del día. Si un valor cambia, escríbalo antes de marcarlo.');
+    html += '<p class="hint">Cubre del ' + fCorta(p.desde) + ' al ' + fCorta(p.fin) + '.</p>' + infoTxt('pago', 'La plata le entra al final del día de pago. Vaya marcando en orden: primero la Cajita, luego los pagos fijos, después lo que va a los bolsillos del banco. Lo que queda es la plata del día. Si un valor cambia, escríbalo antes de marcarlo. Si pasa a la Cajita menos de lo que da, la diferencia queda en Por asignar.');
     var prt = proteccion();
     if (prt.activo && p.inicio >= (prt.desde || '')) html += '<p class="aviso">Modo protección: ' + esc(topesTxt()) + ' como tope, y lo que sobre va al colchón.</p>';
     if (p.inicio < inicioApp()) html += '<p class="aviso">Esta quincena empezó antes de que usara la app (el ' + fCorta(inicioApp()) + '). Tómela solo como referencia: los valores son el plan, no lo que pasó. El ritual de verdad arranca con el próximo pago.</p>';
