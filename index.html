@@ -150,6 +150,28 @@ input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px
 /* Conectar */
 .conectar { display: grid; gap: 16px; padding-top: 8px; }
 .conectar ol { margin: 0; padding-left: 1.2em; display: grid; gap: 6px; }
+.hero-toque { all: unset; display: grid; gap: 6px; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.hero-toque:focus-visible { outline: 2px solid var(--hero-accent); outline-offset: 4px; border-radius: 8px; }
+.dd-ver { float: right; color: var(--hero-accent); font-weight: 700; font-size: 0.86rem; }
+.hero-aparte { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 0.88rem; color: var(--hero-muted); }
+.hero-aparte b { color: var(--hero-ink); }
+.hero-aparte b.neg { color: var(--hero-neg); }
+.dd { display: grid; gap: 12px; margin-top: 6px; border-top: 1px solid var(--hero-line); padding-top: 12px; }
+.dd-ritmo { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.dd-ritmo div { display: grid; gap: 2px; min-width: 0; }
+.dd-ritmo .k { font-size: 0.68rem; color: var(--hero-muted); text-transform: uppercase; letter-spacing: 0.06em; }
+.dd-ritmo .v { font-weight: 700; font-size: 1.02rem; overflow-wrap: anywhere; }
+.dd-ritmo small { font-size: 0.74rem; color: var(--hero-muted); }
+.dd-partes { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 0.84rem; color: var(--hero-muted); }
+.dd-partes b { color: var(--hero-ink); font-weight: 600; }
+.dd-bloque { border-top: 1px solid var(--hero-line); padding-top: 10px; }
+.dd-tit { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+.dd-tit span { display: grid; gap: 1px; font-weight: 600; }
+.dd-tit small { font-size: 0.76rem; color: var(--hero-muted); font-weight: 400; }
+.dd-tit b { font-size: 1.12rem; white-space: nowrap; }
+.dd-nota { font-size: 0.8rem; color: var(--hero-muted); }
+.bolsillo.etiqueta { padding-left: 14px; opacity: 0.9; }
+.bolsillo.etiqueta .barra { display: none; }
 .hero-total { margin-top: 10px; border-top: 1px solid var(--hero-line); padding-top: 10px; }
 .hero-total summary { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; cursor: pointer; list-style: none; font-size: 0.9rem; color: var(--hero-muted, rgba(255,255,255,0.78)); }
 .hero-total summary::-webkit-details-marker { display: none; }
@@ -739,7 +761,7 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
   function tarjetas() { return MEDIOS.filter(function (m) { return m.tarjeta; }); }
   var MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
   var DIAS = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
-  var VERSION_APP = '9.1';
+  var VERSION_APP = '10.0';
   var TABS = ['hoy', 'plata', 'pago', 'metas', 'mes', 'ajustes'];
   var COLECCIONES = ['gastos', 'ingresos', 'dias', 'deudas', 'pagos', 'config', 'prestamos', 'abonos', 'cuadres', 'retiros'];
   var LS = { conn: 'bolsillos.conexion', datos: 'bolsillos.datos', cola: 'bolsillos.cola', sync: 'bolsillos.sync', navegador: 'bolsillos.navegador', puente: 'bolsillos.puente', discreto: 'bolsillos.discreto', bloqueo: 'bolsillos.bloqueo' };
@@ -874,7 +896,49 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
     var doc = Object.assign({}, op.doc, { id: op.id });
     if (i >= 0) arr[i] = doc; else arr.push(doc);
   }
-  function migrar() { registrarHistorial(); }
+  function migrar() { migrarBolsa(); registrarHistorial(); }
+  /* Esquema 10: las categorías del día que no tienen tope propio se juntan en una sola "Plata del día" (la suma de sus
+     presupuestos) y quedan como etiquetas. Vida social y las de temporada quedan aparte. Las quincenas anteriores no cambian. */
+  function armarBolsa(cats, desde, mesB, topes) {
+    var miembros = [], idx = -1;
+    cats.forEach(function (c, i) {
+      var r = rolBolsa(c); if (r === 'aparte') c.aparte = true;
+      if (r === 'miembro') { miembros.push(c); if (idx < 0) idx = i; }
+    });
+    if (!miembros.length) return null;
+    var tot = 0, pri = 0, tope = 0, conTope = false;
+    miembros.forEach(function (c) {
+      var v = Number(c.presupuesto) || 0; tot += v;
+      pri += c.primera != null ? Number(c.primera) || 0 : Math.round(v / 2);
+      if (topes && topes[c.id] != null) { conTope = true; tope += Number(topes[c.id]) || 0; delete topes[c.id]; } else tope += v;
+      c.bolsa = 'etiqueta'; if (desde) { c.bolsaDesde = desde; c.bolsaMes = mesB; }
+    });
+    var pr = { tipo: 'dia', id: 'plata-dia', nombre: 'Plata del día', presupuesto: tot, primera: Math.min(pri, tot), reembolsable: false, bolsa: 'principal', icono: 'billete', color: '#2E7A4E' };
+    if (desde) { pr.bolsaDesde = desde; pr.bolsaMes = mesB; }
+    if (catPorIdEn(cats, pr.id)) pr.id = 'plata-dia-' + Math.random().toString(36).slice(2, 6);
+    cats.splice(idx, 0, pr);
+    if (topes && conTope) topes[pr.id] = tope;
+    return pr;
+  }
+  function rolBolsa(c) {
+    if (tipoDe(c) !== 'dia' || c.reembolsable || c.bolsa) return '';
+    if ((c.soloMeses && c.soloMeses.length) || /social|fiesta|salida|planes/i.test((c.id || '') + ' ' + (c.nombre || ''))) return 'aparte';
+    return c.activo === false || !(Number(c.presupuesto) > 0) ? '' : 'miembro';
+  }
+  function catPorIdEn(cats, id) { for (var i = 0; i < cats.length; i++) if (cats[i].id === id) return cats[i]; return null; }
+  function migrarBolsa() {
+    if (!S.cats || !S.cats.length || S.puenteV < 2 || !S.plan || (Number(S.plan.esquema) || 0) >= 10) return;
+    var plan = clone(S.plan), cats = clone(S.cats);
+    plan.esquema = 10;
+    if (!cats.some(esPrincipal)) {
+      // Empieza en la quincena de hoy, salvo que en ella ya haya ajustado a mano alguna categoría del día: entonces, en la siguiente.
+      var cur = periodoDe(hoy()), tocadas = cats.some(function (c) { return rolBolsa(c) === 'miembro' && marca(cur.inicio, 'bol:' + c.id); });
+      var ini = tocadas ? perSig(cur) : cur;
+      var topes = plan.proteccion && plan.proteccion.topes ? plan.proteccion.topes : null;
+      armarBolsa(cats, ini.inicio, ini.mesFondo, topes);
+    }
+    guardarVarios([['config', 'presupuesto', { categorias: cats }], ['config', 'plan', plan]]);
+  }
   /* Lo que tiene menos lo que debe, una foto por mes (se actualiza como mucho una vez al día). */
   function patrimonio() {
     var tiene = saldoCajita() + sum(apartadosVisibles(), saldoApartado) + esperadoDia().total;
@@ -971,7 +1035,7 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
   function entidadAhorro() { return String(appCfg().entidad || '').trim() || 'su banco'; }
   function catPorId(id) { var c = S.cats || []; for (var i = 0; i < c.length; i++) if (c[i].id === id) return c[i]; return null; }
   function activaEn(c, mes) { return !(c.soloMeses && c.soloMeses.length && c.soloMeses.indexOf(mes) < 0); }
-  function presMes(c, mes) { if (c.anual) return provisionesMes(c.id, mes); if (!activaEn(c, mes)) return 0; var o = c.porMes && c.porMes[mes]; return Number(o != null ? o : c.presupuesto) || 0; }
+  function presMes(c, mes, ign) { if (c.anual) return provisionesMes(c.id, mes); if (!activaEn(c, mes)) return 0; if (!ign && fueraDeBolsa(c, mes)) return 0; var o = c.porMes && c.porMes[mes]; return Number(o != null ? o : c.presupuesto) || 0; }
   /* Gastos del año: cada gasto se reparte en los meses que faltan hasta su fecha (o en 12 si se repite cada año). */
   function proximaAnual(a, desdeFecha) {
     var f = a.fecha, t = desdeFecha || hoy();
@@ -989,17 +1053,20 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
     return n ? Math.round((Number(a.monto) || 0) / n) : 0;
   }
   function provisionesMes(cid, mes) { return sum(planL('anuales').filter(function (a) { return (a.bolsillo || 'gastos-anio') === cid; }), function (a) { return provisionAnual(a, mes); }); }
-  function parteMes(c, mes, parte) {
-    var tot = presMes(c, mes), base = Number(c.presupuesto) || 0;
+  function parteMes(c, mes, parte, ign) {
+    var tot = presMes(c, mes, ign), base = Number(c.presupuesto) || 0;
     var pri = (c.primera != null && base > 0) ? Math.round(tot * Number(c.primera) / base) : Math.round(tot / 2);
     return parte === 'primera' ? pri : tot - pri;
   }
   function marca(inicio, key) { var d = S.pagos[inicio]; return d && d.marcas ? d.marcas[key] : null; }
   function presPer(c, p) {
+    // Plata del día (v10): desde el cambio, las etiquetas no tienen presupuesto propio y la bolsa sí; antes, al revés.
+    if (c.bolsa === 'etiqueta' && (!c.bolsaDesde || p.inicio >= c.bolsaDesde)) return 0;
     var m = marca(p.inicio, 'bol:' + c.id);
     if (m && m.monto != null) return Number(m.monto);
-    var v = parteMes(c, p.mesFondo, p.parte), t = topeProteccion(c, p);
-    if (t != null) { var mes = presMes(c, p.mesFondo); if (mes > t) v = Math.round(v * t / mes); }
+    if (c.bolsa === 'principal' && c.bolsaDesde && p.inicio < c.bolsaDesde) return 0;
+    var v = parteMes(c, p.mesFondo, p.parte, !!c.bolsa), t = topeProteccion(c, p);
+    if (t != null) { var mes = presMes(c, p.mesFondo, !!c.bolsa); if (mes > t) v = Math.round(v * t / mes); }
     return v;
   }
   /* Modo protección: desde la quincena siguiente a activarlo, algunos bolsillos bajan a un tope mensual. */
@@ -1014,7 +1081,22 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
   function activoItem(it, mes) { return (!it.desde || mes >= it.desde) && (!it.hasta || mes <= it.hasta); }
   function deudaPorId(id) { for (var i = 0; i < S.deudas.length; i++) if (S.deudas[i].id === id) return S.deudas[i]; return null; }
   function montoFijo(f) { if (f.deuda) { var d = deudaPorId(f.deuda); if (d && Number(d.cuota)) return Number(d.cuota); } return Number(f.monto) || 0; }
-  function gastosEntre(a, b) { return S.gastos.filter(function (g) { return g.fecha >= a && g.fecha <= b; }); }
+  function gastosEntre(a, b) { return S.gastos.filter(function (g) { return g.fecha >= a && g.fecha <= b; }).concat(cargosAuto(a, b)); }
+  /* Cobros automáticos de la cuenta (una "suscripción" con débito, como la cuota de manejo): salen solos el día del cobro,
+     como un gasto de la bolsa del día. Solo cuentan los que ya pasaron. */
+  function cargosAuto(a, b) {
+    var t = hoy(), hasta = b < t ? b : t, out = [], vistos = {};
+    if (hasta < a) return out;
+    planL('suscripciones').forEach(function (x) {
+      if (x.activa === false || !x.medio || medio(x.medio).tarjeta || vistos[x.medio]) return;
+      vistos[x.medio] = 1;
+      cobrosSus(x.medio, addDias(a, -1), hasta).forEach(function (cb) {
+        var y = cb.sus, cat = y.cat && catPorId(y.cat) ? y.cat : catSinDetalle();
+        out.push({ id: 'auto-' + y.id + '-' + cb.fecha, fecha: cb.fecha, mes: mesDe(cb.fecha), monto: cb.monto, categoria: cat, medio: y.medio, nota: y.nombre + ' · cobro automático', auto: true, creado: cb.fecha + 'T12:00:00.000Z' });
+      });
+    });
+    return out;
+  }
 
   /* Ingresos extra, préstamos y cuentas por cobrar */
   function destinoDe(i) { return i.destino || 'cajita'; }
@@ -1133,7 +1215,7 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
   function costoMes(enProteccion) {
     var mes = mesDe(hoy()), tot = 0, topes = proteccion().topes || {};
     (S.cats || []).forEach(function (c) {
-      if (!activo(c) || c.reembolsable || tipoDe(c) === 'fondo' || (c.soloMeses && c.soloMeses.length)) return;
+      if (!activo(c) || c.reembolsable || tipoDe(c) === 'fondo' || (c.soloMeses && c.soloMeses.length) || fueraDeBolsa(c, mes)) return;
       var v = Number(c.presupuesto) || 0;
       if (enProteccion && topes[c.id] != null) v = Math.min(v, Number(topes[c.id]) || 0);
       tot += v;
@@ -1201,8 +1283,38 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
   function tipoDe(c) { return c.tipo || (c.reembolsable ? 'fondo' : 'dia'); }
   function activo(c) { return c.activo !== false; }
   function esDia(c) { return tipoDe(c) === 'dia' && !c.reembolsable; }
+  /* Plata del día (v10): una sola bolsa por quincena para lo del día a día. Alimentación, hormiga y fuera del plan
+     quedan como etiquetas (sirven para ver en qué se fue); lo que tiene su propio tope (vida social, temporada) va aparte. */
+  function esPrincipal(c) { return !!(c && c.bolsa === 'principal'); }
+  function esEtiqueta(c) { return !!(c && c.bolsa === 'etiqueta'); }
+  function enBolsa(c) { return esDia(c) && !c.aparte; }
+  function esAparte(c) { return esDia(c) && !!c.aparte; }
+  function catPrincipal() { return (S.cats || []).filter(esPrincipal)[0] || null; }
+  function nombreBolsa() { var c = catPrincipal(); return c ? c.nombre : 'Plata del día'; }
+  /* Para los informes del mes: desde el mes del cambio la etiqueta no tiene presupuesto; antes, la bolsa no existía. */
+  function fueraDeBolsa(c, mes) {
+    if (c.bolsa === 'etiqueta' && (!c.bolsaMes || mes >= c.bolsaMes)) return true;
+    if (c.bolsa === 'principal' && c.bolsaMes && mes < c.bolsaMes) return true;
+    return false;
+  }
+  function bolsaDia(p) {
+    var q = quedaDia(p), u = q.uso, mem = (S.cats || []).filter(enBolsa), huerf = 0, tarj = 0;
+    Object.keys(u.caja).forEach(function (k) { if (!catPorId(k)) huerf += u.caja[k]; });
+    Object.keys(u.conTarjeta).forEach(function (k) { var c = catPorId(k); if (!c || enBolsa(c)) tarj += u.conTarjeta[k]; });
+    var pres = sum(mem, function (c) { return presPer(c, p) + extraEntre(c.id, p.desde, p.fin) - salidaEntre(c.id, p.desde, p.fin); });
+    var usado = sum(mem, function (c) { return u.caja[c.id] || 0; }) + huerf;
+    var prestado = sum(mem, function (c) { return prestadoEntre(c.id, p.desde, p.fin); });
+    var partes = mem.map(function (c) { return { c: c, g: u.caja[c.id] || 0, gt: u.conTarjeta[c.id] || 0 }; }).filter(function (x) { return x.g > 0 || x.gt > 0; })
+      .sort(function (a, b) { return b.g - a.g; });
+    if (huerf > 0) partes.push({ c: { id: '', nombre: 'Sin categoría' }, g: huerf, gt: 0 });
+    return { pres: pres, usado: usado, prestado: prestado, gastado: usado - prestado, queda: pres - usado, uso: u, partes: partes, tarj: tarj, total: q };
+  }
+  function aparteDia(c, p) {
+    var u = usoEntre(p.desde, p.fin), pres = presPer(c, p) + extraEntre(c.id, p.desde, p.fin) - salidaEntre(c.id, p.desde, p.fin), g = u.caja[c.id] || 0;
+    return { c: c, pres: pres, usado: g, queda: pres - g };
+  }
   function nombresDia() {
-    var p = periodoDe(hoy()), l = (S.cats || []).filter(function (c) { return esDia(c) && presPer(c, p) > 0; }).map(function (c) { return c.nombre.toLowerCase(); });
+    var p = periodoDe(hoy()), l = (S.cats || []).filter(function (c) { return enBolsa(c) && activo(c) && !esPrincipal(c) && (presPer(c, p) > 0 || esEtiqueta(c)); }).map(function (c) { return c.nombre.toLowerCase(); });
     return l.length ? l.join(', ').replace(/, ([^,]*)$/, ' y $1') : 'alimentación y gastos hormiga';
   }
   function esReserva(c) { return tipoDe(c) === 'reserva'; }
@@ -1480,34 +1592,56 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
     if (ks.length === 1) { var d = S.deudas.filter(function (x) { return x.tarjeta === ks[0]; })[0]; return 'suma a la deuda de ' + (d ? corto(d) : medio(ks[0]).nombre); }
     return 'suma a la deuda de las tarjetas';
   }
-  /* Disponible total: lo que debería tener entre el saldo disponible del banco y la billetera. */
-  function lineaTotal(q) {
-    var e = esperadoDia(), filas = [['Le queda para el día a día', q.queda]];
+  /* Detalle de Plata del día (al tocar la cifra grande): ritmo, cuánto alcanza por día y por semana, el total de
+     banco + billetera y, en una línea aparte, los bolsillos. Lo prestado ya salió: no está en ninguna de las cuentas. */
+  function filasDD(titulo, sub, total, filas) {
+    return '<div class="dd-bloque"><div class="dd-tit"><span>' + esc(titulo) + (sub ? '<small>' + esc(sub) + '</small>' : '') + '</span><b class="num">' + fmt(total) + '</b></div>' +
+      '<div class="ht-filas">' + filas.map(function (f) { return '<div><span>' + esc(f[0]) + '</span><span class="num">' + fmt(f[1]) + '</span></div>'; }).join('') + '</div></div>';
+  }
+  function detalleDia(b, p) {
+    var t = hoy(), N = diasEntre(p.desde, p.fin) + 1, k = Math.max(1, Math.min(N, diasEntre(p.desde, t) + 1)), rest = Math.max(1, N - k + 1);
+    var q = Math.max(0, b.queda), porDia = q / rest, e = esperadoDia(), h = '<div class="dd">';
+    h += '<div class="dd-ritmo">' +
+      '<div><span class="k">Por día</span><span class="v num">' + fmt(porDia) + '</span><small>' + rest + (rest === 1 ? ' día' : ' días') + ' con hoy</small></div>' +
+      '<div><span class="k">' + (rest >= 7 ? 'Por semana' : 'Hasta el pago') + '</span><span class="v num">' + fmt(rest >= 7 ? porDia * 7 : q) + '</span><small>' + (rest >= 7 ? 'si sigue parejo' : 'lo que queda') + '</small></div>' +
+      '<div><span class="k">Lleva por día</span><span class="v num">' + fmt(b.gastado / k) + '</span><small>' + k + (k === 1 ? ' día' : ' días') + ' de ' + N + '</small></div></div>';
+    if (b.partes.length) h += '<div class="dd-partes">' + b.partes.map(function (x) { return '<span>' + esc(x.c.nombre) + ' <b class="num">' + fmt(x.g) + '</b></span>'; }).join('') + '</div>';
+    var filas = [[nombreBolsa(), b.queda]];
+    (S.cats || []).filter(esAparte).forEach(function (c) { var x = aparteDia(c, p); if (x.pres > 0 || x.usado > 0) filas.push([c.nombre, x.queda]); });
     (S.cats || []).filter(esReserva).forEach(function (c) { var v = saldoReserva(c); if (Math.round(v)) filas.push([c.nombre + (esEfectivo(c) ? ' (en efectivo)' : ''), v]); });
     if (e.pend) filas.push(['Pagos de la quincena sin marcar', e.pend]);
     if (e.nueva) filas.push(['Plata del día de la quincena que empieza', e.nueva]);
-    return '<details class="hero-total" data-abre="total"' + (S.abiertos.total ? ' open' : '') + '><summary><span class="ht-tit">Disponible total<small>' + esc(banco() || 'Banco') + ' + billetera</small></span><b class="num">' + fmt(e.total) + '</b></summary>' +
-      '<div class="ht-filas">' + filas.map(function (f) { return '<div><span>' + esc(f[0]) + '</span><span class="num">' + fmt(f[1]) + '</span></div>'; }).join('') + '</div></details>';
+    h += filasDD((banco() || 'Banco') + ' + efectivo', 'Saldo disponible más la billetera, sin bolsillos ni ' + nombreAhorro(), e.total, filas);
+    var aps = apartadosVisibles();
+    if (aps.length) h += filasDD('Bolsillos ' + delBanco(), 'Aparte: no son para el día a día', sum(aps, saldoApartado), aps.map(function (c) { return [c.nombre, saldoApartado(c)]; }));
+    var deben = totalMeDeben(), reemb = sum(reembolsosPendientes(), function (g) { return g.monto; });
+    if (deben || reemb) h += '<p class="dd-nota">Por cobrar ' + fmt(deben + reemb) + (deben && reemb ? ' (préstamos ' + fmt(deben) + ' y reembolsos ' + fmt(reemb) + ')' : '') + ': esa plata ya salió y no está en estas cuentas. Vuelve cuando registre el pago en Plata.</p>';
+    return h + '</div>';
   }
   function renderHoy() {
     var p = S.per, t = hoy(), actual = t >= p.desde && t <= p.fin, futuro = p.desde > t;
-    var q = quedaDia(p), cats = S.cats || [], pres = q.pres, queda = q.queda;
+    var q = quedaDia(p), b = bolsaDia(p), cats = S.cats || [], pres = b.pres, queda = b.queda;
     var porCobrar = sum(reembolsosPendientes(), function (g) { return g.monto; }) + totalMeDeben();
-    var pa = catPorAsignar();
+    var pa = catPorAsignar(), abierto = !!S.abiertos.dd;
     var sig = fCorta(perSig(p).inicio), eyebrow, meta, big;
     if (!cats.length) { eyebrow = 'Sin categorías'; big = fmt(0); meta = 'Créelas en Mes, en Ajustar.'; }
-    else if (actual) { eyebrow = 'Le queda hasta el pago del ' + sig; big = fmt(queda); meta = ritmoCorto(q, p); }
-    else if (futuro) { eyebrow = 'Presupuesto de la quincena'; big = fmt(pres); meta = 'Empieza con el pago del ' + fCorta(p.inicio); }
-    else { eyebrow = queda >= 0 ? 'Le sobró en esa quincena' : 'Se pasó en esa quincena'; big = fmt(Math.abs(queda)); meta = 'Gastó ' + fmt(q.usado) + ' de ' + fmt(pres); }
+    else if (actual) { eyebrow = nombreBolsa() + ' · hasta el pago del ' + sig; big = fmt(queda); meta = ritmoCorto(b, p); }
+    else if (futuro) { eyebrow = nombreBolsa() + ' de la quincena'; big = fmt(pres); meta = 'Empieza con el pago del ' + fCorta(p.inicio); }
+    else { eyebrow = queda >= 0 ? 'Le sobró en esa quincena' : 'Se pasó en esa quincena'; big = fmt(Math.abs(queda)); meta = 'Gastó ' + fmt(b.usado) + ' de ' + fmt(pres); }
     var pct = pres > 0 ? Math.max(0, Math.min(100, Math.round(queda / pres * 100))) : 0;
+    var aps = cats.filter(esAparte).map(function (c) { return aparteDia(c, p); }).filter(function (x) { return x.pres > 0 || x.usado > 0; });
+    var toque = actual && cats.length;
     setHTML($('hero'),
       '<div class="cab"><p class="eyebrow">' + esc(eyebrow) + '</p>' + infoBtn('hero', true) + '</div>' +
+      (toque ? '<button type="button" class="hero-toque" data-dd="1" aria-expanded="' + abierto + '">' : '<div>') +
       '<p class="big' + (queda < 0 ? ' neg' : '') + '">' + big + '</p>' +
       (pres > 0 ? '<div class="hero-bar' + (queda < 0 ? ' neg' : '') + '" role="img" aria-label="Le queda el ' + pct + '%"><i style="width:' + (queda < 0 ? 100 : pct) + '%"></i></div>' : '') +
-      '<p class="meta">' + meta + '</p>' + (q.tarj > 0 ? '<p class="meta tc-linea">Con tarjeta esta quincena: <b>' + fmt(q.tarj) + '</b> · ' + esc(destinoTarjeta(q.uso.porTarjeta)) + '</p>' : '') +
-      (actual && cats.length ? lineaTotal(q) : '') +
-      infoTxt('hero', 'Es la plata del día (' + nombresDia() + ') que le queda hasta el próximo pago, del ' + fCorta(p.desde) + ' al ' + fCorta(p.fin) + '. No es el saldo del banco: allá también están lo que tiene por asignar, la reserva y los pagos de la quincena que no ha hecho. Todo eso junto es el disponible total, que debe coincidir con lo que tiene ' + esc(enBanco()) + ' (sin los bolsillos) más la billetera; el cuadre de la semana revisa que coincida. Lo que paga con tarjeta de crédito no sale de aquí: se suma a la deuda de la tarjeta y se paga con el extracto. "Va bien" compara lo que lleva gastado con los días que han pasado.') +
-      '<div class="stats"><div><span class="k">Gastado</span><span class="v">' + fmt(q.gastado) + '</span></div>' +
+      '<p class="meta">' + meta + (toque ? '<span class="dd-ver">' + (abierto ? 'Ocultar' : 'Detalle') + ' ' + (abierto ? '⌃' : '›') + '</span>' : '') + '</p>' + (toque ? '</button>' : '</div>') +
+      (actual && aps.length ? '<div class="hero-aparte">' + aps.map(function (x) { return '<span>' + esc(x.c.nombre) + ' <b class="num' + (x.queda < 0 ? ' neg' : '') + '">' + fmt(x.queda) + '</b>' + (x.pres > 0 ? ' de ' + fmt(x.pres) : '') + '</span>'; }).join('') + '</div>' : '') +
+      (q.tarj > 0 ? '<p class="meta tc-linea">Con tarjeta esta quincena: <b>' + fmt(q.tarj) + '</b> · ' + esc(destinoTarjeta(q.uso.porTarjeta)) + '</p>' : '') +
+      (toque && abierto ? detalleDia(b, p) : '') +
+      infoTxt('hero', 'Es su ' + nombreBolsa().toLowerCase() + ' (' + nombresDia() + ') que le queda hasta el próximo pago, del ' + fCorta(p.desde) + ' al ' + fCorta(p.fin) + '. Todo sale de una sola bolsa; las categorías solo sirven para ver en qué se fue. ' + (aps.length ? aps.map(function (x) { return x.c.nombre; }).join(' y ') + ' va aparte, con su propio tope. ' : '') + 'Toque la cifra para ver cuánto le alcanza por día y por semana, y el total que debe tener ' + esc(enBanco()) + ' más la billetera (sin bolsillos). Lo que paga con tarjeta de crédito no sale de aquí: se suma a la deuda de la tarjeta. Lo que presta sale apenas lo registra y vuelve cuando le pagan.') +
+      '<div class="stats"><div><span class="k">Gastado</span><span class="v">' + fmt(b.gastado) + '</span></div>' +
       '<div><span class="k">Por asignar</span><span class="v">' + fmt(pa ? saldoReserva(pa) : 0) + '</span></div>' +
       '<div><span class="k">Por cobrar</span><span class="v">' + fmt(porCobrar) + '</span></div></div>' +
       '<button type="button" class="ver-graf" data-ver-graficos="1">Ver gráficos ›</button>');
@@ -1555,7 +1689,10 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
   /* Baldosas: cada categoría y cada bolsillo con su color; tocarla abre el teclado para anotar ahí. */
   function baldosas(p, q) {
     var u = q.uso, cats = S.cats || [], out = [];
-    cats.filter(esDia).forEach(function (c) {
+    // Una sola baldosa para la bolsa del día; las categorías de adentro se ven al tocarla.
+    var b = bolsaDia(p), pc = catPrincipal() || cats.filter(enBolsa)[0];
+    if (pc && (b.pres > 0 || b.usado > 0 || b.tarj > 0)) out.push({ c: pc, nombre: nombreBolsa(), val: b.queda, total: b.pres, sub: (b.pres > 0 ? 'de ' + fmt(b.pres) : 'fuera del plan') + (b.tarj ? ' · ' + fmt(b.tarj) + ' con tarjeta' : ''), pct: b.pres > 0 ? b.queda / b.pres : 0 });
+    cats.filter(esAparte).forEach(function (c) {
       var g = u.caja[c.id] || 0, gt = u.conTarjeta[c.id] || 0, total = presPer(c, p) + extraEntre(c.id, p.desde, p.fin) - salidaEntre(c.id, p.desde, p.fin);
       if (!(g > 0 || gt > 0 || total > 0)) return;
       out.push({ c: c, val: total - g, total: total, sub: (total > 0 ? 'de ' + fmt(total) : 'fuera del plan') + (gt ? ' · ' + fmt(gt) + ' con tarjeta' : ''), pct: total > 0 ? (total - g) / total : 0 });
@@ -1563,17 +1700,15 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
     cats.filter(function (c) { return esReserva(c) && !esEfectivo(c); }).forEach(function (c) { out.push({ c: c, val: saldoReserva(c), sub: 'sin asignar' }); });
     apartadosVisibles().forEach(function (c) { var s = saldoApartado(c), m = Number((c.meta || {}).monto) || 0; out.push({ c: c, val: s, banco: true, sub: m ? 'meta ' + fmt(m) : '', pct: m ? s / m : null }); });
     cats.filter(esEfectivo).forEach(function (c) { var s = saldoReserva(c), m = Number((c.meta || {}).monto) || 0; out.push({ c: c, val: s, efectivo: true, sub: 'en la billetera', pct: m ? s / m : null }); });
-    var huerf = 0; Object.keys(u.caja).forEach(function (k) { if (!catPorId(k)) huerf += u.caja[k]; });
-    if (huerf > 0) out.push({ c: { id: '', nombre: 'Sin categoría', color: '#6E6A62', icono: 'etiqueta' }, val: -huerf, sub: 'toque para asignarles una', huerf: true });
     return out;
   }
   function renderMosaico(p, q) {
     var tiles = baldosas(p, q);
     var html = tiles.map(function (x) {
       var e = estiloCat(x.c), pct = x.pct == null ? null : Math.max(0, Math.min(100, Math.round(x.pct * 100)));
-      return '<button type="button" class="baldosa' + (x.val < 0 ? ' neg' : '') + '" style="--c:' + e.c + '" ' + (x.huerf ? 'data-ir-movs' : 'data-baldosa="' + esc(x.c.id) + '"') + ' aria-label="' + esc(x.c.nombre) + ', ' + fmt(x.val) + '">' +
+      return '<button type="button" class="baldosa' + (x.val < 0 ? ' neg' : '') + '" style="--c:' + e.c + '" ' + (x.huerf ? 'data-ir-movs' : 'data-baldosa="' + esc(x.c.id) + '"') + ' aria-label="' + esc(x.nombre || x.c.nombre) + ', ' + fmt(x.val) + '">' +
         '<span class="b-top">' + svg(e.i, 24) + (x.banco ? '<span class="b-tag">BANCO</span>' : (x.efectivo ? '<span class="b-tag">EFECTIVO</span>' : '')) + '</span>' +
-        '<span><span class="b-nom">' + esc(x.c.nombre) + '</span><span class="b-val">' + fmt(x.val) + '</span>' + (x.sub ? '<span class="b-sub">' + x.sub + '</span>' : '') +
+        '<span><span class="b-nom">' + esc(x.nombre || x.c.nombre) + '</span><span class="b-val">' + fmt(x.val) + '</span>' + (x.sub ? '<span class="b-sub">' + x.sub + '</span>' : '') +
         (pct != null ? '<span class="barra"><i style="width:' + pct + '%"></i></span>' : '') + '</span></button>';
     }).join('');
     html += '<button type="button" class="baldosa oscura" data-ir="metas" aria-label="' + esc(nombreAhorro()) + ', ' + fmt(saldoCajita()) + '"><span class="b-top">' + svg('cajita', 24) + '</span><span><span class="b-nom">' + esc(nombreAhorro()) + '</span><span class="b-val">' + fmt(saldoCajita()) + '</span><span class="b-sub">colchón ' + Math.max(0, Math.min(100, Math.round(saldoCajita() / metaColchon() * 100))) + '%</span></span></button>';
@@ -1616,19 +1751,32 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
     if (o.editId) S.gastos.forEach(function (x) { if (x.id === o.editId) g = x; });
     S.qa = g ? { monto: String(Math.round(Number(g.monto) || 0)), cat: g.categoria, medio: g.medio, nota: g.nota || '', fecha: g.fecha, editId: g.id } :
       { monto: '', cat: o.cat || S.selCat || null, medio: S.selMedio || 'debito', nota: '', fecha: o.fecha || hoy(), desdeBaldosa: !!o.cat, verInfo: false, mover: null };
-    if (!S.qa.cat || !catPorId(S.qa.cat)) { var d = (S.cats || []).filter(function (c) { return esDia(c) && activo(c) && Number(c.presupuesto) > 0; })[0]; S.qa.cat = d ? d.id : null; }
+    // Desde la baldosa de la bolsa: se anota en una de sus categorías (la última usada o la primera).
+    if (!g && o.cat && esPrincipal(catPorId(o.cat))) { var et = etiquetasBolsa(mesDe(S.qa.fecha)); if (et.length) { S.qa.bolsa = o.cat; S.qa.cat = et.some(function (c) { return c.id === S.selCat; }) ? S.selCat : et[0].id; } }
+    if (!S.qa.cat || !catPorId(S.qa.cat)) { var d = (S.cats || []).filter(function (c) { return esDia(c) && activo(c) && !esPrincipal(c) && Number(c.presupuesto) > 0; })[0]; S.qa.cat = d ? d.id : null; }
     document.body.classList.add('qa-abierta');
     $('qaFondo').hidden = false; $('qa').hidden = false;
     renderQA();
   }
   function cerrarQA() { S.qa = null; document.body.classList.remove('qa-abierta'); $('qaFondo').hidden = true; $('qa').hidden = true; $('qa').innerHTML = ''; }
   function leerQA() { var Q = S.qa; if (!Q) return; if ($('qaNota')) Q.nota = $('qaNota').value; if ($('qaFecha')) Q.fecha = $('qaFecha').value || hoy(); if ($('qaMovMonto')) Q.movMonto = $('qaMovMonto').value; if ($('qaCuadrar')) Q.cuadrarVal = $('qaCuadrar').value; }
-  function catsParaAnotar(mes) { return (S.cats || []).filter(function (c) { return activo(c) && activaEn(c, mes) && !esEfectivo(c); }); }
+  function etiquetasBolsa(mes) { return (S.cats || []).filter(function (c) { return enBolsa(c) && !esPrincipal(c) && activo(c) && activaEn(c, mes); }); }
+  function catsParaAnotar(mes) { var hayEt = etiquetasBolsa(mes).length > 0; return (S.cats || []).filter(function (c) { return activo(c) && activaEn(c, mes) && !esEfectivo(c) && !(hayEt && esPrincipal(c)); }); }
+  /* Lo que dice una categoría de la bolsa: siempre la bolsa entera. */
+  function subBolsa(p) { var b = bolsaDia(p); return 'Quedan ' + fmt(b.queda) + (b.pres > 0 ? ' de ' + fmt(b.pres) : ''); }
   function infoCategoria(c) {
     var p = periodoDe(S.qa.fecha || hoy()), q = quedaDia(p), g = q.uso.caja[c.id] || 0, gt = q.uso.conTarjeta[c.id] || 0, h = '', id = esc(c.id);
     var destinos = [{ v: 'cajita', n: 'Cajita' }].concat((S.cats || []).filter(function (x) { return x.id !== c.id && activo(x) && !esEfectivo(x) && (enDisponible(x) || esApartado(x)) && (presMes(x, mesDe(hoy())) > 0 || esReserva(x) || esApartado(x)); }).map(function (x) { return { v: 'bol:' + x.id, n: x.nombre }; }));
     var real;
-    if (esDia(c)) {
+    if (esEtiqueta(c)) {
+      var bb = bolsaDia(p);
+      h += '<p>Es parte de ' + esc(nombreBolsa()) + ': quedan <b>' + fmt(bb.queda) + '</b> de ' + fmt(bb.pres) + '. En ' + esc(c.nombre.toLowerCase()) + ' lleva <b>' + fmt(g) + '</b> esta quincena.</p>' + (gt ? '<p class="hint">Además ' + fmt(gt) + ' con tarjeta: no salen de aquí, suman a la deuda de la tarjeta.</p>' : '');
+      return '<div class="info-txt" style="display:grid;gap:10px">' + h + '</div>';
+    }
+    if (esPrincipal(c)) {
+      var bp = bolsaDia(p); real = bp.queda;
+      h += '<p>Esta quincena: <b>' + fmt(bp.pres) + '</b> · gastado <b>' + fmt(bp.usado) + '</b> · quedan <b>' + fmt(real) + '</b>.</p>' + (bp.tarj ? '<p class="hint">Además ' + fmt(bp.tarj) + ' con tarjeta: no salen de aquí, suman a la deuda de la tarjeta.</p>' : '');
+    } else if (esDia(c)) {
       var total = presPer(c, p) + extraEntre(c.id, p.desde, p.fin) - salidaEntre(c.id, p.desde, p.fin);
       real = total - g;
       h += '<p>Esta quincena: <b>' + fmt(total) + '</b> · gastado <b>' + fmt(g) + '</b> · quedan <b>' + fmt(real) + '</b>.</p>' + (gt ? '<p class="hint">Además ' + fmt(gt) + ' con tarjeta: no salen de aquí, suman a la deuda de la tarjeta.</p>' : '');
@@ -1651,22 +1799,24 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
     var Q = S.qa, box = $('qa'); if (!Q) return;
     var c = Q.cat ? catPorId(Q.cat) : null, e = estiloCat(c), n = Number(Q.monto) || 0, mes = mesDe(Q.fecha || hoy());
     var h = '<div class="grab"></div>';
-    if (Q.desdeBaldosa && c) {
+    var hc = Q.bolsa ? catPorId(Q.bolsa) : c, he = estiloCat(hc);
+    if (Q.desdeBaldosa && hc) {
       var p = periodoDe(Q.fecha || hoy()), sub = '';
-      if (esDia(c)) { var q = quedaDia(p), tot = presPer(c, p) + extraEntre(c.id, p.desde, p.fin) - salidaEntre(c.id, p.desde, p.fin); sub = 'Quedan ' + fmt(tot - (q.uso.caja[c.id] || 0)) + (tot > 0 ? ' de ' + fmt(tot) : ''); }
+      if (Q.bolsa || esEtiqueta(hc)) sub = subBolsa(p);
+      else if (esDia(c)) { var q = quedaDia(p), tot = presPer(c, p) + extraEntre(c.id, p.desde, p.fin) - salidaEntre(c.id, p.desde, p.fin); sub = 'Quedan ' + fmt(tot - (q.uso.caja[c.id] || 0)) + (tot > 0 ? ' de ' + fmt(tot) : ''); }
       else if (esReserva(c)) sub = 'Tiene ' + fmt(saldoReserva(c));
       else sub = 'En el banco ' + fmt(saldoApartado(c));
-      h += '<div class="qa-head"><span class="ico-cat" style="--c:' + e.c + '">' + svg(e.i, 22) + '</span><h2>' + esc(c.nombre) + '<small>' + sub + '</small></h2>' +
+      h += '<div class="qa-head"><span class="ico-cat" style="--c:' + he.c + '">' + svg(he.i, 22) + '</span><h2>' + esc(Q.bolsa ? nombreBolsa() : hc.nombre) + '<small>' + sub + '</small></h2>' +
         '<button type="button" class="info-btn" data-qa-info="1" aria-expanded="' + !!Q.verInfo + '" aria-label="Opciones de la categoría">' + svg('info', 22) + '</button><button type="button" class="icob" data-qa-cerrar="1" aria-label="Cerrar">' + svg('cerrar', 18) + '</button></div>';
-      if (Q.verInfo) h += infoCategoria(c);
+      if (Q.verInfo) h += infoCategoria(hc);
     } else {
       h += '<div class="qa-head"><h2>' + (Q.editId ? 'Editar gasto' : 'Anotar gasto') + '</h2><button type="button" class="icob" data-qa-cerrar="1" aria-label="Cerrar">' + svg('cerrar', 18) + '</button></div>';
     }
     if (esEfectivo(c)) { box.innerHTML = h + '<p class="hint">La reserva en efectivo no es una categoría de gasto: si usa esos billetes, anote el gasto en su categoría (por ejemplo, Alimentación con Efectivo) y reponga en el cajero.</p>'; return; }
     h += '<p class="qa-monto' + (n ? '' : ' cero') + '" aria-live="polite">$ ' + (n ? n.toLocaleString('es-CO') : '0') + '</p>';
     if (!Q.editId && !Q.desdeBaldosa && frecs.length) h += '<div class="chips">' + frecs.map(function (f, i) { return '<button type="button" class="chip frec" data-frec="' + i + '">' + esc(f.nota) + ' · ' + fmt(f.monto) + '</button>'; }).join('') + '</div>';
-    if (!Q.desdeBaldosa || Q.editId) {
-      var vis = catsParaAnotar(mes); if (c && vis.indexOf(c) < 0) vis = vis.concat([c]);
+    if (!Q.desdeBaldosa || Q.editId || Q.bolsa) {
+      var vis = Q.bolsa && !Q.editId ? etiquetasBolsa(mes) : catsParaAnotar(mes); if (c && vis.indexOf(c) < 0) vis = vis.concat([c]);
       h += '<div class="qa-cats">' + vis.map(function (x) { var s = estiloCat(x); return '<button type="button" class="qa-cat" style="--c:' + s.c + '" data-qa-cat="' + esc(x.id) + '" aria-pressed="' + (x.id === Q.cat) + '"><span>' + svg(s.i, 22) + '</span><em>' + esc(x.nombre) + '</em></button>'; }).join('') + '</div>';
     }
     h += '<div class="chips">' + MEDIOS.map(function (m) { return '<button type="button" class="chip" data-qa-medio="' + m.id + '" aria-pressed="' + (m.id === Q.medio) + '">' + esc(m.nombre) + '</button>'; }).join('') + '</div>';
@@ -1742,7 +1892,7 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
       if (!acc || acc === 'gasto') acc = S.cuadreAccion = 'cajita';
       h += '<div class="fuerte"><span>Tiene de más</span><span class="num">' + fmt(r.diff) + '</span></div><span>¿Qué hacemos con esa plata?</span><div class="chips">' +
         '<button type="button" class="chip" data-cuadre-accion="cajita" aria-pressed="' + (acc === 'cajita') + '">Pasarla a la Cajita</button>' +
-        (S.cats || []).filter(enDisponible).filter(function (c) { return activo(c) && !esEfectivo(c) && (esReserva(c) || Number(c.presupuesto) > 0); }).map(function (c) { var k = 'bol:' + c.id; return '<button type="button" class="chip" data-cuadre-accion="' + esc(k) + '" aria-pressed="' + (acc === k) + '">Sumarla a ' + esc(c.nombre) + '</button>'; }).join('') +
+        (S.cats || []).filter(enDisponible).filter(function (c) { return activo(c) && !esEfectivo(c) && (esReserva(c) || presMes(c, mesDe(hoy())) > 0); }).map(function (c) { var k = 'bol:' + c.id; return '<button type="button" class="chip" data-cuadre-accion="' + esc(k) + '" aria-pressed="' + (acc === k) + '">Sumarla a ' + esc(c.nombre) + '</button>'; }).join('') +
         '<button type="button" class="chip" data-cuadre-accion="nada" aria-pressed="' + (acc === 'nada') + '">Dejarla así</button></div>';
     } else {
       var paF = catPorAsignar(), paS = paF ? saldoReserva(paF) : 0, puedePA = paF && paS >= -r.diff;
@@ -1867,6 +2017,7 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
               '<span class="det">Salió de ' + esc(nombreLugar(g.origen)) + (g.nota ? ' · ' + esc(g.nota) : '') + '</span><span class="acc">' + acc + '</span></div>';
           }
           var c = catPorId(g.categoria), m = medio(g.medio);
+          if (g.auto) return '<div class="mov"><span class="que">' + esc(c ? c.nombre : 'Sin categoría') + '</span><span class="valor">' + fmt(Number(g.monto) || 0) + '</span><span class="det">' + esc(m.nombre) + ' · ' + esc(g.nota || '') + '</span><span class="acc"><span class="pill">Automático</span><button type="button" class="link" data-ir="deudas">Ver</button></span></div>';
           if (m.tarjeta) acc += '<span class="pill tc">Tarjeta</span>';
           if (c && c.reembolsable) acc += '<button type="button" class="pill ' + (g.cobrado ? 'cobrado' : 'cobrar') + '" data-cobrar="' + esc(g.id) + '">' + (g.cobrado ? 'Cobrado' : 'Por cobrar') + '</button>';
           if (S.confirmDel === g.id) acc += '<button type="button" class="link peligro" data-del-si="' + esc(g.id) + '">Sí, borrar</button><button type="button" class="link" data-del-no="1">No</button>';
@@ -2196,7 +2347,7 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
   }
   function topesSugeridos() {
     var t = {};
-    (S.cats || []).forEach(function (c) { if (!esDia(c) || !activo(c) || /aliment|comida|mercado/i.test(c.nombre || '') || !(Number(c.presupuesto) > 0)) return; t[c.id] = Math.round(Number(c.presupuesto) / 2 / 1000) * 1000; });
+    (S.cats || []).forEach(function (c) { if (!esDia(c) || !activo(c) || c.bolsa || /aliment|comida|mercado/i.test(c.nombre || '') || !(Number(c.presupuesto) > 0)) return; t[c.id] = Math.round(Number(c.presupuesto) / 2 / 1000) * 1000; });
     return t;
   }
   function topesTxt() {
@@ -2275,7 +2426,7 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
   function tarjetaSuscripciones() {
     var l = planL('suscripciones'), act = l.filter(function (x) { return x.activa !== false; }), t0 = hoy(), tot = sum(act, function (x) { return precioSus(x, t0); }), luego = sum(act, function (x) { return precioSus(x, '9999'); });
     var h = '<section class="card">' + cab('Suscripciones', 'suscripciones', '<span class="num">' + fmt(tot) + ' al mes</span>') +
-      infoTxt('suscripciones', 'Lo que se cobra solo cada mes. La app las suma sola a la deuda de la tarjeta el día del cobro: no las anote como gasto. También puede agregarlas o quitarlas dentro de cada tarjeta, en "Lo que debo". Le aviso en "Próximos 7 días". Al año suman ' + fmt(luego * 12) + '.');
+      infoTxt('suscripciones', 'Lo que se cobra solo cada mes. Las de tarjeta, la app las suma sola a la deuda de la tarjeta el día del cobro; las de débito (como la cuota de manejo) las resta sola de ' + esc(nombreBolsa()) + ' ese día. No las anote como gasto. También puede agregarlas o quitarlas dentro de cada tarjeta, en "Lo que debo". Le aviso en "Próximos 7 días". Al año suman ' + fmt(luego * 12) + '.');
     h += '<div class="lista-mini">' + itemsSus(l, 'general') + '</div>';
     if (luego > tot) h += '<p class="hint">Cuando terminen las promociones: ' + fmt(luego) + ' al mes.</p>';
     h += S.editSus && S.susDonde === 'general' ? formSus(tarjetas().length ? tarjetas()[0].id : 'debito') : '<button type="button" class="sec" data-sus-nueva="general" style="justify-self:start">Agregar suscripción</button>';
@@ -2406,7 +2557,16 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
     if (!gs.length) html += '<p class="vacio">No hay gastos anotados en ' + mesLabel(m) + '.</p>';
     else {
       var vis = cats.filter(function (c) { if (u.porCat[c.id] > 0) return true; if (!activo(c)) return false; return presMes(c, m) > 0 || (Number(c.presupuesto) === 0 && !(c.soloMeses && c.soloMeses.length)); });
-      html += '<section class="card"><h2>Categorías del mes</h2><ul class="bolsillos">' + vis.map(function (c) { return filaBolsillo(c, presMes(c, m) + extraEntre(c.id, a, b) - salidaEntre(c.id, a, b), u.porCat[c.id] || 0, [], false); }).join('') + '</ul></section>';
+      // Desde que existe la bolsa: una fila con todo lo del día y, debajo, en qué se fue (sin presupuesto propio).
+      var pcM = catPrincipal(), conBolsa = pcM && !fueraDeBolsa(pcM, m);
+      var prM = function (c) { return presMes(c, m) + extraEntre(c.id, a, b) - salidaEntre(c.id, a, b); };
+      var deBolsa = function (c) { return conBolsa && enBolsa(c) && c !== pcM && prM(c) <= 0; };
+      if (conBolsa && vis.indexOf(pcM) < 0) vis.unshift(pcM);
+      html += '<section class="card"><h2>Categorías del mes</h2><ul class="bolsillos">' + vis.map(function (c) {
+        if (deBolsa(c)) return '<li class="bolsillo estado-ok etiqueta"><div class="fila"><span class="nombre">' + esc(c.nombre) + '</span><span class="cifra">' + fmt(u.porCat[c.id] || 0) + '</span></div><div class="fila"><span class="queda">Dentro de ' + esc(nombreBolsa()) + '</span></div></li>';
+        if (conBolsa && c === pcM) return filaBolsillo(c, prM(c), sum(cats.filter(function (x) { return x === pcM || deBolsa(x); }), function (x) { return u.porCat[x.id] || 0; }), [], false);
+        return filaBolsillo(c, prM(c), u.porCat[c.id] || 0, [], false);
+      }).join('') + '</ul></section>';
       html += '<button type="button" class="sec" data-exportar="1">Descargar ' + mesLabel(m) + ' para Excel</button>';
     }
     setHTML(box, html);
@@ -2565,12 +2725,14 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
     filaCat = function (c, i) {
       return '<div class="ed-fila" data-id="' + esc(c.id || '') + '">' +
         '<label class="mini ancho">Nombre<input type="text" id="bc-n-' + i + '" class="e-nombre" maxlength="40" value="' + esc(c.nombre || '') + '"></label>' +
+        (esEtiqueta(c) ? '<p class="mini hint ancho">Sin tope propio: sale de ' + esc(nombreBolsa()) + '.</p>' :
         '<label class="mini">Al mes<input type="text" id="bc-p-' + i + '" class="e-pres" inputmode="numeric" value="' + miles(c.presupuesto) + '"></label>' +
-        '<label class="mini">Del 1 al 14<input type="text" id="bc-q-' + i + '" class="e-primera" inputmode="numeric" value="' + (c.primera != null ? (miles(c.primera) || '0') : '') + '" placeholder="Mitad"></label>' +
+        '<label class="mini">Del 1 al 14<input type="text" id="bc-q-' + i + '" class="e-primera" inputmode="numeric" value="' + (c.primera != null ? (miles(c.primera) || '0') : '') + '" placeholder="Mitad"></label>') +
         '<label class="mini">Solo en el mes<input type="month" id="bc-s-' + i + '" class="e-solo" value="' + esc((c.soloMeses && c.soloMeses[0]) || '') + '"></label>' +
         '<label class="mini">Tipo<select id="bc-t-' + i + '" class="e-tipo">' + [['dia', 'Del día'], ['reserva', 'Acumula (disponible)'], ['apartado', 'Bolsillo del banco'], ['fondo', 'Fondo fijo']].map(function (o) { return '<option value="' + o[0] + '"' + (tipoDe(c) === o[0] ? ' selected' : '') + '>' + o[1] + '</option>'; }).join('') + '</select></label>' +
         '<label class="chk"><input type="checkbox" id="bc-a-' + i + '" class="e-activo"' + (activo(c) ? ' checked' : '') + '> Activo</label>' +
         '<label class="chk"><input type="checkbox" id="bc-r-' + i + '" class="e-reemb"' + (c.reembolsable ? ' checked' : '') + '> Reembolsable</label>' +
+        (tipoDe(c) === 'dia' && !c.bolsa && c.id ? '<label class="chk"><input type="checkbox" id="bc-x-' + i + '" class="e-aparte"' + (c.aparte ? ' checked' : '') + '> Aparte de ' + esc(nombreBolsa()) + '</label>' : '') +
         '<button type="button" class="link peligro" data-quitar-fila="1">Quitar</button></div>';
     };
     filaItem = function (tipo, x, i) {
@@ -2584,7 +2746,7 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
         '<button type="button" class="link peligro" data-quitar-fila="1">Quitar</button></div>';
     };
     body.innerHTML =
-      '<h3>Bolsillos</h3><p class="hint">“Del 1 al 14” es la parte que se recarga con el pago del 30; el resto, con el del 15. Un bolsillo en $ 0 marca como fuera del plan todo lo que se anote ahí.</p>' +
+      '<h3>Bolsillos</h3><p class="hint">“Del 1 al 14” es la parte que se recarga con el pago del 30; el resto, con el del 15. Lo del día a día sale de una sola bolsa, ' + esc(nombreBolsa()) + ': las categorías sin tope propio son solo etiquetas para ver en qué se fue. Marque “Aparte” en las que llevan su propio tope, como vida social.</p>' +
       '<div id="edCats">' + cats.map(filaCat).join('') + '</div><div class="botones"><button type="button" class="sec" data-agregar="cat">Agregar bolsillo</button></div>' +
       '<h3>Ingresos del plan</h3><div id="edIng">' + planL('ingresos').map(function (x, i) { return filaItem('ing', x, i); }).join('') + '</div><div class="botones"><button type="button" class="sec" data-agregar="ing">Agregar ingreso</button></div>' +
       '<h3>Pagos fijos</h3><div id="edFij">' + planL('fijos').map(function (x, i) { return filaItem('fijo', x, i); }).join('') + '</div><div class="botones"><button type="button" class="sec" data-agregar="fijo">Agregar pago fijo</button></div>' +
@@ -2597,11 +2759,14 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
     document.querySelectorAll('#edCats .ed-fila').forEach(function (f) {
       var nombre = f.querySelector('.e-nombre').value.trim(); if (!nombre) return;
       var id = f.getAttribute('data-id') || slug(nombre), prev = viejos[id] || {};
-      var c = Object.assign({}, prev, { id: id, nombre: nombre, presupuesto: num(f.querySelector('.e-pres').value), reembolsable: f.querySelector('.e-reemb').checked, tipo: f.querySelector('.e-tipo').value });
+      var ep = f.querySelector('.e-pres'), eq = f.querySelector('.e-primera'), ex = f.querySelector('.e-aparte');
+      var c = Object.assign({}, prev, { id: id, nombre: nombre, reembolsable: f.querySelector('.e-reemb').checked, tipo: f.querySelector('.e-tipo').value });
+      // Las etiquetas de la bolsa guardan su presupuesto viejo (sirve para las quincenas de antes) y no se editan aquí.
+      if (ep) c.presupuesto = num(ep.value); else if (c.presupuesto == null) c.presupuesto = 0;
+      if (ex) { if (ex.checked) c.aparte = true; else delete c.aparte; }
       if (f.querySelector('.e-activo').checked) delete c.activo; else c.activo = false;
       if (c.tipo === 'reserva' && !c.fechaBase) c.fechaBase = addDias(periodoDe(hoy()).inicio, -1);
-      var q = f.querySelector('.e-primera').value.trim();
-      if (q === '') delete c.primera; else c.primera = num(q);
+      if (eq) { var q = eq.value.trim(); if (q === '') delete c.primera; else c.primera = num(q); }
       var solo = f.querySelector('.e-solo').value;
       if (solo) c.soloMeses = [solo]; else delete c.soloMeses;
       cats.push(c);
@@ -2728,6 +2893,7 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
     var cats = leerFilas('[data-ini-cat]', function (el) { var n = valDe(el, '.i-nombre'), m = num(valDe(el, '.i-monto')); return n && m > 0 ? { tipo: 'dia', id: slug(n), nombre: n, presupuesto: m, reembolsable: false } : null; });
     if (!cats.length) return falla('Ponga cuánto quiere gastar al mes en al menos una cosa del día a día.');
     cats.push({ tipo: 'dia', id: 'fuera-del-plan', nombre: 'Fuera del plan', presupuesto: 0, reembolsable: false });
+    armarBolsa(cats, '', '', null);
     cats.push({ id: 'por-asignar', nombre: 'Por asignar', presupuesto: 0, reembolsable: false, tipo: 'reserva', saldoBase: 0, fechaBase: addDias(periodoDe(t).inicio, -1), baseCreado: iso });
     var fijos = leerFilas('[data-ini-fijo]', function (el) { var n = valDe(el, '.i-nombre'), m = num(valDe(el, '.i-monto')); return n && m > 0 ? { id: slug(n), nombre: n, monto: m, dia: Number(valDe(el, '.i-dia')) === 15 ? 15 : 30 } : null; });
     var deudas = [], ops = [];
@@ -2735,18 +2901,18 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
     var ingresos = [];
     if (p15) ingresos.push({ id: 'ing-15', nombre: nomIng, monto: p15, dia: 15 });
     if (p30) ingresos.push({ id: 'ing-30', nombre: nomIng, monto: p30, dia: 30 });
-    var gastoMes = sum(cats, function (c) { return c.presupuesto; }) + sum(fijos, function (f) { return Number(f.monto) || 0; }) + sum(deudas, function (d) { return d.cuota; });
+    var gastoMes = sum(cats.filter(function (c) { return !esEtiqueta(c); }), function (c) { return c.presupuesto; }) + sum(fijos, function (f) { return Number(f.monto) || 0; }) + sum(deudas, function (d) { return d.cuota; });
     var meta = num($('in-meta').value) || Math.max(1000000, Math.round(gastoMes * 3 / 100000) * 100000);
     var donde = $('in-donde').value.trim(), tasa = leerTasa($('in-tasa').value);
     var cajita = { meta: meta, saldoBase: num($('in-ahorro').value), fechaBase: t, baseCreado: iso };
     if (tasa) cajita.tasa = tasa;
     var mgv = num($('in-mgv').value); if (mgv) cajita.moto = { monto: mgv, abono: 0, texto: $('in-mg').value.trim() || 'Meta grande' };
-    var plan = { ingresos: ingresos, fijos: fijos, inicioApp: t, cajita: cajita, fechas: [], esquema: 9, proteccion: { activo: false }, reparto: { pct: 20 }, suscripciones: [], anuales: [],
+    var plan = { ingresos: ingresos, fijos: fijos, inicioApp: t, cajita: cajita, fechas: [], esquema: 10, proteccion: { activo: false }, reparto: { pct: 20 }, suscripciones: [], anuales: [],
       app: { banco: $('in-banco').value.trim(), entidad: donde, ahorro: donde ? 'Cajita de ' + donde : '' } };
     // Lo que le queda hoy: la plata del día de esta quincena se ajusta a lo que de verdad tiene.
     var queda = num($('in-queda').value), per = periodoDe(t);
     if (queda) {
-      var parte = per.parte, mesF = per.mesFondo, base = cats.filter(function (c) { return c.presupuesto > 0; });
+      var parte = per.parte, mesF = per.mesFondo, base = cats.filter(function (c) { return c.presupuesto > 0 && !esEtiqueta(c); });
       var tot = sum(base, function (c) { return parteMes(c, mesF, parte); }), marcas = {}, acum = 0;
       base.forEach(function (c, i) { var v = i === base.length - 1 ? queda - acum : Math.round(parteMes(c, mesF, parte) * queda / (tot || 1)); acum += v; marcas['bol:' + c.id] = { monto: Math.max(0, v) }; });
       ops.push(['pagos', per.inicio, { marcas: marcas, actualizado: iso }]);
@@ -2907,7 +3073,10 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
     if ((b = t.closest('[data-qa-cuadrar]'))) {
       leerQA(); var cid = b.getAttribute('data-qa-cuadrar'), cat = catPorId(cid); if (!cat) return;
       var real = num(Q.cuadrarVal);
-      if (esDia(cat)) {
+      if (esPrincipal(cat)) {
+        var pb = periodoDe(Q.fecha || hoy()), bb = bolsaDia(pb);
+        cerrarQA(); marcar(pb.inicio, 'bol:' + cid, { monto: Math.max(0, real + bb.usado - (bb.pres - presPer(cat, pb))) });
+      } else if (esDia(cat)) {
         var p = periodoDe(Q.fecha || hoy()), u = usoEntre(p.desde, p.fin);
         var nuevo = Math.max(0, real + (u.caja[cid] || 0) - extraEntre(cid, p.desde, p.fin) + salidaEntre(cid, p.desde, p.fin));
         cerrarQA(); marcar(p.inicio, 'bol:' + cid, { monto: nuevo });
@@ -2923,6 +3092,7 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
 
   $('tab-hoy').addEventListener('click', function (e) {
     var t = e.target, b;
+    if (t.closest('[data-dd]')) { S.abiertos.dd = !S.abiertos.dd; renderHoy(); return; }
     if ((b = t.closest('[data-cuadre-hecho]'))) {
       var key = b.getAttribute('data-cuadre-hecho'), ini = b.getAttribute('data-ini') || periodoDe(hoy()).inicio;
       marcar(ini, key, { hecho: true, monto: Number(b.getAttribute('data-monto-hecho')) || 0 });
