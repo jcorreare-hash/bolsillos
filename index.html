@@ -140,6 +140,7 @@ input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px
 .sec.accent { border-color: var(--accent); color: var(--accent); }
 .link { border: 0; background: none; color: var(--muted); font: inherit; font-size: 0.86rem; text-decoration: underline; cursor: pointer; padding: 8px 4px; min-height: 36px; }
 .link.peligro { color: var(--over); font-weight: 600; }
+.sec.peligro { color: var(--over); border-color: currentColor; }
 .link.fuerte { color: var(--accent); font-weight: 600; }
 .hint { color: var(--muted); font-size: 0.85rem; }
 .aviso { background: var(--surface-2); border-radius: 10px; padding: 10px 12px; font-size: 0.92rem; }
@@ -515,6 +516,25 @@ body.qa-abierta { overflow: hidden; }
 .sus-tc { margin-top: 2px; }
 .sus-tc > summary { font-size: 0.95rem; }
 .sus-tc[open] { display: grid; gap: 8px; }
+/* v12: cada tarjeta, deuda o ahorro en su propio recuadro, con color e ícono según lo que es */
+.card.deuda-card { --dc: var(--muted); padding: 16px 16px 16px 14px; gap: 10px; border-bottom: 1px solid var(--line); border-left: 5px solid var(--dc); }
+.card.deuda-card.t-tarjeta { --dc: var(--accent); }
+.card.deuda-card.t-prestamo { --dc: #7A4E9A; }
+.card.deuda-card.t-deuda { --dc: #2F6690; }
+.card.deuda-card.t-pagada { --dc: var(--ok); }
+.card.card-ahorro { border-left: 5px solid var(--ok); padding-left: 14px; }
+.dc-cab { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 10px; align-items: center; }
+.dc-ico { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; color: var(--dc); background: color-mix(in srgb, var(--dc) 14%, transparent); }
+.dc-tit { display: grid; gap: 1px; min-width: 0; }
+.dc-tipo { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--dc); }
+.dc-tit .nombre { font-weight: 700; overflow-wrap: anywhere; }
+.dc-cab .saldo { text-align: right; }
+.grupo-tit { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); margin: 6px 2px -4px; }
+.dc-resumen { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 0.9rem; color: var(--muted); }
+.dc-resumen b { color: var(--ink); font-variant-numeric: tabular-nums; }
+.confirma-quitar { background: var(--surface-2); border-radius: 10px; padding: 10px 12px; display: grid; gap: 8px; font-size: 0.92rem; }
+.aviso.entro { display: grid; gap: 6px; }
+.aviso.entro input { max-width: 12.5em; }
 body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: disc; }
 @media (prefers-color-scheme: dark) {
   :where(:root:not([data-tema="claro"])) .baldosa { background: color-mix(in srgb, var(--c) 24%, var(--surface)); }
@@ -812,7 +832,7 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
   function tarjetas() { return MEDIOS.filter(function (m) { return m.tarjeta; }); }
   var MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
   var DIAS = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
-  var VERSION_APP = '11.0';
+  var VERSION_APP = '12.0';
   var TABS = ['hoy', 'plata', 'pago', 'metas', 'mes', 'ajustes'];
   var COLECCIONES = ['gastos', 'ingresos', 'dias', 'deudas', 'pagos', 'config', 'prestamos', 'abonos', 'cuadres', 'retiros'];
   var LS = { conn: 'bolsillos.conexion', datos: 'bolsillos.datos', cola: 'bolsillos.cola', sync: 'bolsillos.sync', navegador: 'bolsillos.navegador', puente: 'bolsillos.puente', discreto: 'bolsillos.discreto', bloqueo: 'bolsillos.bloqueo', cubrir: 'bolsillos.cubrir' };
@@ -853,7 +873,9 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
     lupa: '<circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/>',
     cajero: '<rect x="3" y="5" width="18" height="10" rx="2"/><path d="M7 15v4h10v-4M12 8.5v3M10.5 10h3"/>',
     presta: '<circle cx="9" cy="8" r="3.2"/><path d="M3.5 19a5.5 5.5 0 0 1 11 0M16 9h5M18.5 6.5 21 9l-2.5 2.5"/>',
-    flechas: '<path d="M4 8h13M14 5l3 3-3 3M20 16H7M10 13l-3 3 3 3"/>'
+    flechas: '<path d="M4 8h13M14 5l3 3-3 3M20 16H7M10 13l-3 3 3 3"/>',
+    tarjeta: '<rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M2.5 10h19M6.5 15h4"/>',
+    banco: '<path d="M3 10 12 4l9 6M5 10v8M9.5 10v8M14.5 10v8M19 10v8M3 20h18"/>'
   };
   function svg(n, s) { return '<svg viewBox="0 0 24 24" width="' + (s || 22) + '" height="' + (s || 22) + '" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (ICONOS[n] || ICONOS.etiqueta) + '</svg>'; }
   var ESTILOS = [[/aliment|comida|mercado|almuerzo/i, 'comida', '#2E7A4E'], [/hormiga|caf/i, 'cafe', '#A8620B'], [/social|fiesta|salida|planes/i, 'social', '#7A4E9A'], [/transp|moto|nmax|gasolina/i, 'moto', '#2F6690'], [/caja.?menor|trabajo|refriger/i, 'maletin', '#6B5E4B'], [/asignar|saldo.?normal/i, 'asignar', '#9A6B00'], [/fuera/i, 'fuera', '#B23A2E'], [/efectivo/i, 'billete', '#4F7A3A'], [/temporada|diciembre|regalo|navidad/i, 'regalo', '#B4483A'], [/suscrip/i, 'play', '#5B5F97'], [/a(ñ|n)o|anual/i, 'calendario', '#8A5A2B']];
@@ -896,18 +918,38 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
   /* Quincenas: el pago entra al final del día, así que ese día todavía se gasta con la quincena anterior.
      El pago del 15 cubre del 16 al 30 y el del 30 cubre del 31 (o del 1) al 15. En febrero, el pago del 28 cubre del 1 al 15.
      "inicio" es el día del pago (así se guardan las marcas del ritual) y "desde" es el primer día que cubre. */
-  function periodoDe(f) {
+  function periodoNominal(f) {
     var mes = mesDe(f), d = +f.slice(8), p30 = pago30(mes);
     if (d >= 16 && d <= p30) return { inicio: mes + '-15', desde: mes + '-16', fin: mes + '-' + pad(p30), tipo: '15', mesPago: mes, mesFondo: mes, parte: 'segunda' };
     if (d > p30) { var nx = addMes(mes, 1), k = mes + '-' + pad(p30); return { inicio: k, desde: addDias(k, 1), fin: nx + '-15', tipo: '30', mesPago: mes, mesFondo: nx, parte: 'primera' }; }
     var pv = addMes(mes, -1), kp = pv + '-' + pad(pago30(pv));
     return { inicio: kp, desde: addDias(kp, 1), fin: mes + '-15', tipo: '30', mesPago: pv, mesFondo: mes, parte: 'primera' };
   }
+  /* Pago adelantado (v12): si el pago entra antes del día (fin de semana, festivo), la quincena nueva empieza al día
+     siguiente de que entró. Esa fecha queda guardada en el ritual de ese pago ("entro"); sin ella, vale el día del pago.
+     "pago" es el día en que de verdad entró; "inicio" sigue siendo la llave del ritual (el 15 o el 30). */
+  function entroPago(k) {
+    var d = (typeof S !== 'undefined' && S && S.pagos) ? S.pagos[k] : null, e = d && d.entro;
+    return e && e < k && diasEntre(e, k) <= 10 ? e : k;
+  }
+  function periodoDe(f) {
+    var p = periodoNominal(f), n = periodoNominal(addDias(p.fin, 1));
+    if (entroPago(n.inicio) < f) { p = n; n = periodoNominal(addDias(p.fin, 1)); }
+    p.pago = entroPago(p.inicio); p.desde = addDias(p.pago, 1); p.fin = entroPago(n.inicio);
+    return p;
+  }
+  function periodoDeClave(k) { return periodoDe(addDias(entroPago(k), 1)); }
+  /* ¿Esta marca del ritual es posterior al último saldo real? Si la marca tiene hora (v12), manda la hora;
+     si no, la fecha en que entró el pago. */
+  function marcaDespues(k, m, cb) {
+    if (m && m.t && cb.baseCreado) return m.t > cb.baseCreado;
+    return entroPago(k) > (cb.fechaBase || '0000');
+  }
   function perSig(p) { return periodoDe(addDias(p.fin, 1)); }
   function perAnt(p) { return periodoDe(addDias(p.desde, -1)); }
   function perLabel(p) { return fCorta(p.desde) + ' – ' + fCorta(p.fin); }
   /* El día de pago, el ritual que toca es el de la quincena que empieza mañana. */
-  function periodoRitual() { var p = periodoDe(hoy()), n = perSig(p); return n.inicio <= hoy() ? n : p; }
+  function periodoRitual() { var p = periodoDe(hoy()), n = perSig(p); return n.pago <= hoy() ? n : p; }
 
   var S = {
     tab: 'hoy', per: periodoDe(hoy()), mes: mesDe(hoy()), dia: hoy(),
@@ -931,6 +973,8 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
   function normalizar(d) { var o = vacio(); COLECCIONES.forEach(function (c) { if (d && Array.isArray(d[c])) o[c] = d[c].filter(function (x) { return x && x.id; }); }); return o; }
   function derivar() {
     var cfg = {}; D.config.forEach(function (d) { cfg[d.id] = d; });
+    // Si estaba viendo la quincena de hoy, la sigue viendo aunque un pago adelantado le cambie las fechas.
+    var enActual = !S.cargado || !S.per || S.per.inicio === periodoDe(hoy()).inicio || (S.tab === 'pago' && S.per.inicio === periodoRitual().inicio);
     S.cats = cfg.presupuesto && Array.isArray(cfg.presupuesto.categorias) ? clone(cfg.presupuesto.categorias) : [];
     S.plan = cfg.plan ? clone(cfg.plan) : {};
     S.gastos = D.gastos.slice();
@@ -943,6 +987,7 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
     var di = {}; D.dias.forEach(function (d) { di[d.id] = d; }); S.dias = di;
     S.deudas = D.deudas.slice().sort(function (a, b) { return (a.orden || 0) - (b.orden || 0); });
     armarMedios();
+    S.per = enActual ? (S.tab === 'pago' ? periodoRitual() : periodoDe(hoy())) : periodoDeClave(S.per.inicio);
     S.cargado = true;
   }
   function aplicarLocal(op) {
@@ -1218,7 +1263,7 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
   }
   function movsCajita() {
     var cj = (S.plan && S.plan.cajita) || {}, fb = cj.fechaBase || '0000', out = [];
-    Object.keys(S.pagos).forEach(function (k) { if (k <= fb) return; var m = marca(k, 'cajita'); if (m && m.hecho) out.push({ f: k, v: Number(m.monto) || 0 }); });
+    Object.keys(S.pagos).forEach(function (k) { var m = marca(k, 'cajita'); if (m && m.hecho && marcaDespues(k, m, cj)) out.push({ f: entroPago(k), v: Number(m.monto) || 0 }); });
     S.ingresos.forEach(function (i) { if (destinoDe(i) === 'cajita' && despuesDeBase(i.fecha, i.creado, cj)) out.push({ f: i.fecha, v: ingADestino(i) }); });
     S.prestamos.forEach(function (x) { if (x.origen === 'cajita' && despuesDeBase(x.fecha, x.creado, cj)) out.push({ f: x.fecha, v: -(Number(x.monto) || 0) }); });
     S.abonos.forEach(function (a) { if (a.origen === 'cajita' && despuesDeBase(a.fecha, a.creado, cj)) out.push({ f: a.fecha, v: -(Number(a.monto) || 0) }); });
@@ -1383,12 +1428,16 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
     var mc = marca(p.inicio, 'cajita'); if (!(mc && mc.hecho)) return 0;
     var it = itemsPago(p);
     var ingH = sum(it.ing, function (i) { var m = marca(p.inicio, 'ing:' + i.id); return m && m.hecho ? it.val('ing:' + i.id, Number(i.monto) || 0) : 0; });
-    // Si pasó a la Cajita más de lo que daba (o falta marcar un ingreso), no resta: el cuadre lo revisa.
-    return Math.max(0, Math.round(ingH - it.tFij - it.tBol - (Number(mc.monto) || 0)));
+    // v12: si pasó a la Cajita más de lo que daba, la diferencia salió de Por asignar. Solo resta cuando ya marcó
+    // todos los ingresos del pago; si falta alguno, espera (el cuadre lo revisa).
+    var v = Math.round(ingH - it.tFij - it.tBol - (Number(mc.monto) || 0));
+    if (v >= 0) return v;
+    var todos = it.ing.length > 0 && it.ing.every(function (i) { var m = marca(p.inicio, 'ing:' + i.id); return m && m.hecho; });
+    return todos ? v : 0;
   }
   function sobrantesDesde(fb) {
     var s = 0, t = hoy(), ini = inicioApp();
-    Object.keys(S.pagos).forEach(function (k) { if (k <= fb || k < ini || k > t) return; s += sobranteRitual(periodoDe(addDias(k, 1))); });
+    Object.keys(S.pagos).forEach(function (k) { var e = entroPago(k); if (e <= fb || k < ini || e > t) return; s += sobranteRitual(periodoDeClave(k)); });
     return s;
   }
   /* v10.1: si una quincena ya cerrada terminó en rojo (gastó más plata del día de la que tenía), ese faltante salió de
@@ -1409,12 +1458,16 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
   }
   function saldoReserva(c) {
     var cb = { fechaBase: c.fechaBase || '0000', baseCreado: c.baseCreado }, s = Number(c.saldoBase) || 0, key = 'bol:' + c.id, t = hoy();
-    var pa0 = catPorAsignar(); if (pa0 && pa0.id === c.id) s += sobrantesDesde(cb.fechaBase) + deficitsDesde(cb.fechaBase);
+    var pa0 = catPorAsignar();
+    if (pa0 && pa0.id === c.id) {
+      s += sobrantesDesde(cb.fechaBase) + deficitsDesde(cb.fechaBase);
+      S.abonos.forEach(function (a) { if (a.origen === 'disponible' && despuesDeBase(a.fecha, a.creado, cb)) s -= Number(a.monto) || 0; });
+    }
     if (cb.fechaBase !== '0000') {
       // Suma el aporte de cada quincena que empezó después de la base y ya arrancó.
       var q = periodoDe(addDias(cb.fechaBase, 1)), n = 0;
-      if (q.inicio <= cb.fechaBase) q = perSig(q);
-      for (; q.inicio <= t && n < 400; q = perSig(q), n++) { if (q.inicio === t && !ritualEmpezado(q)) break; s += presPer(c, q); }
+      if (q.pago <= cb.fechaBase) q = perSig(q);
+      for (; q.pago <= t && n < 400; q = perSig(q), n++) { if (q.pago === t && !ritualEmpezado(q)) break; s += presPer(c, q); }
     }
     S.ingresos.forEach(function (i) { if (destinoDe(i) === key && despuesDeBase(i.fecha, i.creado, cb)) s += ingADestino(i); });
     S.gastos.forEach(function (g) { if (g.categoria === c.id && !medio(g.medio).tarjeta && despuesDeBase(g.fecha, g.creado, cb)) s -= Number(g.monto) || 0; });
@@ -1425,7 +1478,7 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
   function saldoBolsillo(c) { return esReserva(c) ? saldoReserva(c) : saldoApartado(c); }
   function saldoApartado(c) {
     var cb = { fechaBase: c.fechaBase || '0000', baseCreado: c.baseCreado }, fb = cb.fechaBase, s = Number(c.saldoBase) || 0, key = 'bol:' + c.id;
-    Object.keys(S.pagos).forEach(function (k) { if (k <= fb) return; var m = marca(k, key); if (m && m.hecho) s += Number(m.monto) || 0; });
+    Object.keys(S.pagos).forEach(function (k) { var m = marca(k, key); if (m && m.hecho && marcaDespues(k, m, cb)) s += Number(m.monto) || 0; });
     S.ingresos.forEach(function (i) {
       if (!despuesDeBase(i.fecha, i.creado, cb)) return;
       if (destinoDe(i) === key) s += ingADestino(i);
@@ -1459,7 +1512,7 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
     return { pres: pres, usado: usado, prestado: prestado, gastado: usado - prestado, queda: pres - usado, uso: u, reservas: reservas, tarj: u.tarj, tarjDia: tarjDia };
   }
   function esperadoDia() {
-    var p = periodoDe(hoy()), q = quedaDia(p), pend = pendientesPeriodo(p), n = perSig(p), nueva = 0, diaPago = n.inicio === hoy();
+    var p = periodoDe(hoy()), q = quedaDia(p), pend = pendientesPeriodo(p), n = perSig(p), nueva = 0, diaPago = n.pago === hoy();
     // Día de pago con el ritual ya empezado: la plata del día de la quincena que arranca mañana ya está en el disponible.
     if (diaPago && ritualEmpezado(n)) {
       nueva = sum((S.cats || []).filter(esDia), function (c) { return presPer(c, n); });
@@ -1487,8 +1540,8 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
     S.abonos.forEach(function (a) { if (a.deuda === d.id && a.fecha > fb) out.push({ fecha: a.fecha, monto: Number(a.monto) || 0, tipo: 'abono', origen: a.origen, id: a.id }); });
     var fijos = fijosDeDeuda(d.id);
     Object.keys(S.pagos).forEach(function (k) {
-      if (k <= fb) return;
-      fijos.forEach(function (f) { var m = marca(k, 'fijo:' + f.id); if (m && m.hecho) out.push({ fecha: k, monto: Number(m.monto) || 0, tipo: 'ritual' }); });
+      var e = entroPago(k); if (e <= fb) return;
+      fijos.forEach(function (f) { var m = marca(k, 'fijo:' + f.id); if (m && m.hecho) out.push({ fecha: e, monto: Number(m.monto) || 0, tipo: 'ritual' }); });
     });
     return out.sort(function (a, b) { return a.fecha < b.fecha ? -1 : 1; });
   }
@@ -1556,7 +1609,7 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
     }
     return null;
   }
-  var ORIGEN_ABONO = { cajita: 'desde la Cajita', otro: 'con otra plata', ritual: 'en el ritual de pago', ingreso: 'con plata extra (80/20)' };
+  var ORIGEN_ABONO = { cajita: 'desde la Cajita', disponible: 'desde el disponible', otro: 'con otra plata', ritual: 'en el ritual de pago', ingreso: 'con plata extra (80/20)' };
   function ultimoCorte(dia) {
     var t = hoy(), mes = mesDe(t), c = mes + '-' + pad(Math.min(dia, diasMes(mes)));
     if (t < c) { var pm = addMes(mes, -1); c = pm + '-' + pad(Math.min(dia, diasMes(pm))); }
@@ -1580,9 +1633,16 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
   function marcar(inicio, key, cambio) {
     var doc = S.pagos[inicio] ? clone(S.pagos[inicio]) : { marcas: {} };
     doc.marcas = doc.marcas || {};
+    var eraHecho = !!(doc.marcas[key] && doc.marcas[key].hecho), paso = /^(ing:|fijo:|bol:|cajita$)/.test(key), adelanto = false;
     doc.marcas[key] = Object.assign({}, doc.marcas[key] || {}, cambio);
+    if (cambio.hecho === true && !eraHecho) doc.marcas[key].t = ahoraISO();
+    if (cambio.hecho === false) delete doc.marcas[key].t;
+    // Pago adelantado: al marcar el primer paso de un pago que todavía no llega, queda anotado que entró hoy.
+    if (paso && cambio.hecho === true && !doc.entro && inicio > hoy()) { doc.entro = hoy(); adelanto = true; }
+    if (doc.entro && !Object.keys(doc.marcas).some(function (k) { return /^(ing:|fijo:|bol:|cajita$)/.test(k) && doc.marcas[k] && doc.marcas[k].hecho; })) delete doc.entro;
     doc.actualizado = ahoraISO();
     guardar('pagos', inicio, doc);
+    if (adelanto) toast('Pago recibido hoy: la quincena nueva empieza mañana.');
   }
 
   var toastTimer = null;
@@ -2012,10 +2072,14 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
     var acc = S.cuadreAccion;
     if (Math.abs(r.diff) < 2000) h += '<div class="fuerte"><span>¡Cuadra!</span><span>✓</span></div>';
     else if (r.diff > 0) {
-      if (!acc || acc === 'gasto') acc = S.cuadreAccion = 'cajita';
-      h += '<div class="fuerte"><span>Tiene de más</span><span class="num">' + fmt(r.diff) + '</span></div><span>¿Qué hacemos con esa plata?</span><div class="chips">' +
+      var paD = catPorAsignar(), kPA = paD ? 'bol:' + paD.id : null, nxC = perSig(periodoDe(hoy()));
+      if (!acc || acc === 'gasto' || acc === 'menos-pa') acc = S.cuadreAccion = kPA || 'cajita';
+      h += '<div class="fuerte"><span>Tiene de más</span><span class="num">' + fmt(r.diff) + '</span></div>';
+      if (!ritualEmpezado(nxC) && diasEntre(hoy(), nxC.inicio) <= 4) h += '<span>¿Ya le entró el pago del ' + fCorta(nxC.inicio) + '? Si es eso, no guarde este cuadre: marque primero el ritual en Pago y vuelva.</span>';
+      h += '<span>¿Qué hacemos con esa plata?</span><div class="chips">' +
+        (kPA ? '<button type="button" class="chip" data-cuadre-accion="' + esc(kPA) + '" aria-pressed="' + (acc === kPA) + '">Dejarla en ' + esc(paD.nombre) + '</button>' : '') +
         '<button type="button" class="chip" data-cuadre-accion="cajita" aria-pressed="' + (acc === 'cajita') + '">Pasarla a la Cajita</button>' +
-        (S.cats || []).filter(enDisponible).filter(function (c) { return activo(c) && !esEfectivo(c) && (esReserva(c) || presMes(c, mesDe(hoy())) > 0); }).map(function (c) { var k = 'bol:' + c.id; return '<button type="button" class="chip" data-cuadre-accion="' + esc(k) + '" aria-pressed="' + (acc === k) + '">Sumarla a ' + esc(c.nombre) + '</button>'; }).join('') +
+        (S.cats || []).filter(enDisponible).filter(function (c) { return activo(c) && !esEfectivo(c) && !(paD && c.id === paD.id) && (esReserva(c) || presMes(c, mesDe(hoy())) > 0); }).map(function (c) { var k = 'bol:' + c.id; return '<button type="button" class="chip" data-cuadre-accion="' + esc(k) + '" aria-pressed="' + (acc === k) + '">Sumarla a ' + esc(c.nombre) + '</button>'; }).join('') +
         '<button type="button" class="chip" data-cuadre-accion="nada" aria-pressed="' + (acc === 'nada') + '">Dejarla así</button></div>';
     } else {
       var paF = catPorAsignar(), paS = paF ? saldoReserva(paF) : 0, puedePA = paF && paS >= -r.diff;
@@ -2041,7 +2105,7 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
     var shC = saldoHoy(), e = shC.e, cj = (S.plan && S.plan.cajita) || {}, vis = apartadosVisibles();
     var h = '<div class="fila"><h2>Cuadre de la semana</h2><button type="button" class="link" data-cuadre-cancelar="1">Cerrar</button></div>' +
       '<p class="hint">Mire sus apps del banco y escriba lo que ve hoy. Lo que deje en blanco no se cambia.</p>' +
-      (e.diaPago ? '<p class="aviso">Hoy es día de pago. Si ya le entró la plata, haga primero el ritual en la pestaña Pago y vuelva al cuadre; si todavía no entra, siga normal.</p>' : '') +
+      (e.diaPago ? '<p class="aviso">Hoy es día de pago. Si ya le entró la plata, haga primero el ritual en la pestaña Pago y vuelva al cuadre; si todavía no entra, siga normal.</p>' : avisoPagoCerca()) +
       '<h3>1 · Su plata del día</h3><div class="row2">' + campoCuadre('cq-dispo', 'Saldo disponible ' + (banco() ? banco() : 'en el banco'), 'La app calcula ' + fmt(shC.disponible)) + campoCuadre('cq-efectivo', 'Efectivo (todo lo que tenga)', 'La app calcula ' + fmt(shC.efectivo)) + '</div>';
     if (e.pendientes.length) {
       h += '<h3>2 · ¿Ya hizo esto de la quincena?</h3><p class="hint">Mientras no lo marque, la app cuenta esa plata como si siguiera en el disponible.</p>' +
@@ -2053,6 +2117,11 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
       '<div id="cuadreRes" class="reparto">' + resultadoCuadre() + '</div>' +
       '<button type="button" class="primary" data-cuadre-guardar="1">Guardar cuadre</button>';
     setHTML(el, h);
+  }
+  function avisoPagoCerca() {
+    var n = perSig(periodoDe(hoy())), d = diasEntre(hoy(), n.inicio);
+    if (ritualEmpezado(n) || d > 4 || d < 1) return '';
+    return '<p class="aviso">Su próximo pago es el ' + fLarga(n.inicio) + '. Si ya le entró, marque primero el ritual en la pestaña Pago (la quincena nueva empieza al otro día) y vuelva al cuadre.</p>';
   }
   function guardarCuadre() {
     var r = calcCuadre();
@@ -2380,6 +2449,14 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
     var extras = sum(S.ingresos.filter(function (i) { return ingresoReal(i) && i.fecha >= p.desde && i.fecha <= p.fin; }), function (i) { return i.monto; });
     html += cab('Pago del ' + fLarga(p.inicio), 'pago');
     html += '<p class="hint">Cubre del ' + fCorta(p.desde) + ' al ' + fCorta(p.fin) + '.</p>' + infoTxt('pago', 'La plata le entra al final del día de pago. Vaya marcando en orden: primero la Cajita, luego los pagos fijos, después lo que va a los bolsillos del banco. Lo que queda es la plata del día. Si un valor cambia, escríbalo antes de marcarlo. Si pasa a la Cajita menos de lo que da, la diferencia queda en Por asignar.');
+    var docP = S.pagos[p.inicio], t0p = hoy();
+    if (docP && docP.entro && entroPago(p.inicio) < p.inicio) {
+      html += '<div class="aviso entro"><label for="entroF" style="font-weight:600">Este pago le entró antes del ' + fCorta(p.inicio) + '. ¿Qué día entró?</label>' +
+        '<input type="date" id="entroF" data-entro="' + esc(p.inicio) + '" value="' + esc(docP.entro) + '" min="' + addDias(p.inicio, -10) + '" max="' + esc(p.inicio) + '">' +
+        '<span>Su quincena nueva empezó el ' + fLarga(p.desde) + '. Lo que gastó hasta el ' + fCorta(p.pago) + ' cuenta en la anterior.</span></div>';
+    } else if (p.inicio > t0p && diasEntre(t0p, p.inicio) <= 10 && !ritualEmpezado(p)) {
+      html += '<p class="aviso">Este pago es el ' + fLarga(p.inicio) + '. Si ya le entró, vaya marcando los pasos: la app toma que entró hoy y su quincena nueva empieza mañana.</p>';
+    }
     var prt = proteccion();
     if (prt.activo && p.inicio >= (prt.desde || '')) html += '<p class="aviso">Modo protección: ' + esc(topesTxt()) + ' como tope, y lo que sobre va al colchón.</p>';
     if (p.inicio < inicioApp()) html += '<p class="aviso">Esta quincena empezó antes de que usara la app (el ' + fCorta(inicioApp()) + '). Tómela solo como referencia: los valores son el plan, no lo que pasó. El ritual de verdad arranca con el próximo pago.</p>';
@@ -2403,7 +2480,9 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
     if (d.diaPago) kv.push('Vence <b>' + fCorta(proximaFechaDia(d.diaPago)) + '</b>');
     if (tasa) kv.push('Interés <b>' + String(Math.round(tasa * 10000) / 100).replace('.', ',') + '% mensual</b>');
     if (manejo) kv.push('Manejo <b>' + fmt(manejo) + '</b>');
-    var h = '<div class="deuda" id="deuda-' + id + '"><div class="fila"><span class="nombre">' + esc(d.nombre) + '</span><span class="saldo">' + (s > 0 ? fmt(s) : '¡Pagada!') + '</span></div>' +
+    var tp = tipoDeuda(d), cls = s > 0 ? tp.cls : 't-pagada';
+    var h = '<section class="card deuda deuda-card ' + cls + '" id="deuda-' + id + '"><div class="dc-cab"><span class="dc-ico" aria-hidden="true">' + svg(tp.ico, 22) + '</span>' +
+      '<div class="dc-tit"><span class="dc-tipo">' + tp.txt + '</span><span class="nombre">' + esc(d.nombre) + '</span></div><span class="saldo">' + (s > 0 ? fmt(s) : '¡Pagada!') + '</span></div>' +
       (kv.length ? '<div class="kv">' + kv.map(function (x) { return '<span>' + x + '</span>'; }).join('') + '</div>' : '');
     if (d.tarjeta && d.corte) {
       var c = ultimoCorte(d.corte), carg = sum(S.gastos.filter(function (g) { return g.medio === d.tarjeta && g.fecha > c; }), function (g) { return g.monto; }) + sum(cobrosSus(d.tarjeta, c, hoy()), function (x) { return x.monto; });
@@ -2432,20 +2511,25 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
         '<div><span class="lbl">De dónde salió</span><div class="chips">' +
         (fp ? '<button type="button" class="chip" data-pago-origen="ritual" aria-pressed="' + (origen === 'ritual') + '">Cuota del pago del ' + fCorta(fp.periodo.inicio) + '</button>' : '') +
         '<button type="button" class="chip" data-pago-origen="cajita" aria-pressed="' + (origen === 'cajita') + '">Abono extra desde la Cajita</button>' +
+        (catPorAsignar() ? '<button type="button" class="chip" data-pago-origen="disponible" aria-pressed="' + (origen === 'disponible') + '">Desde el disponible</button>' : '') +
         '<button type="button" class="chip" data-pago-origen="otro" aria-pressed="' + (origen === 'otro') + '">Con otra plata</button></div></div>' +
-        (origen === 'ritual' ? '<p class="hint">Queda marcado también en el ritual de la pestaña Pago.</p>' : origen === 'cajita' ? '<p class="hint">Se descuenta de la Cajita.</p>' : '<p class="hint">No toca la Cajita ni los bolsillos (por ejemplo, plata de la comisión o un regalo).</p>') +
+        (origen === 'ritual' ? '<p class="hint">Queda marcado también en el ritual de la pestaña Pago.</p>' : origen === 'cajita' ? '<p class="hint">Se descuenta de la Cajita.</p>' : origen === 'disponible' ? '<p class="hint">Sale de su saldo disponible ' + esc(enBanco()) + ': se descuenta de Por asignar.</p>' : '<p class="hint">Plata que la app no lleva (un regalo, otra cuenta): baja la deuda, pero no se descuenta de ninguna parte.</p>') +
         '<div class="botones"><button type="button" class="sec accent" data-pagodeuda-guardar="' + id + '">Registrar pago</button><button type="button" class="link" data-deuda-cancelar="1">Cancelar</button></div></div>';
     } else if (S.editDeuda === d.id) {
       h += '<div class="editor" style="margin-top:2px"><div class="row2"><div><label class="lbl" for="ds-' + id + '">Saldo de hoy (extracto o app del banco)</label><input id="ds-' + id + '" type="text" inputmode="numeric" value="' + miles(s) + '"></div>' +
         '<div><label class="lbl" for="dc-' + id + '">Cuota</label><input id="dc-' + id + '" type="text" inputmode="numeric" value="' + miles(d.cuota) + '"></div></div>' +
         '<div class="row2"><div><label class="lbl" for="dt-' + id + '">Interés mensual (%)</label><input id="dt-' + id + '" type="text" inputmode="decimal" value="' + (d.tasa != null && d.tasa !== '' ? String(d.tasa).replace('.', ',') : '') + '" placeholder="Ej: 2,12"></div>' +
         '<div><label class="lbl" for="dm-' + id + '">Cuota de manejo</label><input id="dm-' + id + '" type="text" inputmode="numeric" value="' + miles(d.manejo) + '" placeholder="$ 0"></div></div>' +
-        '<div class="botones"><button type="button" class="sec accent" data-deuda-guardar="' + id + '">Guardar</button><button type="button" class="link" data-deuda-cancelar="1">Cancelar</button></div></div>';
+        '<div class="botones"><button type="button" class="sec accent" data-deuda-guardar="' + id + '">Guardar</button><button type="button" class="link" data-deuda-cancelar="1">Cancelar</button></div>' +
+        '<button type="button" class="link peligro" style="justify-self:start" data-deuda-quitar="' + id + '">Quitar ' + (d.tarjeta ? 'esta tarjeta' : 'esta deuda') + ' de la app</button></div>';
     } else if (S.confirmDeuda === d.id) {
-      h += '<div class="botones"><span class="hint">¿Quitarla de la lista?</span><button type="button" class="link peligro" data-deuda-quitar-si="' + id + '">Sí, quitarla</button><button type="button" class="link" data-deuda-cancelar="1">No</button></div>';
+      var nSus = d.tarjeta ? planL('suscripciones').filter(function (x) { return x.medio === d.tarjeta; }).length : 0;
+      h += '<div class="confirma-quitar"><span>¿Quitar <b>' + esc(d.nombre) + '</b> de la app? Se pierden su saldo, su cuota y sus fechas' + (d.tarjeta ? ', y deja de aparecer como forma de pago' : '') + '.' +
+        (nSus ? ' Sus ' + nSus + ' suscripciones quedan sin tarjeta.' : '') + ' No se puede deshacer.</span>' +
+        '<div class="botones"><button type="button" class="sec peligro" data-deuda-quitar-si="' + id + '">Sí, quitar ' + (d.tarjeta ? 'la tarjeta' : 'la deuda') + '</button><button type="button" class="sec" data-deuda-cancelar="1">No, dejarla</button></div></div>';
     } else {
       h += '<div class="botones">' + (s > 0 ? '<button type="button" class="link fuerte" data-deuda-pagar="' + id + '">Registrar pago</button>' : '') +
-        '<button type="button" class="link" data-deuda-editar="' + id + '">Actualizar saldo</button><button type="button" class="link" data-deuda-quitar="' + id + '">' + (s > 0 ? 'Quitar' : 'Quitar de la lista') + '</button></div>';
+        '<button type="button" class="link" data-deuda-editar="' + id + '">' + (s > 0 ? 'Actualizar saldo' : 'Editar o quitar') + '</button></div>';
     }
 
     if (pr) {
@@ -2475,12 +2559,17 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
           return '<div class="fecha-item"><b>' + fCorta(p.fecha) + '</b><span>' + fmt(p.monto) + ' ' + ORIGEN_ABONO[p.tipo === 'ritual' ? 'ritual' : (p.origen || 'otro')] + acc + '</span></div>';
         }).join('') + '</details>';
     }
-    return h + '</div>';
+    return h + '</section>';
+  }
+  function tipoDeuda(d) {
+    if (d.tarjeta) return { cls: 't-tarjeta', ico: 'tarjeta', txt: 'Tarjeta de crédito' };
+    if (/natillera|pr[eé]stamo|familia|amig/i.test(d.nombre || '')) return { cls: 't-prestamo', ico: 'presta', txt: 'Préstamo' };
+    return { cls: 't-deuda', ico: 'banco', txt: 'Deuda' };
   }
   function tarjetaCajita() {
     var ec = estadoCajita(), saldo = ec.saldo, mc = metaColchon(), mm = metaMoto(), t = hoy(), tz = tasaCajita();
     var col = Math.max(0, Math.min(saldo, mc)), pctC = Math.round(col / mc * 100), moto = Math.max(0, saldo - mc);
-    var h = '<section class="card">' + cab('La ' + esc(nombreAhorro()), 'cajita') +
+    var h = '<section class="card card-ahorro">' + cab('La ' + esc(nombreAhorro()), 'cajita') +
       infoTxt('cajita', 'Todo su ahorro está en una sola Cajita. Primero se llena el colchón (para emergencias y meses sin ingreso)' + (mm.total ? '; lo que pase de ' + fmt(mc) + ' cuenta para su meta grande, que está en Mis planes' : '') + '. ' + (tz ? 'La app le suma sola los rendimientos de cada día con su tasa; ' : '') + 'si la cifra no coincide con ' + esc(entidadAhorro()) + ', use "Corregir el saldo". Si saca plata, anótelo con "Saqué de la Cajita": así la app no le pierde la pista.') +
       '<p class="grande">' + fmt(saldo) + '</p>' +
       (tz ? '<p class="hint" data-rend="1" style="margin-top:-4px">Rinde ' + tasaCajTxt(tz) + '% E.A.: unos ' + fmt(crecer(saldo, 30) - saldo) + ' al mes' + (ec.rend >= 1 && ec.desde ? ' · lleva ' + fmt(ec.rend) + ' desde el ' + fCorta(ec.desde) : '') + '.</p>' : '') +
@@ -2620,7 +2709,7 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
     return l.length ? l.map(function (x) {
       var k = donde + '|' + x.id, de = ' data-donde="' + esc(donde) + '"';
       var acc = S.confirmSus === k ? '<span class="hint">¿Quitarla?</span><button type="button" class="link peligro" data-sus-quitar-si="' + esc(x.id) + '">Sí, quitar</button><button type="button" class="link" data-sus-no="1">No</button>' : '<button type="button" class="link" data-sus-editar="' + esc(x.id) + '"' + de + '>Editar</button><button type="button" class="link" data-sus-quitar="' + esc(x.id) + '"' + de + '>Quitar</button>';
-      var promo = x.sube && Number(x.sube.monto) && t0 < x.sube.fecha ? ' · sube a ' + fmt(x.sube.monto) + ' el ' + fCorta(x.sube.fecha) : '';
+      var promo = (x.desde && x.desde > t0 ? ' · empieza el ' + fCorta(x.desde) : '') + (x.sube && Number(x.sube.monto) && t0 < x.sube.fecha ? ' · sube a ' + fmt(x.sube.monto) + ' el ' + fCorta(x.sube.fecha) : '');
       return '<div class="item"><span><b>' + esc(x.nombre) + '</b><br><small>Cada ' + (Number(x.dia) || '—') + (donde === 'general' ? ' · ' + esc(medio(x.medio).nombre) : '') + promo + '</small></span><b class="num">' + fmt(precioSus(x, t0)) + '</b><span class="acc">' + acc + '</span></div>';
     }).join('') : '<p class="vacio">' + (donde === 'general' ? 'No tiene suscripciones registradas.' : 'Ninguna en esta tarjeta.') + '</p>';
   }
@@ -2648,7 +2737,9 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
       '<div class="row2"><div><label class="lbl" for="suDia">Día del cobro</label><input id="suDia" type="text" inputmode="numeric" maxlength="2" value="' + esc(x.dia || '') + '" placeholder="Ej: 12"></div>' +
       '<div><label class="lbl" for="suMedio">Con qué</label><select id="suMedio">' + MEDIOS.map(function (m) { return '<option value="' + m.id + '"' + (x.medio === m.id ? ' selected' : '') + '>' + esc(m.nombre) + '</option>'; }).join('') + '</select></div></div>' +
       '<div class="row2"><div><label class="lbl" for="suSube">Después sube a (opcional)</label><input id="suSube" type="text" inputmode="numeric" value="' + (x.sube ? miles(x.sube.monto) : '') + '" placeholder="$ 0"></div>' +
-      '<div><label class="lbl" for="suSubeF">Desde</label><input id="suSubeF" type="date" value="' + esc(x.sube ? x.sube.fecha : '') + '"></div></div>' +
+      '<div><label class="lbl" for="suSubeF">Sube desde</label><input id="suSubeF" type="date" value="' + esc(x.sube ? x.sube.fecha : '') + '"></div></div>' +
+      '<div><label class="lbl" for="suDesde">Primer cobro que cuenta la app</label><input id="suDesde" type="date" value="' + esc(x.desde || hoy()) + '">' +
+      '<span class="hint">La app la suma sola desde esta fecha. Si el cobro de este mes ya lo anotó como compra, ponga la fecha del próximo.</span></div>' +
       '<div class="botones"><button type="button" class="sec accent" data-sus-guardar="1">Guardar</button><button type="button" class="link" data-sus-cancelar="1">Cancelar</button></div></div>';
   }
   function renderMetas() {
@@ -2665,7 +2756,12 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
       html += '<section class="card">' + cab('Lo que debo', 'deudas', '<span class="num">' + fmt(totalD) + '</span>') +
         infoTxt('deudas', 'Cada tarjeta suma lo que compre con ella, sus suscripciones el día del cobro y, en cada corte, los intereses y la cuota de manejo estimados; resta los pagos que registre aquí, en el ritual o con un ingreso. El día después de cada corte la app le pide revisar el extracto para dejar el saldo igual al del banco.');
       if (!S.deudas.length) html += '<p class="vacio">No hay deudas activas registradas.</p>';
-      S.deudas.forEach(function (d) { html += tarjetaDeuda(d); });
+      var dTc = S.deudas.filter(function (d) { return !!d.tarjeta; }), dOt = S.deudas.filter(function (d) { return !d.tarjeta; });
+      if (dTc.length && dOt.length) html += '<div class="dc-resumen"><span>Tarjetas <b>' + fmt(sum(dTc, saldoDeuda)) + '</b></span><span>Otras deudas <b>' + fmt(sum(dOt, saldoDeuda)) + '</b></span></div>';
+      html += '</section>';
+      if (dTc.length) html += '<p class="grupo-tit">Tarjetas de crédito</p>' + dTc.map(tarjetaDeuda).join('');
+      if (dOt.length) html += '<p class="grupo-tit">' + (dTc.length ? 'Otras deudas' : 'Deudas') + '</p>' + dOt.map(tarjetaDeuda).join('');
+      html += '<section class="card">';
       html += S.nuevaDeuda ? '<div class="editor" id="nuevaDeuda"><h3>Deuda o tarjeta nueva</h3>' + filaDeudaIni() + '<p class="hint">Si tiene cuota, queda como pago fijo en el ritual del día de pago.</p><div class="botones"><button type="button" class="sec accent" data-deuda-crear="1">Guardar</button><button type="button" class="link" data-deuda-crear-no="1">Cancelar</button></div></div>'
         : '<div class="botones"><button type="button" class="sec" data-deuda-nueva="1">Agregar deuda o tarjeta</button></div>';
       html += '</section>' + tarjetaSuscripciones();
@@ -3514,6 +3610,13 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
     if (b) { var key = b.getAttribute('data-check'), m = marca(S.per.inicio, key); marcar(S.per.inicio, key, { hecho: !(m && m.hecho), monto: valorPaso(key) }); }
   });
   $('pagoBody').addEventListener('change', function (e) {
+    var en = e.target.closest('[data-entro]');
+    if (en) {
+      var ke = en.getAttribute('data-entro'), ve = en.value, de = S.pagos[ke] ? clone(S.pagos[ke]) : null; if (!de) return;
+      if (!ve || ve >= ke) delete de.entro; else if (diasEntre(ve, ke) <= 10) de.entro = ve; else { toast('Esa fecha queda muy lejos del día de pago.'); render(); return; }
+      de.actualizado = ahoraISO(); guardar('pagos', ke, de);
+      toast(de.entro ? 'Listo: la quincena empieza el ' + fCorta(addDias(de.entro, 1)) : 'Listo: la quincena empieza el día después del pago'); return;
+    }
     var inp = e.target.closest('[data-monto]'); if (!inp) return;
     marcar(S.per.inicio, inp.getAttribute('data-monto'), { monto: valorPaso(inp.getAttribute('data-monto')) });
   });
@@ -3560,6 +3663,7 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
       var su = { nombre: ($('suNombre').value || '').trim(), monto: num($('suMonto').value), dia: Math.min(31, num($('suDia').value)), medio: $('suMedio').value };
       var sm = num($('suSube').value), sf = $('suSubeF').value;
       su.sube = sm > 0 && sf ? { fecha: sf, monto: sm } : null;
+      var sd0 = ($('suDesde') || {}).value; if (sd0) su.desde = sd0;
       if (!su.nombre) { toast('Escriba cuál es.'); return; }
       if (su.monto <= 0) { toast('Escriba cuánto cuesta al mes.'); return; }
       var es = S.editSus; if (S.susDonde) S.susAbiertos[S.susDonde] = true; if (su.medio !== 'debito') S.susAbiertos['tc:' + su.medio] = true; S.editSus = null; S.susDonde = null;
