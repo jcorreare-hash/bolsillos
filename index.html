@@ -254,6 +254,52 @@ input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px
 .mv-filtros { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; margin: 0 -16px 10px; padding-left: 16px; padding-right: 16px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
 .mv-filtros::-webkit-scrollbar { display: none; }
 .mv-filtros .chip { flex: none; padding: 7px 13px; min-height: 36px; font-size: 0.88rem; }
+.mv-abrir { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 10px; width: 100%; text-align: left; font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 16px; cursor: pointer; }
+.mv-abrir-t { display: grid; gap: 2px; min-width: 0; }
+.mv-abrir-t b { font-family: var(--font-display); font-size: 1.08rem; }
+.mv-abrir-t small { color: var(--muted); font-size: 0.84rem; }
+.mv-abrir-f { font-size: 1.6rem; color: var(--muted); line-height: 1; }
+#movPanel .sec-head { align-items: center; }
+#movPanel .sec-head h2 { flex: 1; }
+.mv-dia-nav { display: grid; gap: 8px; margin-bottom: 10px; }
+.mv-dia-fila { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 8px; align-items: center; }
+.mv-dia-fila .icob { font-size: 1.3rem; }
+.mv-dia-fila .icob:disabled { opacity: 0.35; cursor: default; }
+.mv-dia-lbl { text-align: center; font-weight: 700; }
+.mv-atajos { justify-content: center; }
+.mv-atajos .chip { padding: 7px 14px; min-height: 36px; font-size: 0.9rem; }
+.prox-res { all: unset; box-sizing: border-box; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; align-items: center; width: 100%; cursor: pointer; font-size: 0.93rem; -webkit-tap-highlight-color: transparent; }
+.prox-res small { display: block; color: var(--muted); font-size: 0.84rem; }
+.prox-res .f { color: var(--muted); font-size: 0.86rem; white-space: nowrap; }
+.prox-res:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; border-radius: 8px; }
+.ficha { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+.ficha > div { background: var(--surface); padding: 8px 10px; display: grid; gap: 1px; min-width: 0; }
+.ficha .k { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--muted); }
+.ficha .v { font-weight: 700; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.ficha .v small { font-weight: 600; color: var(--muted); font-size: 0.78rem; }
+.ficha .v.ok { color: var(--ok); }
+.ficha .ancho { grid-column: 1 / -1; }
+.ficha .link { padding: 0; min-height: 0; justify-self: start; }
+.det-mas > summary { font-size: 0.95rem; }
+.det-mas .hint { margin: 6px 0 0; }
+.caja-plan { border: 1px solid var(--line); border-radius: 14px; padding: 12px; display: grid; gap: 10px; }
+.caja-plan > .cab h3 { margin: 0; font-size: 1.05rem; }
+.caja-plan > .cab .num { font-weight: 700; }
+.caja-plan .ed-fila { display: block; border-top: 1px solid var(--line); padding-top: 10px; }
+.caja-plan .ed-fila > summary { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 8px; align-items: baseline; font-family: inherit; font-size: 0.95rem; font-weight: 600; min-height: 36px; padding: 2px 0; list-style: none; }
+.caja-plan .ed-fila > summary::-webkit-details-marker { display: none; }
+.caja-plan .ed-fila > summary::after { content: '›'; color: var(--muted); font-size: 1.2rem; line-height: 1; transition: transform .15s; }
+.caja-plan .ed-fila[open] > summary::after { transform: rotate(90deg); }
+.caja-plan .otros > summary { font-size: 0.88rem; color: var(--muted); font-family: inherit; font-weight: 600; padding-top: 8px; border-top: 1px solid var(--line); }
+.caja-plan .ed-fila > summary small { color: var(--muted); font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.caja-plan .ed-fila[open] > summary { margin-bottom: 8px; }
+.caja-plan .ed-fila .campos { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.caja-plan .ed-fila .campos .ancho { grid-column: 1 / -1; }
+.cuenta-plan { display: grid; gap: 4px; font-size: 0.92rem; border: 1px dashed var(--line); border-radius: 12px; padding: 10px 12px; }
+.cuenta-plan div { display: flex; justify-content: space-between; gap: 10px; }
+.cuenta-plan .fuerte { font-weight: 700; border-top: 1px solid var(--line); padding-top: 6px; margin-top: 2px; }
+.cuenta-plan .mal { color: var(--over); }
+.sel-grande { width: 100%; min-height: 48px; font-size: 16px; }
 .mv { border-bottom: 1px solid var(--line); }
 .mv-fila { all: unset; box-sizing: border-box; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 12px; align-items: center; width: 100%; padding: 10px 0; min-height: 60px; cursor: pointer; -webkit-tap-highlight-color: transparent; }
 .mv-fila:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 10px; }
@@ -647,11 +693,15 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
       <div id="plataCab"></div>
       <div id="mosaico" class="mosaico"></div>
     </section>
-    <section>
-      <div class="sec-head"><h2>Movimientos</h2><span id="nMov" class="num"></span></div>
-      <div class="mv-buscar"><span data-ico="lupa"></span><input id="movQ" type="search" placeholder="Buscar: nota, categoría o valor" autocomplete="off" autocapitalize="none" enterkeyhint="search" aria-label="Buscar en los movimientos"><button type="button" id="movQx" aria-label="Borrar la búsqueda" hidden>✕</button></div>
-      <div id="movFiltros" class="mv-filtros" hidden></div>
-      <div id="movs"><p class="vacio">Cargando movimientos…</p></div>
+    <section id="movSec">
+      <button type="button" class="mv-abrir" id="movAbrir" data-mov-ver="1" aria-expanded="false"><span class="mv-abrir-t"><b>Ver movimientos</b><small id="movAbrirSub">Sus gastos con nota quedan aquí, a la vista solo cuando los abre.</small></span><span class="mv-abrir-f">›</span></button>
+      <div id="movPanel" hidden>
+        <div class="sec-head"><h2>Movimientos</h2><span id="nMov" class="num"></span><button type="button" class="link" data-mov-ocultar="1">Ocultar</button></div>
+        <div class="mv-dia-nav" id="movDiaNav"></div>
+        <div class="mv-buscar"><span data-ico="lupa"></span><input id="movQ" type="search" placeholder="Buscar en toda la historia" autocomplete="off" autocapitalize="none" enterkeyhint="search" aria-label="Buscar en los movimientos"><button type="button" id="movQx" aria-label="Borrar la búsqueda" hidden>✕</button></div>
+        <div id="movFiltros" class="mv-filtros" hidden></div>
+        <div id="movs"><p class="vacio">Cargando movimientos…</p></div>
+      </div>
     </section>
   </section>
 
@@ -663,17 +713,17 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
     <form id="formIngreso" class="card" autocomplete="off" novalidate>
       <div class="cab"><h2>Registrar un ingreso</h2><span id="ingInfoBtn"></span></div>
       <div id="ingInfoTxt"></div>
-      <fieldset>
-        <legend class="lbl">Qué entró</legend>
-        <div class="chips" id="ingTipos">
-          <button type="button" class="chip" data-ingtipo="reembolso">Reembolso</button>
-          <button type="button" class="chip" data-ingtipo="comision">Comisión</button>
-          <button type="button" class="chip" data-ingtipo="negocio">Negocio o venta</button>
-          <button type="button" class="chip" data-ingtipo="extra">Trabajo extra</button>
-          <button type="button" class="chip" data-ingtipo="prestamo">Me pagaron un préstamo</button>
-          <button type="button" class="chip" data-ingtipo="otro">Otro</button>
-        </div>
-      </fieldset>
+      <div>
+        <label class="lbl" for="ingTipo">Qué entró</label>
+        <select id="ingTipo" class="sel-grande">
+          <option value="reembolso">Reembolso (caja menor, refrigerios)</option>
+          <option value="comision">Comisión</option>
+          <option value="negocio">Negocio o venta</option>
+          <option value="extra">Trabajo extra</option>
+          <option value="prestamo">Me pagaron un préstamo</option>
+          <option value="otro">Otro ingreso</option>
+        </select>
+      </div>
       <div id="ingPrestamoWrap" hidden>
         <span class="lbl">Quién le pagó</span>
         <div class="chips" id="ingPrestamos"></div>
@@ -687,10 +737,11 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
         <span class="lbl">¿Qué adelantos de caja menor cubre?</span>
         <div class="lista-chk" id="ingCubre"></div>
       </div>
-      <fieldset id="ingDestinosWrap">
-        <legend class="lbl" id="ingDestinoLbl">A dónde va</legend>
-        <div class="chips" id="ingDestinos"></div>
-      </fieldset>
+      <div id="ingDestinosWrap">
+        <label class="lbl" id="ingDestinoLbl" for="ingDestino">A dónde va</label>
+        <select id="ingDestino" class="sel-grande"></select>
+        <p class="hint" id="ingDestinoSug" style="margin:6px 0 0"></p>
+      </div>
       <div id="ingReparto" class="reparto" hidden></div>
       <button type="submit" class="primary" id="ingGuardar">Registrar ingreso</button>
       <p class="hint" id="ingSugerido"></p>
@@ -750,7 +801,7 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
     <section class="card" id="seguridad"></section>
     <section class="card" id="ajustesCard">
       <div class="cab"><h2>Mi plan</h2></div>
-      <p class="hint">Categorías y presupuesto de cada una, ingresos fijos, pagos fijos y días de pago.</p>
+      <p class="hint">Lo que entra, lo que sale fijo, el día a día y lo que guarda, cada cosa en su recuadro.</p>
       <details id="ajustes">
         <summary>Editar mi plan</summary>
         <div id="ajustesBody" class="editor"></div>
@@ -832,7 +883,7 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
   function tarjetas() { return MEDIOS.filter(function (m) { return m.tarjeta; }); }
   var MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
   var DIAS = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
-  var VERSION_APP = '12.0';
+  var VERSION_APP = '13.0';
   var TABS = ['hoy', 'plata', 'pago', 'metas', 'mes', 'ajustes'];
   var COLECCIONES = ['gastos', 'ingresos', 'dias', 'deudas', 'pagos', 'config', 'prestamos', 'abonos', 'cuadres', 'retiros'];
   var LS = { conn: 'bolsillos.conexion', datos: 'bolsillos.datos', cola: 'bolsillos.cola', sync: 'bolsillos.sync', navegador: 'bolsillos.navegador', puente: 'bolsillos.puente', discreto: 'bolsillos.discreto', bloqueo: 'bolsillos.bloqueo', cubrir: 'bolsillos.cubrir' };
@@ -962,8 +1013,9 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
     presOrigen: null, confirmIng: null, confirmPres: null,
     cuadres: [], cuadreAbierto: false, cuadreVals: {}, cuadreAccion: null, cuadrarAp: null,
     retiros: [], retiroAbierto: false, retiroResp: {}, retiroDraft: {}, confirmRetiro: null,
-    confirmProteccion: false, editMoto: false,
-    movQ: '', movCat: null, movAbierto: null, cajeroAbierto: null,
+    confirmProteccion: false,
+    movQ: '', movCat: null, movAbierto: null, cajeroAbierto: null, movVer: false, movDia: null, ingDestinoManual: false,
+    editMetaCaj: false, cajMover: null, cajEditar: null, cajNueva: false, confirmCaj: null, editPlan: null, confirmPlan: null, nuevaFecha: false, confirmFecha: null,
     discreto: false, info: {}, qa: null, mesVista: 'resumen', editAnual: null, editSus: null, susDonde: null, susAbiertos: {}, metasVista: 'ahorro', tabPrevio: 'hoy', revisarDeuda: null, confirmAnual: null, confirmSus: null, confirmMov: null
   };
 
@@ -997,7 +1049,26 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
     var doc = Object.assign({}, op.doc, { id: op.id });
     if (i >= 0) arr[i] = doc; else arr.push(doc);
   }
-  function migrar() { migrarBolsa(); registrarHistorial(); }
+  function migrar() { migrarBolsa(); migrarV13(); registrarHistorial(); }
+  /* Esquema 13: (1) la reserva fija de efectivo desaparece: lo que tenía pasa a Por asignar y la billetera queda como una
+     sola cuenta con el efectivo real; (2) la meta grande (plan.cajita.moto) pasa a "Mis planes" (plan.planes). */
+  function migrarV13() {
+    if (!S.cats || !S.cats.length || S.puenteV < 2 || !S.plan || (Number(S.plan.esquema) || 0) < 10 || (Number(S.plan.esquema) || 0) >= 13) return;
+    var plan = clone(S.plan), cats = clone(S.cats), pa = catPorAsignar(), ops = [], t = hoy(), iso = ahoraISO();
+    plan.esquema = 13;
+    cats.forEach(function (c) {
+      if (!esEfectivo(c) || !activo(c)) return;
+      var v = Math.round(saldoReserva(catPorId(c.id) || c));
+      if (v && pa) ops.push(['ingresos', nuevoId(), { fecha: t, mes: mesDe(t), monto: v, tipo: 'mover', origen: 'bol:' + c.id, destino: 'bol:' + pa.id, concepto: 'La reserva en efectivo pasa a ' + pa.nombre + ' (el efectivo se lleva aparte)', creado: iso }]);
+      c.activo = false;
+    });
+    if (!Array.isArray(plan.planes)) {
+      plan.planes = planesL().map(function (x) { return clone(x); });
+      if (plan.cajita) delete plan.cajita.moto;
+    }
+    ops.push(['config', 'presupuesto', { categorias: cats }], ['config', 'plan', plan]);
+    guardarVarios(ops);
+  }
   /* Esquema 10: las categorías del día que no tienen tope propio se juntan en una sola "Plata del día" (la suma de sus
      presupuestos) y quedan como etiquetas. Vida social y las de temporada quedan aparte. Las quincenas anteriores no cambian. */
   function armarBolsa(cats, desde, mesB, topes) {
@@ -1042,7 +1113,7 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
   }
   /* Lo que tiene menos lo que debe, una foto por mes (se actualiza como mucho una vez al día). */
   function patrimonio() {
-    var tiene = saldoCajita() + sum(apartadosVisibles(), saldoApartado) + esperadoDia().total;
+    var tiene = saldoCajita() + saldoCajitasExtra() + sum(apartadosVisibles(), saldoApartado) + esperadoDia().total;
     var debe = sum(S.deudas, saldoDeuda);
     return { tiene: tiene, debe: debe, neto: tiene - debe };
   }
@@ -1205,6 +1276,7 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
   function nombreLugar(d) {
     if (d === 'efectivo') return 'la billetera';
     if (!d || d === 'cajita') return 'la Cajita';
+    if (String(d).indexOf('caj:') === 0) return 'la Cajita ' + nombreCaj(d).replace(/^cajita\s+/i, '');
     if (String(d).indexOf('deuda:') === 0) { var x = deudaPorId(String(d).slice(6)); return x ? x.nombre : 'una deuda'; }
     var c = catPorId(String(d).slice(4)); return c ? c.nombre : 'un bolsillo';
   }
@@ -1254,39 +1326,66 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
   /* La Cajita rinde cada día a su tasa efectiva anual (plan.cajita.tasa; se cambia en "Corregir el saldo"). Sin tasa, no rinde. */
   var TASA_CAJITA = 0;
   function tasaCajita() { var cj = (S.plan && S.plan.cajita) || {}; var t = cj.tasa != null ? Number(cj.tasa) : TASA_CAJITA; return isFinite(t) && t > 0 ? t : 0; }
-  function crecer(s, dias) { var t = tasaCajita(); return (s > 0 && dias > 0 && t > 0) ? s * Math.pow(1 + t / 100, dias / 365) : s; }
+  function crecer(s, dias) { return crecerT(s, dias, tasaCajita()); }
   function tasaCajTxt(t) { return String(Math.round(t * 100) / 100).replace('.', ','); }
   function leerTasa(x) {
     var s = String(x == null ? '' : x).replace(/[%\s]/g, '');
     if (s.indexOf(',') >= 0) s = s.replace(/\./g, '').replace(',', '.');
     var v = parseFloat(s); return isFinite(v) && v >= 0 && v <= 40 ? v : null;
   }
-  function movsCajita() {
-    var cj = (S.plan && S.plan.cajita) || {}, fb = cj.fechaBase || '0000', out = [];
-    Object.keys(S.pagos).forEach(function (k) { var m = marca(k, 'cajita'); if (m && m.hecho && marcaDespues(k, m, cj)) out.push({ f: entroPago(k), v: Number(m.monto) || 0 }); });
-    S.ingresos.forEach(function (i) { if (destinoDe(i) === 'cajita' && despuesDeBase(i.fecha, i.creado, cj)) out.push({ f: i.fecha, v: ingADestino(i) }); });
-    S.prestamos.forEach(function (x) { if (x.origen === 'cajita' && despuesDeBase(x.fecha, x.creado, cj)) out.push({ f: x.fecha, v: -(Number(x.monto) || 0) }); });
-    S.abonos.forEach(function (a) { if (a.origen === 'cajita' && despuesDeBase(a.fecha, a.creado, cj)) out.push({ f: a.fecha, v: -(Number(a.monto) || 0) }); });
-    S.retiros.forEach(function (r) { if (despuesDeBase(r.fecha, r.creado, cj)) out.push({ f: r.fecha, v: -(Number(r.monto) || 0) }); });
+  /* v13: varias Cajitas. La principal (plan.cajita, el fondo) se llama 'cajita'; las que cree el usuario viven en
+     plan.cajitas y se llaman 'caj:<id>'. Cada una tiene su saldo real (saldoBase en fechaBase), su tasa y su meta.
+     Se les suma lo que entra con ese destino y se les resta lo que sale de ellas (mover, abonos, préstamos, retiros). */
+  function cajitasExtra() { return planL('cajitas'); }
+  function cajExtra(id) { var l = cajitasExtra(); for (var i = 0; i < l.length; i++) if (l[i].id === id) return l[i]; return null; }
+  function esCajKey(k) { return k === 'cajita' || (String(k || '').indexOf('caj:') === 0 && !!cajExtra(String(k).slice(4))); }
+  function cfgCaj(key) { if (!key || key === 'cajita') return (S.plan && S.plan.cajita) || {}; return cajExtra(String(key).slice(4)) || {}; }
+  function nombreCaj(key) { if (!key || key === 'cajita') return nombreAhorro(); var c = cajExtra(String(key).slice(4)); return c ? c.nombre : 'una Cajita'; }
+  function tasaDeCaj(key) { if (!key || key === 'cajita') return tasaCajita(); var t = Number(cfgCaj(key).tasa); return isFinite(t) && t > 0 ? t : 0; }
+  function crecerT(s, dias, t) { return (s > 0 && dias > 0 && t > 0) ? s * Math.pow(1 + t / 100, dias / 365) : s; }
+  function movsCaj(key) {
+    var principal = !key || key === 'cajita'; key = principal ? 'cajita' : key;
+    var cj = cfgCaj(key), out = [], rid = principal ? '' : key.slice(4);
+    if (principal) Object.keys(S.pagos).forEach(function (k) { var m = marca(k, 'cajita'); if (m && m.hecho && marcaDespues(k, m, cj)) out.push({ f: entroPago(k), v: Number(m.monto) || 0 }); });
+    S.ingresos.forEach(function (i) {
+      if (!despuesDeBase(i.fecha, i.creado, cj)) return;
+      if (destinoDe(i) === key) out.push({ f: i.fecha, v: ingADestino(i) });
+      if (i.tipo === 'mover' && i.origen === key) out.push({ f: i.fecha, v: -(Number(i.monto) || 0) });
+    });
+    S.prestamos.forEach(function (x) { if (x.origen === key && despuesDeBase(x.fecha, x.creado, cj)) out.push({ f: x.fecha, v: -(Number(x.monto) || 0) }); });
+    S.abonos.forEach(function (a) { if (a.origen === key && despuesDeBase(a.fecha, a.creado, cj)) out.push({ f: a.fecha, v: -(Number(a.monto) || 0) }); });
+    S.retiros.forEach(function (r) { if ((r.cajita || '') === rid && despuesDeBase(r.fecha, r.creado, cj)) out.push({ f: r.fecha, v: -(Number(r.monto) || 0) }); });
     return out;
   }
-  /* Saldo de la Cajita: lo que puso y sacó desde el último saldo real, más los rendimientos de cada día. */
-  function estadoCajita() {
-    var cj = (S.plan && S.plan.cajita) || {}, s = Number(cj.saldoBase) || 0, fb = cj.fechaBase || '0000', t = hoy();
+  function movsCajita() { return movsCaj('cajita'); }
+  /* Saldo de una Cajita: lo que puso y sacó desde el último saldo real, más los rendimientos de cada día a su tasa. */
+  function estadoCaj(key) {
+    var cj = cfgCaj(key), tz = tasaDeCaj(key), s = Number(cj.saldoBase) || 0, fb = cj.fechaBase || '0000', t = hoy();
     var d = fb === '0000' ? t : (fb > t ? t : fb), rend = 0;
-    movsCajita().map(function (e) { var f = e.f < d ? d : e.f; return { f: f > t ? t : f, v: e.v }; })
+    movsCaj(key).map(function (e) { var f = e.f < d ? d : e.f; return { f: f > t ? t : f, v: e.v }; })
       .sort(function (a, b) { return a.f < b.f ? -1 : (a.f > b.f ? 1 : 0); })
-      .forEach(function (e) { var n = crecer(s, diasEntre(d, e.f)); rend += n - s; s = n + e.v; d = e.f; });
-    var fin = crecer(s, diasEntre(d, t)); rend += fin - s;
-    return { saldo: Math.round(fin), rend: Math.round(rend), desde: fb === '0000' ? '' : fb };
+      .forEach(function (e) { var n = crecerT(s, diasEntre(d, e.f), tz); rend += n - s; s = n + e.v; d = e.f; });
+    var fin = crecerT(s, diasEntre(d, t), tz); rend += fin - s;
+    return { saldo: Math.round(fin), rend: Math.round(rend), desde: fb === '0000' ? '' : fb, tasa: tz };
   }
+  function estadoCajita() { return estadoCaj('cajita'); }
+  function saldoCaj(key) { return estadoCaj(key).saldo; }
+  function saldoCajitasExtra() { return sum(cajitasExtra(), function (c) { return saldoCaj('caj:' + c.id); }); }
   function saldoCajita() { return estadoCajita().saldo; }
 
-  /* La Cajita en dos partes: primero el colchón; lo que pase de ahí cuenta para la moto. */
+  /* El fondo (colchón) tiene su meta; lo que pase de ahí va primero a las deudas y luego a sus planes (Mis planes). */
   function metaColchon() { var cj = (S.plan && S.plan.cajita) || {}; return Number(cj.meta) || Math.max(1000000, Math.round(costoMes(false) * 3 / 100000) * 100000); }
-  function metaMoto() {
-    var m = ((S.plan && S.plan.cajita) || {}).moto || {}, total = Number(m.monto) || 0, abono = Number(m.abono) || 0;
-    return { total: total, abono: abono, cajita: Math.max(0, total - abono), texto: m.texto || 'Meta grande', abonoTexto: m.abonoTexto || 'otros ahorros' };
+  /* Mis planes (v13): metas con nombre (la moto, un viaje…) que se pueden crear, editar y quitar. Cada una puede ir unida
+     a una Cajita propia: lo que tenga esa Cajita es lo que lleva ahorrado. Antes, la meta grande vivía en plan.cajita.moto. */
+  function planesL() {
+    if (S.plan && Array.isArray(S.plan.planes)) return S.plan.planes;
+    var m = ((S.plan && S.plan.cajita) || {}).moto;
+    return m && Number(m.monto) ? [{ id: 'moto', nombre: m.texto || 'Meta grande', monto: Number(m.monto) || 0, abono: Number(m.abono) || 0, abonoTexto: m.abonoTexto || '' }] : [];
+  }
+  function avancePlan(pl) {
+    var total = Number(pl.monto) || 0, abono = Math.min(total, Number(pl.abono) || 0), nec = Math.max(0, total - abono);
+    var conCaj = !!(pl.cajita && cajExtra(pl.cajita)), ah = conCaj ? Math.max(0, saldoCaj('caj:' + pl.cajita)) : 0;
+    return { total: total, abono: abono, necesita: nec, ahorrado: ah, falta: Math.max(0, nec - ah), pct: nec ? Math.min(100, Math.round(ah / nec * 100)) : 100, conCaj: conCaj, dest: conCaj ? 'caj:' + pl.cajita : 'cajita' };
   }
   /* Lo que el plan le deja en la Cajita en cada pago que falta (lo ya marcado en el ritual ya está en el saldo). */
   function proyeccionCajita(n) {
@@ -1310,7 +1409,8 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
     S.ingresos.forEach(function (i) { if (destinoDe(i) === 'cajita' && i.fecha >= a && i.fecha <= t) s += ingADestino(i); });
     S.prestamos.forEach(function (x) { if (x.origen === 'cajita' && x.fecha >= a && x.fecha <= t) s -= Number(x.monto) || 0; });
     S.abonos.forEach(function (x) { if (x.origen === 'cajita' && x.fecha >= a && x.fecha <= t) s -= Number(x.monto) || 0; });
-    S.retiros.forEach(function (r) { if (r.fecha >= a && r.fecha <= t) s -= Number(r.monto) || 0; });
+    S.ingresos.forEach(function (i) { if (i.tipo === 'mover' && i.origen === 'cajita' && i.fecha >= a && i.fecha <= t) s -= Number(i.monto) || 0; });
+    S.retiros.forEach(function (r) { if (!r.cajita && r.fecha >= a && r.fecha <= t) s -= Number(r.monto) || 0; });
     return s / 3;
   }
   /* Costo de un mes típico: bolsillos y pagos fijos que se repiten. En modo protección, con los topes y sin la PILA. */
@@ -1337,15 +1437,17 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
     return r;
   }
   function escalera() {
-    var s = saldoCajita(), mc = metaColchon(), mm = metaMoto(), pasos = [];
-    pasos.push({ id: 'colchon', nombre: 'Colchón de ' + fmt(mc), listo: s >= mc, dest: 'cajita', destNombre: 'la Cajita (colchón)', detalle: s >= mc ? 'Completo' : 'Lleva ' + fmt(Math.max(0, s)) + ' · faltan ' + fmt(mc - Math.max(0, s)) });
+    var s = saldoCajita(), mc = metaColchon(), pasos = [];
+    pasos.push({ id: 'colchon', nombre: 'Colchón de ' + fmt(mc), listo: s >= mc, dest: 'cajita', destNombre: 'la ' + nombreAhorro() + ' (colchón)', detalle: s >= mc ? 'Completo' : 'Lleva ' + fmt(Math.max(0, s)) + ' · faltan ' + fmt(mc - Math.max(0, s)) });
     reparto().escalera.forEach(function (id) {
       var d = deudaPorId(id); if (!d) return;
       var sd = saldoDeuda(d);
       pasos.push({ id: id, nombre: d.nombre, listo: sd <= 0, dest: 'deuda:' + id, destNombre: d.nombre, detalle: sd > 0 ? 'Debe ' + fmt(sd) : 'Pagada' });
     });
-    var am = Math.max(0, s - mc);
-    if (mm.total) pasos.push({ id: 'moto', nombre: mm.texto, listo: am >= mm.cajita, dest: 'cajita', destNombre: 'la Cajita (' + mm.texto.toLowerCase() + ')', detalle: fmt(am) + ' de ' + fmt(mm.cajita) });
+    planesL().forEach(function (pl) {
+      var a = avancePlan(pl); if (!a.total) return;
+      pasos.push({ id: 'plan:' + pl.id, nombre: pl.nombre, listo: a.falta <= 0, dest: a.dest, destNombre: a.conCaj ? nombreCaj(a.dest) : 'la ' + nombreAhorro(), detalle: a.conCaj ? fmt(a.ahorrado) + ' de ' + fmt(a.necesita) : 'Sin Cajita todavía · meta ' + fmt(a.necesita) });
+    });
     return pasos;
   }
   function prioridadExtra(fecha) {
@@ -1765,7 +1867,7 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
       filaDD('Saldo total en ' + nb, sh.banco, 'fuerte') +
       filaDD('Efectivo en la billetera', sh.efectivo) + '</div>';
     if (sh.falta) h += '<p class="dd-nota">Anotó ' + fmt(sh.falta) + ' más en efectivo de lo que tenía en la billetera. Si sacó del cajero, regístrelo aquí.</p>';
-    else if (!sh.contado) h += '<p class="dd-nota">Todavía no ha contado su efectivo' + (sh.efectivo ? ': por ahora la app toma su reserva' : '') + '. Use “Corregir el efectivo” o haga el cuadre.</p>';
+    else if (!sh.contado) h += '<p class="dd-nota">Todavía no ha contado su efectivo. Use “Corregir el efectivo” o haga el cuadre.</p>';
     h += S.cajeroAbierto ? formCajero() : '<div class="dd-acc"><button type="button" class="link" data-cajero="retiro">Saqué del cajero</button><button type="button" class="link" data-cajero="corregir">Corregir el efectivo</button></div>';
     // 2. De qué está hecho
     var filas = [[nombreBolsa(), b.queda]];
@@ -1844,11 +1946,14 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
     if (!(ultimoCuadre() >= addDias(t, -4))) { var dom = t; while (parseF(dom).getDay() !== 0) dom = addDias(dom, 1); out.push({ f: dom, txt: 'Cuadre de la semana', sub: 'Un minuto', cuadre: true }); }
     return out.sort(function (a, b) { return a.f < b.f ? -1 : (a.f > b.f ? 1 : 0); }).slice(0, 6);
   }
+  /* v13: plegado por defecto, con una línea de resumen; se despliega con un toque. */
   function renderProximos() {
-    var l = proximos();
+    var l = proximos(), ab = !!S.abiertos.prox, pri = l[0];
+    var res = l.length ? l.length + (l.length === 1 ? ' cosa' : ' cosas') + ' esta semana' : 'Nada pendiente esta semana';
     setHTML($('proximos'), cab('Próximos 7 días', 'prox') +
-      infoTxt('prox', 'Lo que se le viene esta semana: vencimientos de tarjetas, el día de pago, suscripciones, gastos del año y fechas de su plan. Toque una fila para ir a ella.') +
-      (l.length ? l.map(function (x) {
+      infoTxt('prox', 'Lo que se le viene esta semana: vencimientos de tarjetas, el día de pago, suscripciones, gastos del año y fechas de su plan. Toque el resumen para ver la lista y una fila para ir a ella.') +
+      (l.length ? '<button type="button" class="prox-res" data-prox-toggle="1" aria-expanded="' + ab + '"><span>' + esc(res) + (pri && !ab ? '<small>La próxima: ' + esc(pri.txt) + ' · ' + esc(diaCorto(pri.f).toLowerCase()) + '</small>' : '') + '</span><span class="f">' + (ab ? 'Ocultar ⌃' : 'Ver ›') + '</span></button>' : '') +
+      (!ab && l.length ? '' : l.length ? l.map(function (x) {
         return '<button type="button" class="prox" ' + (x.cuadre ? 'data-abrir-cuadre="1"' : 'data-ir="' + (x.ir || 'metas') + '"') + '><span class="d">' + diaCorto(x.f) + '</span><span class="t">' + esc(x.txt) + (x.sub ? '<small>' + esc(x.sub) + '</small>' : '') + '</span><span class="m' + (x.ok ? ' ok' : '') + '">' + (x.monto ? (x.ok ? '✓ ' : '') + fmt(x.monto) : '') + '</span></button>';
       }).join('') : '<p class="vacio">Nada pendiente esta semana.</p>'));
   }
@@ -1866,19 +1971,25 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
     });
     cats.filter(function (c) { return esReserva(c) && !esEfectivo(c); }).forEach(function (c) { out.push({ c: c, val: saldoReserva(c), sub: 'sin asignar' }); });
     apartadosVisibles().forEach(function (c) { var s = saldoApartado(c), m = Number((c.meta || {}).monto) || 0; out.push({ c: c, val: s, banco: true, sub: m ? 'meta ' + fmt(m) : '', pct: m ? s / m : null }); });
-    cats.filter(esEfectivo).forEach(function (c) { var s = saldoReserva(c), m = Number((c.meta || {}).monto) || 0; out.push({ c: c, val: s, efectivo: true, sub: 'en la billetera', pct: m ? s / m : null }); });
+    // v13: la billetera es una sola cuenta con el efectivo real (ya no hay reserva fija).
+    var shE = saldoHoy();
+    if (baseEfectivo() || shE.efectivo > 0) out.push({ c: { id: '', nombre: 'Efectivo', icono: 'billete', color: '#4F7A3A' }, nombre: 'Efectivo', val: shE.efectivo, efectivo: true, billetera: true, sub: 'en la billetera' });
     return out;
   }
   function renderMosaico(p, q) {
     var tiles = baldosas(p, q);
     var html = tiles.map(function (x) {
       var e = estiloCat(x.c), pct = x.pct == null ? null : Math.max(0, Math.min(100, Math.round(x.pct * 100)));
-      return '<button type="button" class="baldosa' + (x.val < 0 ? ' neg' : '') + '" style="--c:' + e.c + '" ' + (x.huerf ? 'data-ir-movs' : 'data-baldosa="' + esc(x.c.id) + '"') + ' aria-label="' + esc(x.nombre || x.c.nombre) + ', ' + fmt(x.val) + '">' +
+      return '<button type="button" class="baldosa' + (x.val < 0 ? ' neg' : '') + '" style="--c:' + e.c + '" ' + (x.huerf ? 'data-ir-movs' : (x.billetera ? 'data-billetera="1"' : 'data-baldosa="' + esc(x.c.id) + '"')) + ' aria-label="' + esc(x.nombre || x.c.nombre) + ', ' + fmt(x.val) + '">' +
         '<span class="b-top">' + svg(e.i, 24) + (x.banco ? '<span class="b-tag">BANCO</span>' : (x.efectivo ? '<span class="b-tag">EFECTIVO</span>' : '')) + '</span>' +
         '<span><span class="b-nom">' + esc(x.nombre || x.c.nombre) + '</span><span class="b-val">' + fmt(x.val) + '</span>' + (x.sub ? '<span class="b-sub">' + x.sub + '</span>' : '') +
         (pct != null ? '<span class="barra"><i style="width:' + pct + '%"></i></span>' : '') + '</span></button>';
     }).join('');
     html += '<button type="button" class="baldosa oscura" data-ir="metas" aria-label="' + esc(nombreAhorro()) + ', ' + fmt(saldoCajita()) + '"><span class="b-top">' + svg('cajita', 24) + '</span><span><span class="b-nom">' + esc(nombreAhorro()) + '</span><span class="b-val">' + fmt(saldoCajita()) + '</span><span class="b-sub">colchón ' + Math.max(0, Math.min(100, Math.round(saldoCajita() / metaColchon() * 100))) + '%</span></span></button>';
+    cajitasExtra().forEach(function (cj) {
+      var sc = saldoCaj('caj:' + cj.id), mt = Number(cj.meta) || 0;
+      html += '<button type="button" class="baldosa oscura" data-ir="metas" aria-label="' + esc(cj.nombre) + ', ' + fmt(sc) + '"><span class="b-top">' + svg('cajita', 24) + '</span><span><span class="b-nom">' + esc(cj.nombre) + '</span><span class="b-val">' + fmt(sc) + '</span><span class="b-sub">' + (mt ? 'meta ' + Math.max(0, Math.min(100, Math.round(sc / mt * 100))) + '%' : 'Cajita') + '</span></span></button>';
+    });
     setHTML($('plataCab'), '<div class="sec-head" style="margin-bottom:8px"><div class="cab" style="flex:1"><h2>Su plata</h2>' + infoBtn('mosaico') + '</div><span class="num">' + (q.pres ? 'Quincena ' + fmt(q.pres) : '') + '</span></div>' +
       infoTxt('mosaico', 'Toque una baldosa para anotar un gasto ahí o ver sus opciones (cuadrar, mover plata). Las que dicen BANCO son sus bolsillos ' + esc(delBanco()) + '; las demás están juntas en el saldo disponible. Lo que dice cada una es lo que le queda.'));
     setHTML($('mosaico'), html);
@@ -1949,7 +2060,7 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
   function subBolsa(p) { var b = bolsaDia(p); return 'Quedan ' + fmt(b.queda) + (b.pres > 0 ? ' de ' + fmt(b.pres) : ''); }
   function infoCategoria(c) {
     var p = periodoDe(S.qa.fecha || hoy()), q = quedaDia(p), g = q.uso.caja[c.id] || 0, gt = q.uso.conTarjeta[c.id] || 0, h = '', id = esc(c.id);
-    var destinos = [{ v: 'cajita', n: 'Cajita' }].concat((S.cats || []).filter(function (x) { return x.id !== c.id && activo(x) && !esEfectivo(x) && (enDisponible(x) || esApartado(x)) && (presMes(x, mesDe(hoy())) > 0 || esReserva(x) || esApartado(x)); }).map(function (x) { return { v: 'bol:' + x.id, n: x.nombre }; }));
+    var destinos = [{ v: 'cajita', n: nombreAhorro() }].concat(cajitasExtra().map(function (x) { return { v: 'caj:' + x.id, n: x.nombre }; })).concat((S.cats || []).filter(function (x) { return x.id !== c.id && activo(x) && !esEfectivo(x) && (enDisponible(x) || esApartado(x)) && (presMes(x, mesDe(hoy())) > 0 || esReserva(x) || esApartado(x)); }).map(function (x) { return { v: 'bol:' + x.id, n: x.nombre }; }));
     var real;
     if (esEtiqueta(c)) {
       var bb = bolsaDia(p);
@@ -1997,7 +2108,6 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
     }
     if (esEfectivo(c)) { box.innerHTML = h + '<p class="hint">La reserva en efectivo no es una categoría de gasto: si usa esos billetes, anote el gasto en su categoría (por ejemplo, Alimentación con Efectivo) y reponga en el cajero.</p>'; return; }
     h += '<p class="qa-monto' + (n ? '' : ' cero') + '" aria-live="polite">$ ' + (n ? n.toLocaleString('es-CO') : '0') + '</p>';
-    if (!Q.editId && !Q.desdeBaldosa && frecs.length) h += '<div class="chips">' + frecs.map(function (f, i) { return '<button type="button" class="chip frec" data-frec="' + i + '">' + esc(f.nota) + ' · ' + fmt(f.monto) + '</button>'; }).join('') + '</div>';
     if (!Q.desdeBaldosa || Q.editId || Q.bolsa) {
       var vis = Q.bolsa && !Q.editId ? etiquetasBolsa(mes) : catsParaAnotar(mes); if (c && vis.indexOf(c) < 0) vis = vis.concat([c]);
       h += '<div class="qa-cats">' + vis.map(function (x) { var s = estiloCat(x); return '<button type="button" class="qa-cat" style="--c:' + s.c + '" data-qa-cat="' + esc(x.id) + '" aria-pressed="' + (x.id === Q.cat) + '"><span>' + svg(s.i, 22) + '</span><em>' + esc(x.nombre) + '</em></button>'; }).join('') + '</div>';
@@ -2035,7 +2145,7 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
     var c = catPorId(origenId); if (!c || monto <= 0) { toast('Escriba cuánto mover.'); return false; }
     var f = hoy();
     guardar('ingresos', nuevoId(), { fecha: f, mes: mesDe(f), monto: monto, tipo: 'mover', origen: 'bol:' + origenId, destino: dest, concepto: 'De ' + c.nombre + ' a ' + nombreLugar(dest), creado: ahoraISO() });
-    toast('Movió ' + fmt(monto) + ' de ' + c.nombre + ' a ' + nombreLugar(dest) + (dest === 'cajita' || esApartado(catPorId(dest.slice(4)) || {}) || esApartado(c) ? '. Hágalo también en el banco.' : ''));
+    toast('Movió ' + fmt(monto) + ' de ' + c.nombre + ' a ' + nombreLugar(dest) + (dest === 'cajita' || String(dest).indexOf('caj:') === 0 || esApartado(catPorId(dest.slice(4)) || {}) || esApartado(c) ? '. Hágalo también en el banco.' : ''));
     return true;
   }
 
@@ -2070,7 +2180,7 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
     if (r.e.pend) h += '<div><span>· incluye pendientes de la quincena</span><span class="num">' + fmt(r.e.pend) + '</span></div>';
     h += '<div><span>Usted tiene</span><span class="num">' + fmt(r.real) + '</span></div>';
     var acc = S.cuadreAccion;
-    if (Math.abs(r.diff) < 2000) h += '<div class="fuerte"><span>¡Cuadra!</span><span>✓</span></div>';
+    if (Math.abs(r.diff) < 2000) { var paQ = catPorAsignar(); h += '<div class="fuerte"><span>¡Cuadra!</span><span>✓</span></div>' + (Math.abs(r.diff) >= 1 && paQ ? '<span>La diferencia de ' + fmt(r.diff) + ' (rendimientos o centavos) se ajusta sola en ' + esc(paQ.nombre) + '.</span>' : ''); }
     else if (r.diff > 0) {
       var paD = catPorAsignar(), kPA = paD ? 'bol:' + paD.id : null, nxC = perSig(periodoDe(hoy()));
       if (!acc || acc === 'gasto' || acc === 'menos-pa') acc = S.cuadreAccion = kPA || 'cajita';
@@ -2114,6 +2224,7 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
     h += '<h3>' + (e.pendientes.length ? '3' : '2') + ' · Apartados y Cajita</h3>' +
       vis.map(function (c) { return campoCuadre('cq-ap-' + c.id, c.nombre, 'La app calcula ' + fmt(saldoApartado(c))); }).join('') +
       campoCuadre('cq-cajita', nombreAhorro(), 'La app calcula ' + fmt(saldoCajita())) +
+      cajitasExtra().map(function (c) { return campoCuadre('cq-caj-' + c.id, c.nombre, 'La app calcula ' + fmt(saldoCaj('caj:' + c.id))); }).join('') +
       '<div id="cuadreRes" class="reparto">' + resultadoCuadre() + '</div>' +
       '<button type="button" class="primary" data-cuadre-guardar="1">Guardar cuadre</button>';
     setHTML(el, h);
@@ -2132,15 +2243,21 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
     cats.forEach(function (c) { var k = 'cq-ap-' + c.id; if (String(v[k] || '').trim() !== '') { c.saldoBase = num(v[k]); c.fechaBase = f; c.baseCreado = iso0; cambio = true; } });
     if (cambio) guardar('config', 'presupuesto', { categorias: cats });
     var conCaj = String(v['cq-cajita'] || '').trim() !== '', conEfe = String(v['cq-efectivo'] || '').trim() !== '';
-    if (conCaj || conEfe) {
+    var conExtra = cajitasExtra().some(function (c) { return String(v['cq-caj-' + c.id] || '').trim() !== ''; });
+    if (conCaj || conEfe || conExtra) {
       var plan = clone(S.plan || {});
       if (conCaj) plan.cajita = Object.assign({}, plan.cajita || {}, { saldoBase: num(v['cq-cajita']), fechaBase: f, baseCreado: iso0 });
+      (plan.cajitas || []).forEach(function (c) { var k = 'cq-caj-' + c.id; if (String(v[k] || '').trim() !== '') { c.saldoBase = num(v[k]); c.fechaBase = f; c.baseCreado = iso0; } });
       // La billetera queda contada: desde aquí la app le suma los retiros de cajero y le resta lo que pague en efectivo.
       if (conEfe) plan.efectivo = { saldoBase: num(v['cq-efectivo']), fechaBase: f, baseCreado: iso1 };
       guardar('config', 'plan', plan);
     }
-    var msg = 'Cuadre guardado';
-    if (Math.abs(r.diff) >= 2000) {
+    var msg = 'Cuadre guardado', paC = catPorAsignar();
+    // v13: las diferencias pequeñas (rendimientos de la cuenta, centavos) se ajustan solas en Por asignar.
+    if (Math.abs(r.diff) >= 1 && Math.abs(r.diff) < 2000 && paC) {
+      guardar('ingresos', nuevoId(), { fecha: f, mes: mesDe(f), monto: r.diff, tipo: 'ajuste', destino: 'bol:' + paC.id, concepto: r.diff > 0 ? 'Rendimientos y centavos' : 'Ajuste menor del cuadre', creado: iso1 });
+      msg = 'Cuadre guardado. Ajusté ' + fmt(r.diff) + ' en ' + paC.nombre + '.';
+    } else if (Math.abs(r.diff) >= 2000) {
       if (r.diff > 0 && S.cuadreAccion && S.cuadreAccion !== 'nada') {
         guardar('ingresos', nuevoId(), { fecha: f, mes: mesDe(f), monto: r.diff, tipo: 'ajuste', destino: S.cuadreAccion, concepto: 'Diferencia del cuadre', creado: iso1 });
         msg = S.cuadreAccion === 'cajita' ? 'Cuadre guardado. Pase ' + fmt(r.diff) + ' a la ' + nombreAhorro() + '.' : 'Cuadre guardado. Sumé ' + fmt(r.diff) + ' a ' + nombreLugar(S.cuadreAccion) + '.';
@@ -2262,12 +2379,38 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
       '<span class="mv-val"><b class="num">' + fmt(it.monto) + '</b>' + est + '</span></button>' +
       (abierto ? '<div class="mv-det">' + detMov(it) + '</div>' : '') + '</div>';
   }
+  /* v13: los movimientos no quedan a la vista en Hoy (las notas son personales). Se abren con "Ver movimientos", en el día
+     de hoy; con ‹ › se cambia de día y con los atajos se ve ayer o toda la quincena. Al salir de la app se vuelven a cerrar. */
+  function movDiaActual(p) {
+    var d = S.movDia || hoy();
+    if (d !== 'quincena' && d > hoy()) d = hoy();
+    return d;
+  }
+  function renderMovNav(p, d) {
+    var t = hoy(), ay = addDias(t, -1), q = d === 'quincena';
+    var lbl = q ? 'Quincena · ' + perLabel(p) : (d === t ? 'Hoy · ' : (d === ay ? 'Ayer · ' : '')) + fLarga(d);
+    return '<div class="mv-dia-fila"><button type="button" class="icob" data-mov-dia="' + (q ? '' : addDias(d, -1)) + '" aria-label="Día anterior"' + (q ? ' disabled' : '') + '>‹</button>' +
+      '<span class="mv-dia-lbl">' + esc(lbl.charAt(0).toUpperCase() + lbl.slice(1)) + '</span>' +
+      '<button type="button" class="icob" data-mov-dia="' + (q || d >= t ? '' : addDias(d, 1)) + '" aria-label="Día siguiente"' + (q || d >= t ? ' disabled' : '') + '>›</button></div>' +
+      '<div class="chips mv-atajos"><button type="button" class="chip" data-mov-dia="' + t + '" aria-pressed="' + (d === t) + '">Hoy</button>' +
+      '<button type="button" class="chip" data-mov-dia="' + ay + '" aria-pressed="' + (d === ay) + '">Ayer</button>' +
+      '<button type="button" class="chip" data-mov-dia="quincena" aria-pressed="' + q + '">Quincena</button></div>';
+  }
+  function cerrarMovs() { S.movVer = false; S.movDia = null; S.movQ = ''; S.movCat = null; S.movAbierto = null; S.confirmDel = null; S.confirmMov = null; var mq = $('movQ'); if (mq) mq.value = ''; }
   function renderMovs(p) {
-    var box = $('movs'), q = sinTildes((S.movQ || '').trim()), buscando = q.length >= 2, items;
+    var abierto = !!S.movVer;
+    $('movPanel').hidden = !abierto; $('movAbrir').hidden = abierto; $('movAbrir').setAttribute('aria-expanded', String(abierto));
+    if (!abierto) {
+      var nh = movItems(hoy(), hoy()).length;
+      $('movAbrirSub').textContent = nh ? 'Hoy: ' + nh + (nh === 1 ? ' movimiento' : ' movimientos') + '. Se abren en el día y puede ir a otros días.' : 'Sus gastos con nota quedan aquí, a la vista solo cuando los abre.';
+      $('movs').innerHTML = ''; return;
+    }
+    var box = $('movs'), q = sinTildes((S.movQ || '').trim()), buscando = q.length >= 2, items, d = movDiaActual(p);
+    $('movDiaNav').innerHTML = buscando ? '' : renderMovNav(p, d);
     if (buscando) {
       var f0 = hoy(); S.gastos.forEach(function (g) { if (g.fecha && g.fecha < f0) f0 = g.fecha; }); S.prestamos.forEach(function (x) { if (x.fecha && x.fecha < f0) f0 = x.fecha; });
       items = movItems(f0, p.fin > hoy() ? p.fin : hoy()).filter(function (it) { return movCoincide(it, q); });
-    } else items = movItems(p.desde, p.fin);
+    } else items = d === 'quincena' ? movItems(p.desde, p.fin) : movItems(d, d);
     // Filtros: las categorías que aparecen, de la que más pesa a la que menos.
     var tot = {}, nom = {};
     items.forEach(function (it) { if (it.tipo === 'm') return; tot[it.fk] = (tot[it.fk] || 0) + it.monto; nom[it.fk] = it.tipo === 'p' ? 'Préstamos' : (it.cat ? it.cat.nombre : 'Sin categoría'); });
@@ -2286,7 +2429,7 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
     var total = sum(items.filter(function (it) { return it.tipo !== 'm'; }), function (it) { return it.monto; }), filtrado = buscando || S.movCat;
     $('nMov').textContent = items.length ? items.length + (buscando ? (items.length === 1 ? ' resultado' : ' resultados') : (items.length === 1 ? ' movimiento' : ' movimientos')) + (filtrado ? ' · ' + fmt(total) : '') : '';
     var qx = $('movQx'); if (qx) qx.hidden = !(S.movQ || '');
-    if (!items.length) { box.innerHTML = '<p class="vacio">' + (buscando ? 'Nada coincide con “' + esc((S.movQ || '').trim()) + '”. Pruebe con otra palabra o con el valor.' : (S.movCat ? 'No hay movimientos con ese filtro.' : 'Todavía no hay movimientos en esta quincena. Toque + para anotar el primero.')) + '</p>'; return; }
+    if (!items.length) { box.innerHTML = '<p class="vacio">' + (buscando ? 'Nada coincide con “' + esc((S.movQ || '').trim()) + '”. Pruebe con otra palabra o con el valor.' : (S.movCat ? 'No hay movimientos con ese filtro.' : (d === 'quincena' ? 'Todavía no hay movimientos en esta quincena. Toque + para anotar el primero.' : (S.dias[d] && S.dias[d].sinGastos ? 'Ese día lo marcó sin gastos ✓' : 'No hay movimientos ' + (d === hoy() ? 'hoy' : 'este día') + '.')))) + '</p>'; return; }
     var grupos = [], cur = null;
     items.slice(0, 300).forEach(function (it) { if (!cur || cur.fecha !== it.fecha) { cur = { fecha: it.fecha, items: [], total: 0 }; grupos.push(cur); } cur.items.push(it); if (it.tipo !== 'm') cur.total += it.monto; });
     box.innerHTML = (buscando ? '<p class="hint" style="margin:0 0 10px">Busca en toda su historia, no solo en esta quincena.</p>' : '') + grupos.map(function (gr) {
@@ -2328,17 +2471,34 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
     } else if (monto) html += '<div class="fuerte"><span>' + esc(lugar) + '</span><span class="num">' + fmt(monto) + '</span></div>';
     box.hidden = !html; box.innerHTML = html;
   }
-  /* Destinos de un ingreso: la Cajita, sus categorías y bolsillos, y abonar a una deuda. */
-  function chipsDestino(sel) {
-    var h = chipsLugares('data-destino', sel, true);
-    S.deudas.forEach(function (d) { if (saldoDeuda(d) > 0) { var v = 'deuda:' + d.id; h += '<button type="button" class="chip" data-destino="' + esc(v) + '" aria-pressed="' + (sel === v) + '">Abonar a ' + esc(corto(d)) + '</button>'; } });
-    return h;
+  /* Destinos de un ingreso (v13: lista desplegable por grupos): ahorro, para gastar, bolsillos del banco y abonar a una deuda. */
+  function gruposDestino() {
+    var g = [], mes = mesDe(hoy());
+    g.push(['Ahorro', [{ v: 'cajita', n: nombreAhorro() + ' (fondo)' }].concat(cajitasExtra().map(function (c) { return { v: 'caj:' + c.id, n: c.nombre }; }))]);
+    var gastar = lugaresActivos().filter(enDisponible).map(function (c) { return { v: 'bol:' + c.id, n: c.nombre }; });
+    if (gastar.length) g.push(['Para gastar (saldo disponible)', gastar]);
+    var bols = lugaresActivos().filter(esApartado).map(function (c) { return { v: 'bol:' + c.id, n: c.nombre }; });
+    if (bols.length) g.push(['Bolsillos ' + delBanco(), bols]);
+    var deu = S.deudas.filter(function (d) { return saldoDeuda(d) > 0; }).map(function (d) { return { v: 'deuda:' + d.id, n: 'Abonar a ' + corto(d) }; });
+    if (deu.length) g.push(['Abonar a una deuda', deu]);
+    return g;
+  }
+  function destinoValido(v) { return gruposDestino().some(function (g) { return g[1].some(function (x) { return x.v === v; }); }); }
+  function sugerenciaIngreso() {
+    if (S.ingTipo === 'prestamo') { var x = prestamoPorId(S.ingPrestamo), o = x && x.origen; return o && destinoValido(o) ? o : 'cajita'; }
+    var pa = catPorAsignar();
+    if (S.ingTipo === 'reembolso') return pa ? 'bol:' + pa.id : 'cajita';
+    var d = prioridadExtra($('ingFecha').value || hoy()).dest;
+    return destinoValido(d) ? d : 'cajita';
+  }
+  function opcionesDestino(sel) {
+    return gruposDestino().map(function (g) { return '<optgroup label="' + esc(g[0]) + '">' + g[1].map(function (x) { return '<option value="' + esc(x.v) + '"' + (x.v === sel ? ' selected' : '') + '>' + esc(x.n) + '</option>'; }).join('') + '</optgroup>'; }).join('');
   }
   function renderFormIngreso() {
     var v2 = S.puenteV >= 2;
     $('puenteAviso').hidden = v2;
     $('ingGuardar').disabled = !v2; $('presGuardar').disabled = !v2;
-    document.querySelectorAll('[data-ingtipo]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-ingtipo') === S.ingTipo)); });
+    if ($('ingTipo').value !== S.ingTipo) $('ingTipo').value = S.ingTipo;
     var pend = prestamosPendientes();
     $('ingPrestamoWrap').hidden = S.ingTipo !== 'prestamo';
     if (S.ingPrestamo && !prestamoPorId(S.ingPrestamo)) S.ingPrestamo = null;
@@ -2352,19 +2512,22 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
     }).join(''));
     $('ingConcepto').placeholder = { reembolso: 'Ej: Reembolso refrigerios', prestamo: 'Se llena solo', comision: 'Ej: Comisión de diciembre', negocio: 'Ej: Venta de…', extra: 'Ej: Asesoría, taller' }[S.ingTipo] || 'Ej: Regalo';
     $('ingDestinoLbl').textContent = S.ingTipo === 'prestamo' ? 'A dónde vuelve la plata' : 'A dónde va la plata';
-    $('ingDestinos').innerHTML = chipsDestino(S.ingDestino || 'cajita');
+    var sug = sugerenciaIngreso();
+    if (!S.ingDestinoManual || !S.ingDestino || !destinoValido(S.ingDestino)) { S.ingDestino = sug; S.ingDestinoManual = false; }
+    if (document.activeElement !== $('ingDestino')) $('ingDestino').innerHTML = opcionesDestino(S.ingDestino);
+    $('ingDestinoSug').textContent = S.ingDestino === sug ? 'Sugerido para este ingreso.' : 'Sugerido: ' + nombreLugar(sug).replace(/^la /, '') + '.';
     var pr = prioridadExtra($('ingFecha').value || hoy());
     $('ingInfoBtn').innerHTML = infoBtn('ingreso');
     $('ingInfoTxt').innerHTML = infoTxt('ingreso', 'Registre aquí la plata que entra por fuera de sus honorarios del 15 y del 30 (esos van en el ritual de Pago). Lo que le pagan de un préstamo vuelve a donde salió. En un reembolso, marque los adelantos de caja menor que cubre: esa parte repone la caja menor.' +
       (S.ingTipo !== 'prestamo' ? ' Sugerido para plata nueva hoy: ' + esc(pr.nombre) + '.' : ''));
-    $('ingSugerido').textContent = S.ingTipo !== 'prestamo' && S.ingTipo !== 'reembolso' ? 'Sugerido hoy: ' + pr.nombre + '.' : '';
+    $('ingSugerido').textContent = '';
     actualizarReparto();
   }
   function renderPlata() {
     var p = S.per, pend = prestamosPendientes(), total = sum(pend, saldoPrestamo);
     var ings = S.ingresos.filter(function (i) { return !INTERNOS[i.tipo] && i.fecha >= p.desde && i.fecha <= p.fin; }).sort(function (a, b) { return a.fecha < b.fecha ? 1 : (a.fecha > b.fecha ? -1 : ((a.creado || '') < (b.creado || '') ? 1 : -1)); });
     var reales = ings.filter(ingresoReal);
-    var aCaj = sum(reales.filter(function (i) { return destinoDe(i) === 'cajita'; }), ingADestino);
+    var aCaj = sum(reales.filter(function (i) { return destinoDe(i) === 'cajita' || destinoDe(i).indexOf('caj:') === 0; }), ingADestino);
     var aBol = sum(reales.filter(function (i) { return destinoDe(i).indexOf('bol:') === 0; }), ingADestino);
     var aDeu = sum(reales.filter(function (i) { return destinoDe(i).indexOf('deuda:') === 0; }), ingADestino);
     var extra = sum(reales, function (i) { return i.monto; });
@@ -2474,27 +2637,57 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
   }
 
   /* ---------- Metas ---------- */
+  /* Historial de pagos de una deuda (v13): todos, con su fecha, aunque el saldo se haya corregido después con el extracto.
+     El saldo se sigue calculando solo con los pagos posteriores al último saldo real (pagosDeuda). */
+  function historialPagos(d) {
+    var out = [], fijos = fijosDeDeuda(d.id);
+    S.abonos.forEach(function (a) { if (a.deuda === d.id) out.push({ fecha: a.fecha, monto: Number(a.monto) || 0, tipo: 'abono', origen: a.origen, id: a.id }); });
+    Object.keys(S.pagos).forEach(function (k) { var e = entroPago(k); fijos.forEach(function (f) { var m = marca(k, 'fijo:' + f.id); if (m && m.hecho) out.push({ fecha: e, monto: Number(m.monto) || 0, tipo: 'ritual' }); }); });
+    return out.sort(function (a, b) { return a.fecha < b.fecha ? 1 : (a.fecha > b.fecha ? -1 : 0); });
+  }
+  function celda(k, v, cls) { return '<div' + (cls ? ' class="' + cls + '"' : '') + '><span class="k">' + k + '</span><span class="v">' + v + '</span></div>'; }
+  /* Ficha de una tarjeta (v13): lo mismo para todas, en el mismo orden. El detalle (cuotas del Mac, tasas, notas) va plegado. */
+  function fichaTarjeta(d, s) {
+    var id = esc(d.id), tasa = tasaDe(d), manejo = Number(d.manejo) || 0, uc = d.corte ? ultimoCorte(Number(d.corte)) : null;
+    var pagado = uc && historialPagos(d).some(function (p) { return p.fecha > uc; });
+    var lim = Number(d.diaPago) ? proximaFechaDia(Number(d.diaPago)) : '';
+    var interes = d.interesMes != null && d.interesMes !== '' ? fmt(d.interesMes) + ' <small>del extracto</small>' : (tasa ? '≈ ' + fmt(s * tasa) + ' <small>estimado</small>' : fmt(0));
+    var cupo = Number(d.cupo) || 0;
+    return '<div class="ficha">' +
+      celda('Pago del mes', Number(d.cuota) ? fmt(d.cuota) + (pagado ? ' <small>✓ pagado</small>' : '') : '—', pagado ? '' : '') +
+      celda('Fecha límite', lim ? fLarga(lim) : '—') +
+      celda('Intereses', interes) +
+      celda('Cuota de manejo', fmt(manejo)) +
+      (cupo ? celda('Cupo disponible', fmt(Math.max(0, cupo - s)) + ' <small>de ' + fmt(cupo) + '</small>', 'ancho') : '<div class="ancho"><span class="k">Cupo disponible</span><button type="button" class="link" data-deuda-editar="' + id + '">Agregar el cupo de la tarjeta</button></div>') +
+      '</div>';
+  }
   function tarjetaDeuda(d) {
     var id = esc(d.id), est = estadoDeuda(d), s = est.saldo, kv = [], tasa = tasaDe(d), manejo = Number(d.manejo) || 0, cd = diaCorte(d);
-    if (Number(d.cuota)) kv.push('Cuota <b>' + fmt(d.cuota) + '</b>');
-    if (d.diaPago) kv.push('Vence <b>' + fCorta(proximaFechaDia(d.diaPago)) + '</b>');
-    if (tasa) kv.push('Interés <b>' + String(Math.round(tasa * 10000) / 100).replace('.', ',') + '% mensual</b>');
-    if (manejo) kv.push('Manejo <b>' + fmt(manejo) + '</b>');
     var tp = tipoDeuda(d), cls = s > 0 ? tp.cls : 't-pagada';
     var h = '<section class="card deuda deuda-card ' + cls + '" id="deuda-' + id + '"><div class="dc-cab"><span class="dc-ico" aria-hidden="true">' + svg(tp.ico, 22) + '</span>' +
-      '<div class="dc-tit"><span class="dc-tipo">' + tp.txt + '</span><span class="nombre">' + esc(d.nombre) + '</span></div><span class="saldo">' + (s > 0 ? fmt(s) : '¡Pagada!') + '</span></div>' +
-      (kv.length ? '<div class="kv">' + kv.map(function (x) { return '<span>' + x + '</span>'; }).join('') + '</div>' : '');
-    if (d.tarjeta && d.corte) {
-      var c = ultimoCorte(d.corte), carg = sum(S.gastos.filter(function (g) { return g.medio === d.tarjeta && g.fecha > c; }), function (g) { return g.monto; }) + sum(cobrosSus(d.tarjeta, c, hoy()), function (x) { return x.monto; });
-      if (carg) h += '<p class="hint">Compras y suscripciones desde el corte del ' + fCorta(c) + ': <b class="num">' + fmt(carg) + '</b>. Llegan en el próximo extracto.</p>';
+      '<div class="dc-tit"><span class="dc-tipo">' + tp.txt + '</span><span class="nombre">' + esc(d.nombre) + '</span></div><span class="saldo">' + (s > 0 ? fmt(s) : '¡Pagada!') + '</span></div>';
+    var pr = s > 0 ? proyectar(d, s, 0) : null, det = [];
+    if (d.tarjeta) {
+      h += fichaTarjeta(d, s);
+      if (d.corte) {
+        var c = ultimoCorte(d.corte), carg = sum(S.gastos.filter(function (g) { return g.medio === d.tarjeta && g.fecha > c; }), function (g) { return g.monto; }) + sum(cobrosSus(d.tarjeta, c, hoy()), function (x) { return x.monto; });
+        if (carg) det.push('Compras y suscripciones desde el corte del ' + fCorta(c) + ': <b class="num">' + fmt(carg) + '</b>. Llegan en el próximo extracto.');
+      }
+      if (est.cargos) det.push('El saldo incluye <b class="num">' + fmt(est.cargos) + '</b> de intereses y manejo estimados desde el ' + fCorta(d.fechaBase) + '.');
+      if (s > 0 && (tasa || manejo) && cd) { var px0 = pr && pr.filas.length ? pr.filas[0] : { fecha: proximaFechaDia(cd), cargo: s * tasa + manejo }; det.push('En el corte del ' + fCorta(px0.fecha) + ' se le suman unos <b class="num">' + fmt(px0.cargo) + '</b> de intereses y manejo.'); }
+      if (tasa) det.push('Interés ' + String(Math.round(tasa * 10000) / 100).replace('.', ',') + '% mensual · corte el ' + (Number(d.corte) || '—') + ' de cada mes.');
+      if (d.nota) det.push(esc(d.nota));
+      if (det.length) h += '<details class="det-mas" data-abre="det-' + id + '"' + (S.abiertos['det-' + d.id] ? ' open' : '') + '><summary>Ver detalle</summary>' + det.map(function (x) { return '<p class="hint">' + x + '</p>'; }).join('') + '</details>';
+    } else {
+      if (Number(d.cuota)) kv.push('Cuota <b>' + fmt(d.cuota) + '</b>');
+      if (d.diaPago) kv.push('Vence <b>' + fCorta(proximaFechaDia(d.diaPago)) + '</b>');
+      if (tasa) kv.push('Interés <b>' + String(Math.round(tasa * 10000) / 100).replace('.', ',') + '% mensual</b>');
+      if (manejo) kv.push('Manejo <b>' + fmt(manejo) + '</b>');
+      if (kv.length) h += '<div class="kv">' + kv.map(function (x) { return '<span>' + x + '</span>'; }).join('') + '</div>';
+      if (est.cargos) h += '<p class="hint">Incluye <b class="num">' + fmt(est.cargos) + '</b> de intereses y manejo estimados desde el ' + fCorta(d.fechaBase) + '.</p>';
+      if (s > 0 && (tasa || manejo) && cd) { var px1 = pr && pr.filas.length ? pr.filas[0] : { fecha: proximaFechaDia(cd), cargo: s * tasa + manejo }; h += '<p class="hint">En el corte del ' + fCorta(px1.fecha) + ' se le suman unos <b class="num">' + fmt(px1.cargo) + '</b> de intereses y manejo.</p>'; }
+      if (d.nota) h += '<p class="hint">' + esc(d.nota) + '</p>';
     }
-    if (est.cargos) h += '<p class="hint">Incluye <b class="num">' + fmt(est.cargos) + '</b> de intereses y manejo estimados desde el ' + fCorta(d.fechaBase) + '.</p>';
-    var pr = s > 0 ? proyectar(d, s, 0) : null;
-    if (s > 0 && (tasa || manejo) && cd) {
-      var prox = pr && pr.filas.length ? pr.filas[0] : { fecha: proximaFechaDia(cd), cargo: s * tasa + manejo };
-      h += '<p class="hint">En el corte del ' + fCorta(prox.fecha) + ' se le suman unos <b class="num">' + fmt(prox.cargo) + '</b> de intereses y manejo.</p>';
-    }
-    if (d.nota) h += '<p class="hint">' + esc(d.nota) + '</p>';
     var ucx = extractoPendiente(d);
     if (ucx && S.revisarDeuda !== d.id) h += '<div class="extracto-aviso"><span>Ya salió el extracto del corte del ' + fCorta(ucx) + '.</span><button type="button" class="sec accent" data-extracto="' + id + '">Revisar</button></div>';
     if (d.tarjeta) h += susDeTarjeta(d);
@@ -2520,6 +2713,7 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
         '<div><label class="lbl" for="dc-' + id + '">Cuota</label><input id="dc-' + id + '" type="text" inputmode="numeric" value="' + miles(d.cuota) + '"></div></div>' +
         '<div class="row2"><div><label class="lbl" for="dt-' + id + '">Interés mensual (%)</label><input id="dt-' + id + '" type="text" inputmode="decimal" value="' + (d.tasa != null && d.tasa !== '' ? String(d.tasa).replace('.', ',') : '') + '" placeholder="Ej: 2,12"></div>' +
         '<div><label class="lbl" for="dm-' + id + '">Cuota de manejo</label><input id="dm-' + id + '" type="text" inputmode="numeric" value="' + miles(d.manejo) + '" placeholder="$ 0"></div></div>' +
+        (d.tarjeta ? '<div><label class="lbl" for="dq-' + id + '">Cupo total de la tarjeta</label><input id="dq-' + id + '" type="text" inputmode="numeric" value="' + miles(d.cupo) + '" placeholder="$ 0"></div>' : '') +
         '<div class="botones"><button type="button" class="sec accent" data-deuda-guardar="' + id + '">Guardar</button><button type="button" class="link" data-deuda-cancelar="1">Cancelar</button></div>' +
         '<button type="button" class="link peligro" style="justify-self:start" data-deuda-quitar="' + id + '">Quitar ' + (d.tarjeta ? 'esta tarjeta' : 'esta deuda') + ' de la app</button></div>';
     } else if (S.confirmDeuda === d.id) {
@@ -2550,9 +2744,10 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
         '<div class="row2" style="align-items:end"><div><label class="lbl" for="sim-' + id + '">Si abono extra hoy</label><input id="sim-' + id + '" type="text" inputmode="numeric" value="' + miles(sv) + '" placeholder="$ 0"></div><button type="button" class="sec" data-simular="' + id + '">Simular</button></div>' + simTxt +
         '</div></details>';
     }
-    if (est.pagos.length) {
-      h += '<details data-abre="pagos-' + id + '"' + (S.abiertos['pagos-' + d.id] ? ' open' : '') + '><summary style="font-size:0.95rem">Pagos registrados (' + est.pagos.length + ')</summary>' +
-        est.pagos.slice().reverse().map(function (p) {
+    var hist = historialPagos(d);
+    if (hist.length) {
+      h += '<details data-abre="pagos-' + id + '"' + (S.abiertos['pagos-' + d.id] ? ' open' : '') + '><summary style="font-size:0.95rem">Historial de pagos (' + hist.length + ')</summary>' +
+        hist.map(function (p) {
           var acc = '';
           if (p.tipo === 'abono' && p.origen === 'ingreso') acc = ' <span class="hint">(se borra en Plata)</span>';
           else if (p.tipo === 'abono') acc = S.confirmAbono === p.id ? ' <button type="button" class="link peligro" data-abono-borrar-si="' + esc(p.id) + '">Sí, borrar</button><button type="button" class="link" data-abono-no="1">No</button>' : ' <button type="button" class="link" data-abono-borrar="' + esc(p.id) + '">Borrar</button>';
@@ -2566,16 +2761,41 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
     if (/natillera|pr[eé]stamo|familia|amig/i.test(d.nombre || '')) return { cls: 't-prestamo', ico: 'presta', txt: 'Préstamo' };
     return { cls: 't-deuda', ico: 'banco', txt: 'Deuda' };
   }
+  function lineaRend(saldo, tz, ec) {
+    return tz ? '<p class="hint" data-rend="1" style="margin-top:-4px">Rinde ' + tasaCajTxt(tz) + '% E.A.: unos ' + fmt(crecerT(saldo, 30, tz) - saldo) + ' al mes' + (ec && ec.rend >= 1 && ec.desde ? ' · lleva ' + fmt(ec.rend) + ' desde el ' + fCorta(ec.desde) : '') + '.</p>' : '<p class="hint" style="margin-top:-4px">Sin tasa: no le suma rendimientos.</p>';
+  }
+  /* Mover plata entre Cajitas o entre una Cajita y Por asignar (el saldo disponible). */
+  function lugaresMover() {
+    var l = [{ v: 'cajita', n: nombreAhorro() }].concat(cajitasExtra().map(function (c) { return { v: 'caj:' + c.id, n: c.nombre }; }));
+    var pa = catPorAsignar(); if (pa) l.push({ v: 'bol:' + pa.id, n: pa.nombre + ' (saldo disponible)' });
+    return l;
+  }
+  function formMoverCaj(key) {
+    var l = lugaresMover(), otro = (l.filter(function (x) { return x.v !== key; })[0] || {}).v;
+    var opts = function (sel) { return l.map(function (x) { return '<option value="' + esc(x.v) + '"' + (x.v === sel ? ' selected' : '') + '>' + esc(x.n) + '</option>'; }).join(''); };
+    return '<div class="editor" style="border-top:1px solid var(--line);padding-top:12px"><h3 style="margin:0">Mover plata</h3>' +
+      '<div class="row2"><div><label class="lbl" for="mcDesde">Desde</label><select id="mcDesde">' + opts(key) + '</select></div>' +
+      '<div><label class="lbl" for="mcHacia">Hacia</label><select id="mcHacia">' + opts(otro) + '</select></div></div>' +
+      '<div><label class="lbl" for="mcMonto">Cuánto</label><input id="mcMonto" type="text" inputmode="numeric" placeholder="$ 0"></div>' +
+      '<p class="hint" style="margin:0">Hágalo también en la app del banco: aquí solo queda anotado.</p>' +
+      '<div class="botones"><button type="button" class="sec accent" data-mc-guardar="1">Mover</button><button type="button" class="link" data-mc-cancelar="1">Cancelar</button></div></div>';
+  }
   function tarjetaCajita() {
-    var ec = estadoCajita(), saldo = ec.saldo, mc = metaColchon(), mm = metaMoto(), t = hoy(), tz = tasaCajita();
-    var col = Math.max(0, Math.min(saldo, mc)), pctC = Math.round(col / mc * 100), moto = Math.max(0, saldo - mc);
+    var ec = estadoCajita(), saldo = ec.saldo, mc = metaColchon(), t = hoy(), tz = tasaCajita();
+    var col = Math.max(0, Math.min(saldo, mc)), pctC = Math.round(col / mc * 100), sobra = Math.max(0, saldo - mc);
     var h = '<section class="card card-ahorro">' + cab('La ' + esc(nombreAhorro()), 'cajita') +
-      infoTxt('cajita', 'Todo su ahorro está en una sola Cajita. Primero se llena el colchón (para emergencias y meses sin ingreso)' + (mm.total ? '; lo que pase de ' + fmt(mc) + ' cuenta para su meta grande, que está en Mis planes' : '') + '. ' + (tz ? 'La app le suma sola los rendimientos de cada día con su tasa; ' : '') + 'si la cifra no coincide con ' + esc(entidadAhorro()) + ', use "Corregir el saldo". Si saca plata, anótelo con "Saqué de la Cajita": así la app no le pierde la pista.') +
-      '<p class="grande">' + fmt(saldo) + '</p>' +
-      (tz ? '<p class="hint" data-rend="1" style="margin-top:-4px">Rinde ' + tasaCajTxt(tz) + '% E.A.: unos ' + fmt(crecer(saldo, 30) - saldo) + ' al mes' + (ec.rend >= 1 && ec.desde ? ' · lleva ' + fmt(ec.rend) + ' desde el ' + fCorta(ec.desde) : '') + '.</p>' : '') +
+      infoTxt('cajita', 'Es su fondo para emergencias y para los meses sin ingreso. Se llena primero, hasta la meta del colchón; lo que pase de ahí va a sus deudas y después a sus planes (vea las prioridades en Mis planes). ' + (tz ? 'La app le suma sola los rendimientos de cada día con su tasa; ' : '') + 'si la cifra no coincide con ' + esc(entidadAhorro()) + ', use "Corregir el saldo". Si saca plata, anótelo con "Saqué de la Cajita": así la app no le pierde la pista.') +
+      '<p class="grande">' + fmt(saldo) + '</p>' + lineaRend(saldo, tz, ec) +
       '<div class="parte"><div class="fila"><span class="nombre">Colchón</span><span class="cifra">' + fmt(col) + ' / ' + fmt(mc) + '</span></div>' +
       '<div class="barra acc" role="img" aria-label="Colchón: ' + pctC + '% de la meta"><i style="width:' + pctC + '%"></i></div></div>';
-    if (mm.total && moto > 0) h += '<p class="hint">Por encima del colchón: <b class="num">' + fmt(moto) + '</b> · cuenta para su meta, en <button type="button" class="link" style="padding:0;min-height:0" data-metas-ir="planes">Mis planes</button>.</p>';
+    if (S.editMetaCaj) h += '<div class="editor" style="margin-top:0"><div class="row2" style="align-items:end"><div><label class="lbl" for="metaCaj">Meta del colchón</label><input id="metaCaj" type="text" inputmode="numeric" value="' + miles(mc) + '"></div>' +
+      '<div class="botones" style="margin:0"><button type="button" class="sec accent" data-meta-caj-guardar="1">Guardar</button><button type="button" class="link" data-meta-caj-no="1">Cancelar</button></div></div>' +
+      '<p class="hint" style="margin:0">Un mes normal le cuesta unos ' + fmt(costoMes(false)) + ': ' + fmt(mc) + ' son ' + mesesTxt(mc / Math.max(1, costoMes(false))) + '.</p></div>';
+    else h += '<p class="hint" style="margin-top:-4px">Meta del colchón ' + fmt(mc) + ' · <button type="button" class="link" style="padding:0;min-height:0" data-meta-caj="1">Cambiar</button></p>';
+    if (sobra > 0) {
+      var sig = escalera().filter(function (x) { return x.id !== 'colchon' && !x.listo; })[0];
+      h += '<p class="aviso">Pasó la meta por ' + fmt(sobra) + '. ' + (sig ? 'Lo que sobra toca: ' + esc(sig.nombre) + '.' : 'Ya puede mandar lo que sobra a sus planes.') + '</p>';
+    }
     var rt = ritmoCajita(), fC = Math.max(0, mc - saldo);
     if (rt != null && rt > 0 && fC) h += '<p class="hint">A su ritmo (' + fmt(rt) + ' al mes): colchón hacia ' + mesLabel(addMes(mesDe(t), Math.ceil(fC / rt))) + '.</p>';
     var pj = proyeccionCajita(8);
@@ -2586,42 +2806,109 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
     var nt = natillera();
     if (nt.entrega || nt.aporte) h += '<p class="hint">Natillera: ' + (nt.aporte ? fmt(nt.aporte) + ' aportados este año' + (nt.entrega ? '; ' : '.') : '') + (nt.entrega ? 'entrega de ' + fmt(nt.entrega.monto) + ' hacia el ' + fCorta(nt.entrega.fecha) + ', su plata para enero.' : '') + '</p>';
     if (S.retiroAbierto) h += formRetiro();
-    else h += '<div class="botones"><button type="button" class="sec" data-retiro-abrir="1">Saqué de la Cajita</button><button type="button" class="link" data-abrir-cuadre="1">Cuadrar</button></div>';
-    var rs = S.retiros.slice().sort(function (a, b) { return a.fecha < b.fecha ? 1 : -1; });
+    else if (S.cajMover === 'cajita') h += formMoverCaj('cajita');
+    else h += '<div class="botones"><button type="button" class="sec" data-retiro-abrir="1">Saqué de la Cajita</button><button type="button" class="sec" data-mc-abrir="cajita">Mover plata</button><button type="button" class="link" data-abrir-cuadre="1">Cuadrar</button></div>';
+    var rs = S.retiros.filter(function (r) { return !r.cajita; }).sort(function (a, b) { return a.fecha < b.fecha ? 1 : -1; });
     if (rs.length) {
-      h += '<details data-abre="retiros"' + (S.abiertos.retiros ? ' open' : '') + '><summary style="font-size:0.95rem">Retiros de la Cajita (' + rs.length + ')</summary>' + rs.map(function (r) {
-        var acc = S.confirmRetiro === r.id ? ' <button type="button" class="link peligro" data-retiro-borrar-si="' + esc(r.id) + '">Sí, borrar</button><button type="button" class="link" data-retiro-no="1">No</button>' : ' <button type="button" class="link" data-retiro-borrar="' + esc(r.id) + '">Borrar</button>';
-        return '<div class="fecha-item"><b>' + fCorta(r.fecha) + '</b><span>' + fmt(r.monto) + ' · ' + esc(r.motivo || 'Sin motivo') + ' · ' + (r.valido === 'si' ? '<span class="delta-ok">Emergencia</span>' : '<span class="delta-mal">No era emergencia</span>') + acc + '</span></div>';
-      }).join('') + '</details>';
+      h += '<details data-abre="retiros"' + (S.abiertos.retiros ? ' open' : '') + '><summary style="font-size:0.95rem">Retiros de la Cajita (' + rs.length + ')</summary>' + rs.map(filaRetiro).join('') + '</details>';
     }
-    h += '<details data-abre="cajreal"' + (S.abiertos.cajreal ? ' open' : '') + '><summary style="font-size:0.95rem">Corregir el saldo con la app de ' + esc(entidadAhorro()) + '</summary><div class="row2" style="margin-top:8px"><div><label for="cajReal" class="lbl">Saldo real de hoy</label><input id="cajReal" type="text" inputmode="numeric" placeholder="$ 0"></div><div><label for="cajTasa" class="lbl">Tasa (% E.A.)</label><input id="cajTasa" type="text" inputmode="decimal" value="' + esc(tasaCajTxt(tz)) + '"></div></div><p class="hint">La tasa (efectiva anual) sale en la app de ' + esc(entidadAhorro()) + '. Si su ahorro no da intereses, deje 0.</p><div class="botones"><button type="button" class="sec" data-cajreal="1">Actualizar</button></div></details>';
+    h += '<details data-abre="cajreal"' + (S.abiertos.cajreal ? ' open' : '') + '><summary style="font-size:0.95rem">Corregir el saldo con la app de ' + esc(entidadAhorro()) + '</summary><div class="row2" style="margin-top:8px"><div><label for="cajReal" class="lbl">Saldo real de hoy</label><input id="cajReal" type="text" inputmode="numeric" placeholder="$ 0"></div><div><label for="cajTasa" class="lbl">Tasa (% E.A.)</label><input id="cajTasa" type="text" inputmode="decimal" value="' + esc(tasaCajTxt(tz)) + '"></div></div><p class="hint">La tasa (efectiva anual) sale en la app de ' + esc(entidadAhorro()) + '. Si cambia (por ejemplo, con Nu Plus), escriba la nueva y deje el saldo en blanco: rige desde hoy. Si su ahorro no da intereses, deje 0.</p><div class="botones"><button type="button" class="sec" data-cajreal="1">Actualizar</button></div></details>';
     return h + '</section>';
   }
-  function tarjetaMetaGrande() {
-    var mm = metaMoto(); if (!mm.total) return '';
-    var saldo = saldoCajita(), mc = metaColchon(), t = hoy(), moto = Math.max(0, saldo - mc);
-    var pctM = mm.cajita ? Math.min(100, Math.round(moto / mm.cajita * 100)) : 0;
-    var h = '<section class="card">' + cab(esc(mm.texto), 'metaGrande') +
-      infoTxt('metaGrande', 'Se ahorra en la misma ' + esc(nombreAhorro()) + ': primero se llena el colchón (' + fmt(mc) + ') y lo que pase de ahí cuenta para esta meta.') +
-      '<p class="grande">' + fmt(moto) + '</p><p class="hint" style="margin-top:-4px">de ' + fmt(mm.cajita) + ' · ' + pctM + '%</p>' +
-      '<div class="barra acc" role="img" aria-label="' + esc(mm.texto) + ': ' + pctM + '% de la meta"><i style="width:' + pctM + '%"></i></div>';
-    if (moto > 0 && t >= reparto().fase2) {
-      var dp = escalera().filter(function (x) { return x.dest.indexOf('deuda:') === 0 && !x.listo; })[0];
-      if (dp) h += '<p class="aviso">Tiene ' + fmt(moto) + ' por encima del colchón y todavía debe en ' + esc(dp.nombre) + ': conviene abonarlo a la deuda primero.</p>';
+  function filaRetiro(r) {
+    var acc = S.confirmRetiro === r.id ? ' <button type="button" class="link peligro" data-retiro-borrar-si="' + esc(r.id) + '">Sí, borrar</button><button type="button" class="link" data-retiro-no="1">No</button>' : ' <button type="button" class="link" data-retiro-borrar="' + esc(r.id) + '">Borrar</button>';
+    return '<div class="fecha-item"><b>' + fCorta(r.fecha) + '</b><span>' + fmt(r.monto) + ' · ' + esc(r.motivo || 'Sin motivo') + ' · ' + (r.valido === 'si' ? '<span class="delta-ok">Emergencia</span>' : '<span class="delta-mal">No era emergencia</span>') + acc + '</span></div>';
+  }
+  /* Una Cajita creada por el usuario: su saldo, su tasa, su meta y para qué plan es. */
+  function tarjetaCajitaExtra(cj) {
+    var key = 'caj:' + cj.id, id = esc(cj.id), ec = estadoCaj(key), saldo = ec.saldo, tz = ec.tasa, meta = Number(cj.meta) || 0;
+    var planes = planesL().filter(function (pl) { return pl.cajita === cj.id; }).map(function (pl) { return pl.nombre; });
+    var h = '<section class="card card-ahorro" id="caj-' + id + '"><div class="cab"><h2>' + esc(cj.nombre) + '</h2></div>' +
+      '<p class="grande">' + fmt(saldo) + '</p>' + lineaRend(saldo, tz, ec);
+    if (meta) { var pc = Math.max(0, Math.min(100, Math.round(saldo / meta * 100))); h += '<div class="parte"><div class="fila"><span class="nombre">Meta</span><span class="cifra">' + fmt(Math.max(0, saldo)) + ' / ' + fmt(meta) + '</span></div><div class="barra acc" role="img" aria-label="' + pc + '% de la meta"><i style="width:' + pc + '%"></i></div></div>'; }
+    if (planes.length) h += '<p class="hint" style="margin:0">Para: ' + esc(planes.join(', ')) + ' (en Mis planes).</p>';
+    var rs = S.retiros.filter(function (r) { return r.cajita === cj.id; }).sort(function (a, b) { return a.fecha < b.fecha ? 1 : -1; });
+    if (S.cajEditar === cj.id) {
+      h += '<div class="editor"><div class="row2"><div><label class="lbl" for="ceNombre">Nombre</label><input id="ceNombre" type="text" maxlength="30" autocapitalize="words" value="' + esc(cj.nombre) + '"></div>' +
+        '<div><label class="lbl" for="ceMeta">Meta (opcional)</label><input id="ceMeta" type="text" inputmode="numeric" value="' + miles(meta) + '" placeholder="$ 0"></div></div>' +
+        '<div class="row2"><div><label class="lbl" for="ceSaldo">Saldo real de hoy</label><input id="ceSaldo" type="text" inputmode="numeric" placeholder="Igual: ' + esc(miles(saldo) || '0') + '"></div>' +
+        '<div><label class="lbl" for="ceTasa">Tasa (% E.A.)</label><input id="ceTasa" type="text" inputmode="decimal" value="' + esc(tasaCajTxt(tz)) + '"></div></div>' +
+        '<p class="hint" style="margin:0">Si cambia la tasa, rige desde hoy. Deje el saldo en blanco si no ha cambiado.</p>' +
+        '<div class="botones"><button type="button" class="sec accent" data-ce-guardar="' + id + '">Guardar</button><button type="button" class="link" data-ce-cancelar="1">Cancelar</button></div>' +
+        '<button type="button" class="link peligro" style="justify-self:start" data-ce-quitar="' + id + '">Quitar esta Cajita de la app</button></div>';
+    } else if (S.confirmCaj === cj.id) {
+      h += '<div class="confirma-quitar"><span>¿Quitar <b>' + esc(cj.nombre) + '</b> de la app?' + (Math.round(saldo) > 0 ? ' Todavía tiene ' + fmt(saldo) + ': muévalos primero a otra Cajita o dejan de contarse.' : '') + (planes.length ? ' El plan ' + esc(planes.join(', ')) + ' queda sin Cajita.' : '') + ' No se puede deshacer.</span>' +
+        '<div class="botones"><button type="button" class="sec peligro" data-ce-quitar-si="' + id + '">Sí, quitarla</button><button type="button" class="sec" data-ce-cancelar="1">No, dejarla</button></div></div>';
+    } else if (S.cajMover === key) h += formMoverCaj(key);
+    else if (S.retiroAbierto === cj.id) h += formRetiro();
+    else h += '<div class="botones"><button type="button" class="sec" data-mc-abrir="' + esc(key) + '">Mover plata</button><button type="button" class="sec" data-retiro-abrir="' + id + '">Saqué de aquí</button><button type="button" class="link" data-ce-editar="' + id + '">Editar</button></div>';
+    if (rs.length) h += '<details data-abre="ret-' + id + '"' + (S.abiertos['ret-' + cj.id] ? ' open' : '') + '><summary style="font-size:0.95rem">Retiros (' + rs.length + ')</summary>' + rs.map(filaRetiro).join('') + '</details>';
+    return h + '</section>';
+  }
+  function tarjetaNuevaCajita() {
+    if (!S.cajNueva) return '<section class="card"><div class="fila" style="align-items:center"><span><b>Otra Cajita</b><br><small class="hint">Para separar un ahorro (la moto, un viaje) del fondo, con su propia tasa.</small></span><button type="button" class="sec" data-caj-nueva="1">Crear</button></div></section>';
+    return '<section class="card"><h2>Cajita nueva</h2><div class="editor" style="margin-top:0"><div class="row2"><div><label class="lbl" for="cnNombre">Nombre</label><input id="cnNombre" type="text" maxlength="30" autocapitalize="words" placeholder="Ej: Moto"></div>' +
+      '<div><label class="lbl" for="cnSaldo">Lo que tiene hoy</label><input id="cnSaldo" type="text" inputmode="numeric" placeholder="$ 0"></div></div>' +
+      '<div class="row2"><div><label class="lbl" for="cnTasa">Tasa (% E.A.)</label><input id="cnTasa" type="text" inputmode="decimal" value="' + esc(tasaCajTxt(tasaCajita())) + '"></div>' +
+      '<div><label class="lbl" for="cnMeta">Meta (opcional)</label><input id="cnMeta" type="text" inputmode="numeric" placeholder="$ 0"></div></div>' +
+      '<p class="hint" style="margin:0">Créela primero en ' + esc(entidadAhorro()) + '. Si ya tiene plata, escriba cuánto; si la va a llenar desde otra Cajita, deje 0 y use "Mover plata".</p>' +
+      '<div class="botones"><button type="button" class="sec accent" data-caj-crear="1">Crear Cajita</button><button type="button" class="link" data-caj-nueva-no="1">Cancelar</button></div></div></section>';
+  }
+  /* Mis planes: cada plan con su meta, lo que ya pone otra cosa (la Nmax) y la Cajita donde se ahorra. */
+  function tarjetaPlan(pl) {
+    var a = avancePlan(pl), id = esc(pl.id), t = hoy();
+    var h = '<section class="card" id="plan-' + id + '"><div class="cab"><h2>' + esc(pl.nombre) + '</h2></div>' +
+      '<p class="grande">' + fmt(a.ahorrado) + '</p><p class="hint" style="margin-top:-4px">de ' + fmt(a.necesita) + ' · ' + a.pct + '%</p>' +
+      '<div class="barra acc" role="img" aria-label="' + esc(pl.nombre) + ': ' + a.pct + '% de la meta"><i style="width:' + a.pct + '%"></i></div>' +
+      '<p class="hint" style="margin:0">Meta ' + fmt(a.total) + (a.abono ? ' menos ' + fmt(a.abono) + (pl.abonoTexto ? ' de ' + esc(pl.abonoTexto) : ' que ya tiene') : '') + (pl.fecha ? ' · para ' + mesLabel(pl.fecha) : '') + '</p>';
+    if (a.conCaj) h += '<p class="hint" style="margin:0">Se ahorra en ' + esc(nombreCaj(a.dest)) + '.</p>';
+    else h += '<p class="hint" style="margin:0">Todavía no tiene una Cajita para este plan. Cuando la cree en Ahorro, únala aquí con "Editar".</p>';
+    if (pl.fecha && a.falta > 0 && a.conCaj) {
+      var n = 0, m = mesDe(t); while (m < pl.fecha && n < 120) { n++; m = addMes(m, 1); }
+      h += n > 0 ? '<p class="hint" style="margin:0">Para llegar en ' + mesLabel(pl.fecha) + ': unos ' + fmt(a.falta / n) + ' al mes.</p>' : '<p class="aviso">Ya llegó la fecha y faltan ' + fmt(a.falta) + '.</p>';
     }
-    if (S.editMoto) {
-      h += '<div class="editor" style="margin-top:2px"><div class="row2"><div><label class="lbl" for="motoTotal">Meta total</label><input id="motoTotal" type="text" inputmode="numeric" value="' + miles(mm.total) + '"></div>' +
-        '<div><label class="lbl" for="motoAbono">Lo que ponen ' + esc(mm.abonoTexto) + '</label><input id="motoAbono" type="text" inputmode="numeric" value="' + miles(mm.abono) + '"></div></div>' +
-        '<div class="botones"><button type="button" class="sec accent" data-moto-guardar="1">Guardar</button><button type="button" class="link" data-moto-cancelar="1">Cancelar</button></div></div>';
-    } else h += '<p class="hint">Meta ' + fmt(mm.total) + (mm.abono ? ' menos ' + fmt(mm.abono) + ' de ' + esc(mm.abonoTexto) : '') + ' · <button type="button" class="link" style="padding:0;min-height:0" data-moto-editar="1">Ajustar</button></p>';
-    var rt = ritmoCajita(), fM = Math.max(0, mc + mm.cajita - saldo);
-    if (rt != null && rt > 0 && fM) h += '<p class="hint">A su ritmo de ahorro (' + fmt(rt) + ' al mes), la completa hacia ' + mesLabel(addMes(mesDe(t), Math.ceil(fM / rt))) + '.</p>';
+    if (a.ahorrado > 0 && t >= reparto().fase2) {
+      var dp = escalera().filter(function (x) { return x.dest.indexOf('deuda:') === 0 && !x.listo; })[0];
+      if (dp) h += '<p class="aviso">Todavía debe en ' + esc(dp.nombre) + ': conviene abonarle primero a la deuda.</p>';
+    }
+    if (S.editPlan === pl.id) h += formPlan(pl);
+    else if (S.confirmPlan === pl.id) h += '<div class="confirma-quitar"><span>¿Quitar el plan <b>' + esc(pl.nombre) + '</b>? La plata de su Cajita no se toca.</span><div class="botones"><button type="button" class="sec peligro" data-plan-quitar-si="' + id + '">Sí, quitar</button><button type="button" class="sec" data-plan-cancelar="1">No</button></div></div>';
+    else h += '<div class="botones"><button type="button" class="link fuerte" data-plan-editar="' + id + '">Editar</button><button type="button" class="link" data-plan-quitar="' + id + '">Quitar</button></div>';
+    return h + '</section>';
+  }
+  function formPlan(pl) {
+    var cjs = cajitasExtra();
+    return '<div class="editor"><div><label class="lbl" for="plNombre">Qué plan es</label><input id="plNombre" type="text" maxlength="40" autocapitalize="sentences" value="' + esc(pl.nombre || '') + '" placeholder="Ej: Moto grande, viaje a la costa"></div>' +
+      '<div class="row2"><div><label class="lbl" for="plMonto">Cuánto cuesta</label><input id="plMonto" type="text" inputmode="numeric" value="' + miles(pl.monto) + '" placeholder="$ 0"></div>' +
+      '<div><label class="lbl" for="plFecha">Para cuándo (opcional)</label><input id="plFecha" type="month" value="' + esc(pl.fecha || '') + '"></div></div>' +
+      '<div class="row2"><div><label class="lbl" for="plAbono">Lo que ya pone (opcional)</label><input id="plAbono" type="text" inputmode="numeric" value="' + miles(pl.abono) + '" placeholder="$ 0"></div>' +
+      '<div><label class="lbl" for="plAbonoTxt">De qué</label><input id="plAbonoTxt" type="text" maxlength="30" value="' + esc(pl.abonoTexto || '') + '" placeholder="Ej: la Nmax"></div></div>' +
+      '<div><label class="lbl" for="plCaj">Dónde se ahorra</label><select id="plCaj"><option value="">Todavía en ninguna Cajita</option>' + cjs.map(function (c) { return '<option value="' + esc(c.id) + '"' + (pl.cajita === c.id ? ' selected' : '') + '>' + esc(c.nombre) + '</option>'; }).join('') + '</select>' +
+      (cjs.length ? '' : '<span class="hint">Para unirlo a una Cajita, créela primero en Metas › Ahorro.</span>') + '</div>' +
+      '<div class="botones"><button type="button" class="sec accent" data-plan-guardar="1">Guardar</button><button type="button" class="link" data-plan-cancelar="1">Cancelar</button></div></div>';
+  }
+  function tarjetasPlanes() {
+    var l = planesL(), h = l.map(tarjetaPlan).join('');
+    if (S.editPlan === 'nuevo') h += '<section class="card"><h2>Plan nuevo</h2>' + formPlan({}) + '</section>';
+    else h += '<section class="card">' + (l.length ? '' : '<p class="vacio">Todavía no tiene planes. Agregue lo que quiere lograr: la moto, un viaje, un curso.</p>') + '<div class="botones"><button type="button" class="sec" data-plan-nuevo="1">Agregar plan</button></div></section>';
+    return h;
+  }
+  /* Fechas de su plan: se pueden agregar y quitar. */
+  function tarjetaFechas() {
+    var t = hoy(), l = ((S.plan && S.plan.fechas) || []).map(function (f, i) { return { f: f, i: i }; }).filter(function (x) { return x.f.fecha >= t; }).sort(function (a, b) { return a.f.fecha < b.f.fecha ? -1 : 1; });
+    var h = '<section class="card"><h2>Fechas de su plan</h2>' + (l.length ? l.map(function (x) {
+      var k = x.f.fecha + '|' + x.f.texto, acc = S.confirmFecha === k ? '<button type="button" class="link peligro" data-fecha-quitar-si="' + esc(k) + '">Sí, quitar</button><button type="button" class="link" data-fecha-no="1">No</button>' : '<button type="button" class="link" data-fecha-quitar="' + esc(k) + '">Quitar</button>';
+      return '<div class="fecha-item"><b>' + fCorta(x.f.fecha) + '</b><span>' + esc(x.f.texto) + ' ' + acc + '</span></div>';
+    }).join('') : '<p class="vacio">No hay fechas próximas.</p>');
+    h += S.nuevaFecha ? '<div class="editor"><div class="row2"><div><label class="lbl" for="nfFecha">Fecha</label><input id="nfFecha" type="date" value="' + esc(t) + '"></div><div><label class="lbl" for="nfTexto">Qué pasa</label><input id="nfTexto" type="text" maxlength="120" autocapitalize="sentences" placeholder="Ej: Pagar el SOAT"></div></div><div class="botones"><button type="button" class="sec accent" data-fecha-guardar="1">Guardar</button><button type="button" class="link" data-fecha-cancelar="1">Cancelar</button></div></div>'
+      : '<div class="botones"><button type="button" class="sec" data-fecha-nueva="1">Agregar fecha</button></div>';
     return h + '</section>';
   }
   var PREGUNTAS = [['emergencia', '¿Es una emergencia de verdad?'], ['inevitable', '¿Era inevitable?'], ['urgente', '¿Tenía que ser ya, sin esperar a la próxima quincena?']];
   function formRetiro() {
     var R = S.retiroResp, d = S.retiroDraft || {};
-    var h = '<div class="editor" style="margin-top:4px;border-top:1px solid var(--line);padding-top:12px"><h3>Saqué de la Cajita</h3>' +
+    var rc = typeof S.retiroAbierto === 'string' ? cajExtra(S.retiroAbierto) : null;
+    var h = '<div class="editor" style="margin-top:4px;border-top:1px solid var(--line);padding-top:12px"><h3>Saqué de ' + (rc ? esc(rc.nombre) : 'la Cajita') + '</h3>' +
       '<div class="row2"><div><label class="lbl" for="rtMonto">Cuánto sacó</label><input id="rtMonto" type="text" inputmode="numeric" placeholder="$ 0" value="' + esc(d.monto || '') + '"></div>' +
       '<div><label class="lbl" for="rtFecha">Fecha</label><input id="rtFecha" type="date" value="' + esc(d.fecha || hoy()) + '"></div></div>' +
       '<div><label class="lbl" for="rtMotivo">Para qué</label><input id="rtMotivo" type="text" maxlength="60" autocapitalize="sentences" placeholder="Ej: error en el trabajo, regalo" value="' + esc(d.motivo || '') + '"></div><div>' +
@@ -2746,11 +3033,9 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
     var box = $('metasBody'), t = hoy(), vista = S.metasVista === 'deudas' || S.metasVista === 'planes' ? S.metasVista : 'ahorro', html = '';
     document.querySelectorAll('[data-metasvista]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-metasvista') === vista)); });
     if (vista === 'ahorro') {
-      html = tarjetaCajita() + tarjetaRespaldo() + tarjetaPatrimonio() + tarjetaAnuales();
+      html = tarjetaCajita() + cajitasExtra().map(tarjetaCajitaExtra).join('') + tarjetaNuevaCajita() + tarjetaRespaldo() + tarjetaPatrimonio() + tarjetaAnuales();
     } else if (vista === 'planes') {
-      html = tarjetaMetaGrande() + tarjetaEscalera();
-      var fechas = ((S.plan && S.plan.fechas) || []).filter(function (f) { return f.fecha >= t; }).sort(function (a, b) { return a.fecha < b.fecha ? -1 : 1; }).slice(0, 5);
-      html += '<section class="card"><h2>Fechas de su plan</h2>' + (fechas.length ? fechas.map(function (f) { return '<div class="fecha-item"><b>' + fCorta(f.fecha) + '</b><span>' + esc(f.texto) + '</span></div>'; }).join('') : '<p class="vacio">No hay fechas próximas.</p>') + '</section>';
+      html = tarjetasPlanes() + tarjetaEscalera() + tarjetaFechas();
     } else {
       var totalD = sum(S.deudas, function (d) { return saldoDeuda(d); });
       html += '<section class="card">' + cab('Lo que debo', 'deudas', '<span class="num">' + fmt(totalD) + '</span>') +
@@ -2783,7 +3068,9 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
       '<div><label class="lbl" for="rx-s-' + id + '">¿Cuánto debe hoy según la app del banco?</label><input id="rx-s-' + id + '" type="text" inputmode="numeric" value="' + miles(s) + '"><p class="hint" style="margin:4px 0 0">La app calcula ' + fmt(s) + '. Si el banco dice otra cosa, escriba lo del banco.</p></div>' +
       '<div class="row2"><div><label class="lbl" for="rx-p-' + id + '">Lo que va a pagar de este extracto</label><input id="rx-p-' + id + '" type="text" inputmode="numeric" value="' + miles(d.cuota) + '"></div>' +
       '<div><label class="lbl" for="rx-f-' + id + '">Fecha límite</label><input id="rx-f-' + id + '" type="date" value="' + esc(Number(d.diaPago) ? proximaFechaDia(Number(d.diaPago)) : '') + '"></div></div>' +
-      '<p class="hint" style="margin:0">Si el extracto trae pago total y pago mínimo, anote el que va a pagar.</p>' +
+      '<div class="row2"><div><label class="lbl" for="rx-i-' + id + '">Intereses de este extracto</label><input id="rx-i-' + id + '" type="text" inputmode="numeric" placeholder="$ 0"></div>' +
+      '<div><label class="lbl" for="rx-m-' + id + '">Cuota de manejo</label><input id="rx-m-' + id + '" type="text" inputmode="numeric" value="' + miles(d.manejo) + '" placeholder="$ 0"></div></div>' +
+      '<p class="hint" style="margin:0">Si el extracto trae pago total y pago mínimo, anote el que va a pagar. Los intereses y la cuota de manejo salen en el detalle del extracto.</p>' +
       '<div class="botones"><button type="button" class="sec accent" data-extracto-guardar="' + id + '">Guardar</button><button type="button" class="link" data-extracto-cancelar="1">Cancelar</button></div></div>';
   }
 
@@ -2955,7 +3242,7 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
   function renderSeguridad() {
     var on = !!lsGet(LS.bloqueo, null);
     setHTML($('seguridad'), cab('Privacidad', 'seguridad') +
-      infoTxt('seguridad', 'El ojo de arriba oculta todas las cifras con un toque, para cuando alguien vea su celular. Al salir de la app, una pantalla con el logo tapa sus cifras para que no queden a la vista entre las apps abiertas. La app abre como la dejó: si ocultó las cifras, vuelve a abrir ocultas. Con Face ID, la app le pide la cara cada vez que la abre. Si Face ID falla, puede entrar con su código de conexión (el de la hoja, celda A2).') +
+      infoTxt('seguridad', 'El ojo de arriba oculta todas las cifras con un toque, para cuando alguien vea su celular. Al salir de la app, una pantalla con el logo tapa sus cifras para que no queden a la vista entre las apps abiertas, y los movimientos se vuelven a cerrar. En algunos iPhone la foto del selector de apps se toma antes de que la app alcance a taparse: por eso los movimientos ya no quedan abiertos en Hoy. La app abre como la dejó: si ocultó las cifras, vuelve a abrir ocultas. Con Face ID, la app le pide la cara cada vez que la abre. Si Face ID falla, puede entrar con su código de conexión (el de la hoja, celda A2).') +
       '<div class="fila" style="align-items:center"><span>Pedir Face ID al abrir</span><button type="button" class="sec' + (on ? '' : ' accent') + '" data-faceid="' + (on ? 'off' : 'on') + '">' + (on ? 'Desactivar' : 'Activar') + '</button></div>' +
       '<div class="fila" style="align-items:center"><span>Cubrir la pantalla al salir de la app<br><small class="hint">Para que no se vean sus cifras entre las apps abiertas.</small></span><button type="button" class="sec' + (cubrirOn() ? '' : ' accent') + '" data-cubrir="' + (cubrirOn() ? 'off' : 'on') + '">' + (cubrirOn() ? 'Desactivar' : 'Activar') + '</button></div>');
   }
@@ -3074,45 +3361,90 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
 
   /* ---------- Ajustes ---------- */
   var filaCat, filaItem;
+  /* Mi plan (v13): en cuatro recuadros que dicen qué va en cada uno —lo que entra, lo que sale fijo, el día a día y lo que
+     guarda—, cada uno con su total del mes y, al final, la cuenta de lo que queda para guardar. Cada fila se abre para editarla. */
+  function totalesPlan(mes) {
+    var cats = (S.cats || []).filter(function (c) { return activo(c) && activaEn(c, mes); });
+    var entra = sum(planL('ingresos').filter(function (i) { return activoItem(i, mes); }), function (i) { return Number(i.monto) || 0; });
+    var fijo = sum(planL('fijos').filter(function (f) { return activoItem(f, mes); }), montoFijo);
+    var dia = sum(cats.filter(esDia), function (c) { return presMes(c, mes); });
+    var bols = sum(cats.filter(esApartado).filter(function (c) { return !c.reembolsable; }), function (c) { return presMes(c, mes); });
+    return { entra: entra, fijo: fijo, dia: dia, bols: bols, queda: entra - fijo - dia };
+  }
   function renderAjustes() {
-    var body = $('ajustesBody');
-    var cats = (S.cats && S.cats.length) ? S.cats : [{ id: '', nombre: '', presupuesto: 0 }];
+    var body = $('ajustesBody'), mes = mesDe(hoy()), tp = totalesPlan(mes);
+    var cats = S.cats || [];
     var deudaOpts = function (sel) { return '<option value="">Sin deuda</option>' + S.deudas.map(function (d) { return '<option value="' + esc(d.id) + '"' + (d.id === sel ? ' selected' : '') + '>' + esc(d.nombre) + '</option>'; }).join(''); };
-    filaCat = function (c, i) {
-      return '<div class="ed-fila" data-id="' + esc(c.id || '') + '">' +
+    var resumenCat = function (c) {
+      if (!activo(c)) return 'Inactivo';
+      if (esEtiqueta(c)) return 'Etiqueta de ' + nombreBolsa();
+      var v = presMes(c, mes, true); if (c.anual) return 'Gastos del año';
+      if (tipoDe(c) === 'reserva') return v ? fmt(v) + ' al mes' : 'Acumula';
+      if (tipoDe(c) === 'fondo') return 'Fondo fijo' + (c.meta && c.meta.monto ? ' de ' + fmt(c.meta.monto) : '');
+      return fmt(v) + ' al mes';
+    };
+    filaCat = function (c, i, nueva, tipoNueva) {
+      var tipo = c.id ? tipoDe(c) : (tipoNueva || 'dia');
+      return '<details class="ed-fila" data-id="' + esc(c.id || '') + '"' + (nueva ? ' open' : '') + '><summary><span>' + esc(c.nombre || 'Nuevo') + '</span><small>' + (c.id ? esc(resumenCat(c)) : '') + '</small></summary><div class="campos">' +
         '<label class="mini ancho">Nombre<input type="text" id="bc-n-' + i + '" class="e-nombre" maxlength="40" value="' + esc(c.nombre || '') + '"></label>' +
         (esEtiqueta(c) ? '<p class="mini hint ancho">Sin tope propio: sale de ' + esc(nombreBolsa()) + '.</p>' :
         '<label class="mini">Al mes<input type="text" id="bc-p-' + i + '" class="e-pres" inputmode="numeric" value="' + miles(c.presupuesto) + '"></label>' +
         '<label class="mini">Del 1 al 14<input type="text" id="bc-q-' + i + '" class="e-primera" inputmode="numeric" value="' + (c.primera != null ? (miles(c.primera) || '0') : '') + '" placeholder="Mitad"></label>') +
         '<label class="mini">Solo en el mes<input type="month" id="bc-s-' + i + '" class="e-solo" value="' + esc((c.soloMeses && c.soloMeses[0]) || '') + '"></label>' +
-        '<label class="mini">Tipo<select id="bc-t-' + i + '" class="e-tipo">' + [['dia', 'Del día'], ['reserva', 'Acumula (disponible)'], ['apartado', 'Bolsillo del banco'], ['fondo', 'Fondo fijo']].map(function (o) { return '<option value="' + o[0] + '"' + (tipoDe(c) === o[0] ? ' selected' : '') + '>' + o[1] + '</option>'; }).join('') + '</select></label>' +
+        '<label class="mini">Tipo<select id="bc-t-' + i + '" class="e-tipo">' + [['dia', 'Del día'], ['reserva', 'Acumula (disponible)'], ['apartado', 'Bolsillo del banco'], ['fondo', 'Fondo fijo']].map(function (o) { return '<option value="' + o[0] + '"' + (tipo === o[0] ? ' selected' : '') + '>' + o[1] + '</option>'; }).join('') + '</select></label>' +
         '<label class="chk"><input type="checkbox" id="bc-a-' + i + '" class="e-activo"' + (activo(c) ? ' checked' : '') + '> Activo</label>' +
         '<label class="chk"><input type="checkbox" id="bc-r-' + i + '" class="e-reemb"' + (c.reembolsable ? ' checked' : '') + '> Reembolsable</label>' +
-        (tipoDe(c) === 'dia' && !c.bolsa && c.id ? '<label class="chk"><input type="checkbox" id="bc-x-' + i + '" class="e-aparte"' + (c.aparte ? ' checked' : '') + '> Aparte de ' + esc(nombreBolsa()) + '</label>' : '') +
-        '<button type="button" class="link peligro" data-quitar-fila="1">Quitar</button></div>';
+        (tipo === 'dia' && !c.bolsa && c.id ? '<label class="chk"><input type="checkbox" id="bc-x-' + i + '" class="e-aparte"' + (c.aparte ? ' checked' : '') + '> Aparte de ' + esc(nombreBolsa()) + '</label>' : '') +
+        '<button type="button" class="link peligro" data-quitar-fila="1">Quitar</button></div></details>';
     };
-    filaItem = function (tipo, x, i) {
-      return '<div class="ed-fila" data-id="' + esc(x.id || '') + '">' +
+    filaItem = function (tipo, x, i, nueva) {
+      var sub = x.id ? (x.deuda && !Number(x.monto) ? 'Cuota de ' + (deudaPorId(x.deuda) ? corto(deudaPorId(x.deuda)) : 'la deuda') : fmt(tipo === 'fijo' ? montoFijo(x) : x.monto)) + ' · día ' + (String(x.dia) === '15' ? '15' : '30') + (activoItem(x, mes) ? '' : ' · no este mes') : '';
+      return '<details class="ed-fila" data-id="' + esc(x.id || '') + '"' + (nueva ? ' open' : '') + '><summary><span>' + esc(x.nombre || 'Nuevo') + '</span><small>' + esc(sub) + '</small></summary><div class="campos">' +
         '<label class="mini ancho">Nombre<input type="text" id="' + tipo + '-n-' + i + '" class="e-nombre" maxlength="60" value="' + esc(x.nombre || '') + '"></label>' +
         '<label class="mini">Valor<input type="text" id="' + tipo + '-m-' + i + '" class="e-monto" inputmode="numeric" value="' + miles(x.monto) + '"' + (x.deuda ? ' placeholder="Cuota de la deuda"' : '') + '></label>' +
         '<label class="mini">Día de pago<select id="' + tipo + '-d-' + i + '" class="e-dia"><option value="15"' + (String(x.dia) === '15' ? ' selected' : '') + '>15</option><option value="30"' + (String(x.dia) !== '15' ? ' selected' : '') + '>30</option></select></label>' +
         '<label class="mini">Desde<input type="month" id="' + tipo + '-a-' + i + '" class="e-desde" value="' + esc(x.desde || '') + '"></label>' +
         '<label class="mini">Hasta<input type="month" id="' + tipo + '-b-' + i + '" class="e-hasta" value="' + esc(x.hasta || '') + '"></label>' +
         (tipo === 'fijo' ? '<label class="mini ancho">Abona a<select id="fijo-x-' + i + '" class="e-deuda">' + deudaOpts(x.deuda) + '</select></label>' : '') +
-        '<button type="button" class="link peligro" data-quitar-fila="1">Quitar</button></div>';
+        '<button type="button" class="link peligro" data-quitar-fila="1">Quitar</button></div></details>';
     };
+    // Lo que no aplica este mes (contratos que ya terminaron, lo de diciembre, lo inactivo) queda plegado aparte.
+    var otros = function (html, n) { return n ? '<details class="otros"><summary>Otros meses o inactivos (' + n + ')</summary>' + html + '</details>' : ''; };
+    var filasItems = function (tipo, l) {
+      var o = l.map(function (x, i) { return { x: x, i: i }; }), si = o.filter(function (y) { return activoItem(y.x, mes); }), no = o.filter(function (y) { return !activoItem(y.x, mes); });
+      return si.map(function (y) { return filaItem(tipo, y.x, y.i); }).join('') + otros(no.map(function (y) { return filaItem(tipo, y.x, y.i); }).join(''), no.length);
+    };
+    var filasCats = function (l) {
+      var si = l.filter(function (o) { return activo(o.c) && activaEn(o.c, mes); }), no = l.filter(function (o) { return !(activo(o.c) && activaEn(o.c, mes)); });
+      return si.map(function (o) { return filaCat(o.c, o.i); }).join('') + otros(no.map(function (o) { return filaCat(o.c, o.i); }).join(''), no.length);
+    };
+    var cDia = cats.map(function (c, i) { return { c: c, i: i }; }).filter(function (o) { return tipoDe(o.c) === 'dia'; });
+    var cGuarda = cats.map(function (c, i) { return { c: c, i: i }; }).filter(function (o) { return tipoDe(o.c) !== 'dia'; });
+    var caja = function (titulo, total, linea, contenido, boton) { return '<section class="caja-plan"><div class="cab"><h3>' + titulo + '</h3><span class="num">' + fmt(total) + '</span></div><p class="hint" style="margin:0">' + linea + '</p>' + contenido + boton + '</section>'; };
     body.innerHTML =
-      '<h3>Bolsillos</h3><p class="hint">“Del 1 al 14” es la parte que se recarga con el pago del 30; el resto, con el del 15. Lo del día a día sale de una sola bolsa, ' + esc(nombreBolsa()) + ': las categorías sin tope propio son solo etiquetas para ver en qué se fue. Marque “Aparte” en las que llevan su propio tope, como vida social.</p>' +
-      '<div id="edCats">' + cats.map(filaCat).join('') + '</div><div class="botones"><button type="button" class="sec" data-agregar="cat">Agregar bolsillo</button></div>' +
-      '<h3>Ingresos del plan</h3><div id="edIng">' + planL('ingresos').map(function (x, i) { return filaItem('ing', x, i); }).join('') + '</div><div class="botones"><button type="button" class="sec" data-agregar="ing">Agregar ingreso</button></div>' +
-      '<h3>Pagos fijos</h3><div id="edFij">' + planL('fijos').map(function (x, i) { return filaItem('fijo', x, i); }).join('') + '</div><div class="botones"><button type="button" class="sec" data-agregar="fijo">Agregar pago fijo</button></div>' +
-      '<button type="button" class="primary" id="guardarAjustes">Guardar ajustes</button>';
+      '<p class="hint" style="margin:0">Totales de ' + esc(mesLabel(mes)) + '. Toque una fila para cambiarla y, al final, “Guardar mi plan”.</p>' +
+      caja('Lo que entra', tp.entra, 'Sus honorarios y lo que entra fijo el 15 o el 30. Las comisiones y extras se anotan en Plata cuando llegan.',
+        '<div id="edIng">' + filasItems('ing', planL('ingresos')) + '</div>',
+        '<div class="botones"><button type="button" class="sec" data-agregar="ing">Agregar ingreso</button></div>') +
+      caja('Lo que sale fijo', tp.fijo, 'Servicios, seguridad social, cuotas de deudas y natillera: lo que paga en el ritual de cada pago. Las suscripciones se manejan en Metas › Deudas.',
+        '<div id="edFij">' + filasItems('fijo', planL('fijos')) + '</div>',
+        '<div class="botones"><button type="button" class="sec" data-agregar="fijo">Agregar pago fijo</button></div>') +
+      caja('El día a día', tp.dia, 'Lo que gasta en la quincena: ' + esc(nombreBolsa()) + ' (una sola bolsa; las categorías de adentro son etiquetas) y lo que va aparte con su propio tope, como vida social.',
+        '<div id="edDia" class="ed-cats">' + filasCats(cDia) + '</div>',
+        '<div class="botones"><button type="button" class="sec" data-agregar="cat-dia">Agregar categoría</button></div>') +
+      caja('Lo que guardo', tp.bols, 'Bolsillos ' + esc(delBanco()) + ' (transporte, caja menor) y lo que acumula sin destino (Por asignar). La ' + esc(nombreAhorro()) + ' y sus metas se manejan en Metas › Ahorro.',
+        '<div id="edGuarda" class="ed-cats">' + filasCats(cGuarda) + '</div>',
+        '<div class="botones"><button type="button" class="sec" data-agregar="cat-guarda">Agregar bolsillo</button></div>') +
+      '<div class="cuenta-plan"><div><span>Entra</span><span class="num">' + fmt(tp.entra) + '</span></div><div><span>− Sale fijo</span><span class="num">' + fmt(tp.fijo) + '</span></div><div><span>− Día a día</span><span class="num">' + fmt(tp.dia) + '</span></div>' +
+      '<div class="fuerte' + (tp.queda < 0 ? ' mal' : '') + '"><span>Queda para guardar</span><span class="num">' + fmt(tp.queda) + '</span></div>' +
+      (tp.bols ? '<div><span>· de eso, a los bolsillos</span><span class="num">' + fmt(tp.bols) + '</span></div><div><span>· y a la ' + esc(nombreAhorro()) + '</span><span class="num">' + fmt(tp.queda - tp.bols) + '</span></div>' : '') + '</div>' +
+      '<button type="button" class="primary" id="guardarAjustes">Guardar mi plan</button>';
   }
   function slug(s) { var b = s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 30); return (b || 'item') + '-' + Math.random().toString(36).slice(2, 6); }
   function guardarAjustes() {
     var cats = [], viejos = {};
     (S.cats || []).forEach(function (c) { viejos[c.id] = c; });
-    document.querySelectorAll('#edCats .ed-fila').forEach(function (f) {
+    document.querySelectorAll('.ed-cats .ed-fila').forEach(function (f) {
       var nombre = f.querySelector('.e-nombre').value.trim(); if (!nombre) return;
       var id = f.getAttribute('data-id') || slug(nombre), prev = viejos[id] || {};
       var ep = f.querySelector('.e-pres'), eq = f.querySelector('.e-primera'), ex = f.querySelector('.e-aparte');
@@ -3358,7 +3690,7 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
     if ((b = t.closest('[data-baldosa]'))) { abrirQA({ cat: b.getAttribute('data-baldosa') }); return; }
     if (t.closest('[data-ir-plata]')) { irA('plata'); return; }
     if (t.closest('[data-ir-ingreso]')) { irA('plata'); setTimeout(function () { $('formIngreso').scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 60); return; }
-    if (t.closest('[data-ir-movs]')) { var mv = $('movs'); if (mv) mv.scrollIntoView({ behavior: 'smooth', block: 'start' }); return; }
+    if (t.closest('[data-ir-movs]')) { S.movVer = true; S.movDia = 'quincena'; renderMovs(S.per); var mv = $('movSec'); if (mv) mv.scrollIntoView({ behavior: 'smooth', block: 'start' }); return; }
     if (t.closest('[data-ver-graficos]')) { S.mesVista = 'graficos'; S.mes = mesDe(hoy()); irA('mes'); return; }
     if ((b = t.closest('[data-ir]'))) {
       var dest = b.getAttribute('data-ir');
@@ -3469,6 +3801,11 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
       if (modo === 'retiro') guardar('ingresos', nuevoId(), { fecha: f0, mes: mesDe(f0), monto: cv, tipo: 'cajero', destino: 'efectivo', concepto: 'Retiro de cajero', creado: new Date(t0.getTime() + 5).toISOString() });
       toast(modo === 'retiro' ? 'Retiro anotado: ' + fmt(cv) + ' a la billetera' : 'Billetera: ' + fmt(cv)); return;
     }
+    if (t.closest('[data-billetera]')) { S.abiertos.dd = true; S.cajeroAbierto = null; renderHoy(); window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
+    if (t.closest('[data-prox-toggle]')) { if (S.abiertos.prox) delete S.abiertos.prox; else S.abiertos.prox = true; renderProximos(); return; }
+    if (t.closest('[data-mov-ver]')) { S.movVer = true; S.movDia = hoy(); S.movCat = null; S.movAbierto = null; renderMovs(S.per); return; }
+    if (t.closest('[data-mov-ocultar]')) { cerrarMovs(); renderMovs(S.per); var ms = $('movSec'); if (ms && ms.getBoundingClientRect().top < 0) ms.scrollIntoView({ block: 'start' }); return; }
+    if ((b = t.closest('[data-mov-dia]'))) { var md = b.getAttribute('data-mov-dia'); if (!md) return; S.movDia = md; S.movAbierto = null; S.movCat = null; renderMovs(S.per); return; }
     if ((b = t.closest('[data-mv]'))) { var mk = b.getAttribute('data-mv'); S.movAbierto = S.movAbierto === mk ? null : mk; S.confirmDel = null; S.confirmMov = null; renderMovs(S.per); return; }
     if ((b = t.closest('[data-mvcat]'))) { S.movCat = b.getAttribute('data-mvcat') || null; S.movAbierto = null; renderMovs(S.per); return; }
     if (t.closest('#movQx')) { S.movQ = ''; $('movQ').value = ''; S.movAbierto = null; renderMovs(S.per); return; }
@@ -3512,7 +3849,7 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
     if ((b = t.closest('[data-ingpres]'))) {
       S.ingPrestamo = b.getAttribute('data-ingpres');
       var x = prestamoPorId(S.ingPrestamo);
-      if (x) { $('ingMonto').value = miles(saldoPrestamo(x)); S.ingDestino = (x.origen && (x.origen === 'cajita' || catPorId(x.origen.slice(4)))) ? x.origen : 'cajita'; }
+      if (x) { $('ingMonto').value = miles(saldoPrestamo(x)); S.ingDestinoManual = false; }
       renderFormIngreso(); return;
     }
     if ((b = t.closest('[data-destino]'))) { S.ingDestino = b.getAttribute('data-destino'); renderFormIngreso(); return; }
@@ -3520,7 +3857,7 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
     if ((b = t.closest('[data-pres-cobrar]'))) {
       S.ingTipo = 'prestamo'; S.ingPrestamo = b.getAttribute('data-pres-cobrar');
       var px = prestamoPorId(S.ingPrestamo);
-      if (px) { $('ingMonto').value = miles(saldoPrestamo(px)); S.ingDestino = (px.origen && (px.origen === 'cajita' || catPorId(px.origen.slice(4)))) ? px.origen : 'cajita'; }
+      if (px) { $('ingMonto').value = miles(saldoPrestamo(px)); S.ingDestinoManual = false; }
       $('ingFecha').value = hoy();
       renderFormIngreso(); $('formIngreso').scrollIntoView({ behavior: 'smooth', block: 'start' }); return;
     }
@@ -3548,6 +3885,8 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
     }
   });
   $('ingFecha').addEventListener('change', function () { if (S.tab === 'plata') renderFormIngreso(); });
+  $('ingTipo').addEventListener('change', function () { S.ingTipo = $('ingTipo').value; if (S.ingTipo !== 'prestamo') S.ingPrestamo = null; S.ingDestinoManual = false; renderFormIngreso(); });
+  $('ingDestino').addEventListener('change', function () { S.ingDestino = $('ingDestino').value; S.ingDestinoManual = true; $('ingDestino').blur(); renderFormIngreso(); });
   $('ingCubre').addEventListener('change', function (e) {
     var c = e.target.closest('[data-cubre]'); if (!c) return;
     if (c.checked) S.ingCubre[c.getAttribute('data-cubre')] = true; else delete S.ingCubre[c.getAttribute('data-cubre')];
@@ -3584,7 +3923,7 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
     msg = rep0 && !aDest ? 'Repuso ' + fmt(rep0) + ' a la caja menor' : (rep0 ? 'Repuso ' + fmt(rep0) + ' a la caja menor y ' + fmt(aDest) + ': ' + hacia : 'Registrado: ' + fmt(aDest) + ', ' + hacia);
     marcados.forEach(function (g) { guardar('gastos', g.id, Object.assign({}, g, { cobrado: true })); });
     if (x && saldoPrestamo(x) === 0) msg = x.persona + ' quedó a paz y salvo';
-    S.ingCubre = {}; S.ingPrestamo = null; S.ingDestino = 'cajita';
+    S.ingCubre = {}; S.ingPrestamo = null; S.ingDestino = null; S.ingDestinoManual = false;
     $('ingMonto').value = ''; $('ingConcepto').value = ''; $('ingFecha').value = hoy();
     renderFormIngreso();
     toast(msg);
@@ -3675,7 +4014,7 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
       });
       toast('Suscripción guardada'); return;
     }
-    if (t.closest('[data-retiro-abrir]')) { S.retiroAbierto = true; S.retiroResp = {}; S.retiroDraft = { fecha: hoy() }; render(); setTimeout(function () { var i = $('rtMonto'); if (i) i.focus(); }, 60); return; }
+    if ((b = t.closest('[data-retiro-abrir]'))) { var ra = b.getAttribute('data-retiro-abrir'); S.retiroAbierto = ra === '1' ? true : ra; S.cajMover = null; S.cajEditar = null; S.retiroResp = {}; S.retiroDraft = { fecha: hoy() }; render(); setTimeout(function () { var i = $('rtMonto'); if (i) i.focus(); }, 60); return; }
     if (t.closest('[data-retiro-cancelar]')) { S.retiroAbierto = false; S.retiroResp = {}; S.retiroDraft = {}; render(); return; }
     if ((b = t.closest('[data-rt]'))) { leerRetiro(); var pr = b.getAttribute('data-rt').split(':'); S.retiroResp[pr[0]] = pr[1]; render(); return; }
     if (t.closest('[data-retiro-guardar]')) {
@@ -3687,21 +4026,113 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
       if (PREGUNTAS.some(function (p) { return !R[p[0]]; })) { toast('Responda las tres preguntas.'); return; }
       var valido = PREGUNTAS.every(function (p) { return R[p[0]] === 'si'; }) ? 'si' : 'no';
       if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+      var rcj = typeof S.retiroAbierto === 'string' && cajExtra(S.retiroAbierto) ? S.retiroAbierto : '';
       S.retiroAbierto = false; S.retiroResp = {}; S.retiroDraft = {};
-      guardar('retiros', nuevoId(), { fecha: rf, mes: mesDe(rf), monto: rm, motivo: String(rd.motivo).trim(), emergencia: R.emergencia, inevitable: R.inevitable, urgente: R.urgente, valido: valido, creado: ahoraISO() });
-      toast((valido === 'si' ? 'Retiro registrado' : 'Registrado como gusto') + '. La Cajita queda en ' + fmt(saldoCajita()));
+      var docR = { fecha: rf, mes: mesDe(rf), monto: rm, motivo: String(rd.motivo).trim(), emergencia: R.emergencia, inevitable: R.inevitable, urgente: R.urgente, valido: valido, creado: ahoraISO() };
+      if (rcj) docR.cajita = rcj;
+      guardar('retiros', nuevoId(), docR);
+      toast((valido === 'si' ? 'Retiro registrado' : 'Registrado como gusto') + '. ' + (rcj ? nombreCaj('caj:' + rcj) : 'La Cajita') + ' queda en ' + fmt(saldoCaj(rcj ? 'caj:' + rcj : 'cajita')));
       return;
     }
     if ((b = t.closest('[data-retiro-borrar]'))) { S.confirmRetiro = b.getAttribute('data-retiro-borrar'); render(); return; }
     if (t.closest('[data-retiro-no]')) { S.confirmRetiro = null; render(); return; }
     if ((b = t.closest('[data-retiro-borrar-si]'))) { var rid = b.getAttribute('data-retiro-borrar-si'); S.confirmRetiro = null; borrar('retiros', rid); toast('Retiro borrado'); return; }
-    if (t.closest('[data-moto-editar]')) { S.editMoto = true; render(); return; }
-    if (t.closest('[data-moto-cancelar]')) { S.editMoto = false; render(); return; }
-    if (t.closest('[data-moto-guardar]')) {
-      var mt = num(($('motoTotal') || {}).value), ma = num(($('motoAbono') || {}).value);
-      if (mt <= 0) { toast('Escriba la meta total.'); return; }
-      var pm0 = clone(S.plan || {}); pm0.cajita = Object.assign({}, pm0.cajita || {}); pm0.cajita.moto = Object.assign({}, pm0.cajita.moto || {}, { monto: mt, abono: Math.min(ma, mt) });
-      S.editMoto = false; guardar('config', 'plan', pm0); toast('Meta: ' + fmt(mt)); return;
+    /* Meta del colchón y Cajitas (v13) */
+    if (t.closest('[data-meta-caj]')) { S.editMetaCaj = true; render(); setTimeout(function () { var i = $('metaCaj'); if (i) i.focus(); }, 50); return; }
+    if (t.closest('[data-meta-caj-no]')) { S.editMetaCaj = false; render(); return; }
+    if (t.closest('[data-meta-caj-guardar]')) {
+      var mcv = num(($('metaCaj') || {}).value); if (mcv < 100000) { toast('Escriba la meta del colchón.'); return; }
+      S.editMetaCaj = false; planCon(function (pl) { pl.cajita = Object.assign({}, pl.cajita || {}, { meta: mcv }); }); toast('Meta del colchón: ' + fmt(mcv)); return;
+    }
+    if ((b = t.closest('[data-mc-abrir]'))) { S.cajMover = b.getAttribute('data-mc-abrir'); S.retiroAbierto = false; S.cajEditar = null; render(); return; }
+    if (t.closest('[data-mc-cancelar]')) { S.cajMover = null; render(); return; }
+    if (t.closest('[data-mc-guardar]')) {
+      if (S.puenteV < 2) { toast('Primero actualice el puente de su hoja.'); return; }
+      var mdes = ($('mcDesde') || {}).value, mhac = ($('mcHacia') || {}).value, mmon = num(($('mcMonto') || {}).value);
+      if (!mdes || !mhac || mdes === mhac) { toast('Elija de dónde y hacia dónde.'); return; }
+      if (mmon <= 0) { toast('Escriba cuánto mueve.'); return; }
+      var nomL = function (k) { return esCajKey(k) ? nombreCaj(k) : nombreLugar(k); };
+      if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+      S.cajMover = null;
+      var fm = hoy(); guardar('ingresos', nuevoId(), { fecha: fm, mes: mesDe(fm), monto: mmon, tipo: 'mover', origen: mdes, destino: mhac, concepto: 'De ' + nomL(mdes) + ' a ' + nomL(mhac), creado: ahoraISO() });
+      toast('Movió ' + fmt(mmon) + ' de ' + nomL(mdes) + ' a ' + nomL(mhac) + '. Hágalo también en el banco.'); return;
+    }
+    if (t.closest('[data-caj-nueva]')) { S.cajNueva = true; render(); setTimeout(function () { var i = $('cnNombre'); if (i) i.focus(); }, 50); return; }
+    if (t.closest('[data-caj-nueva-no]')) { S.cajNueva = false; render(); return; }
+    if (t.closest('[data-caj-crear]')) {
+      var cnN = String(($('cnNombre') || {}).value || '').trim(), cnS = num(($('cnSaldo') || {}).value), cnTr = String(($('cnTasa') || {}).value || '').trim(), cnT = leerTasa(cnTr), cnM = num(($('cnMeta') || {}).value);
+      if (!cnN) { toast('Escriba el nombre de la Cajita.'); return; }
+      if (cnTr && cnT == null) { toast('Escriba la tasa como la ve en su banco, por ejemplo 9,35.'); return; }
+      if (cajitasExtra().some(function (c) { return c.nombre.toLowerCase() === cnN.toLowerCase(); }) || cnN.toLowerCase() === nombreAhorro().toLowerCase()) { toast('Ya tiene una Cajita con ese nombre.'); return; }
+      if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+      var nc = { id: slug(cnN), nombre: cnN, saldoBase: cnS, fechaBase: hoy(), baseCreado: ahoraISO(), tasa: cnT == null ? 0 : cnT };
+      if (cnM) nc.meta = cnM;
+      S.cajNueva = false; planCon(function (pl) { pl.cajitas = (pl.cajitas || []).concat([nc]); }); toast('Cajita ' + cnN + ' creada'); return;
+    }
+    if ((b = t.closest('[data-ce-editar]'))) { S.cajEditar = b.getAttribute('data-ce-editar'); S.cajMover = null; S.retiroAbierto = false; S.confirmCaj = null; render(); return; }
+    if (t.closest('[data-ce-cancelar]')) { S.cajEditar = null; S.confirmCaj = null; render(); return; }
+    if ((b = t.closest('[data-ce-quitar]'))) { S.confirmCaj = b.getAttribute('data-ce-quitar'); S.cajEditar = null; render(); return; }
+    if ((b = t.closest('[data-ce-quitar-si]'))) {
+      var qc = b.getAttribute('data-ce-quitar-si'), qn = (cajExtra(qc) || {}).nombre || 'La Cajita'; S.confirmCaj = null;
+      planCon(function (pl) { pl.cajitas = (pl.cajitas || []).filter(function (c) { return c.id !== qc; }); (pl.planes || []).forEach(function (x) { if (x.cajita === qc) delete x.cajita; }); });
+      toast(qn + ' quitada'); return;
+    }
+    if ((b = t.closest('[data-ce-guardar]'))) {
+      var ce = b.getAttribute('data-ce-guardar'), cx = cajExtra(ce); if (!cx) return;
+      var ceN = String(($('ceNombre') || {}).value || '').trim(), ceM = num(($('ceMeta') || {}).value), ceSr = String(($('ceSaldo') || {}).value || '').trim(), ceS = num(ceSr), ceTr = String(($('ceTasa') || {}).value || '').trim(), ceT = leerTasa(ceTr);
+      if (!ceN) { toast('Escriba el nombre.'); return; }
+      if (ceTr && ceT == null) { toast('Escriba la tasa como la ve en su banco, por ejemplo 9,35.'); return; }
+      var ceTasaCambia = ceT != null && Math.abs(ceT - (Number(cx.tasa) || 0)) > 0.001, saldoAhora = saldoCaj('caj:' + ce);
+      if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+      S.cajEditar = null;
+      planCon(function (pl) {
+        (pl.cajitas || []).forEach(function (c) {
+          if (c.id !== ce) return;
+          c.nombre = ceN; if (ceM) c.meta = ceM; else delete c.meta;
+          // Saldo nuevo o tasa nueva: el saldo de hoy (con lo que ya rindió) queda como base y la tasa rige desde hoy.
+          if (ceSr !== '' || ceTasaCambia) { c.saldoBase = ceSr !== '' ? ceS : saldoAhora; c.fechaBase = hoy(); c.baseCreado = ahoraISO(); }
+          if (ceT != null) c.tasa = ceT;
+        });
+      });
+      toast(ceN + ' actualizada'); return;
+    }
+    /* Mis planes (v13) */
+    if (t.closest('[data-plan-nuevo]')) { S.editPlan = 'nuevo'; S.confirmPlan = null; render(); setTimeout(function () { var i = $('plNombre'); if (i) i.focus(); }, 50); return; }
+    if ((b = t.closest('[data-plan-editar]'))) { S.editPlan = b.getAttribute('data-plan-editar'); S.confirmPlan = null; render(); return; }
+    if (t.closest('[data-plan-cancelar]')) { S.editPlan = null; S.confirmPlan = null; render(); return; }
+    if ((b = t.closest('[data-plan-quitar]'))) { S.confirmPlan = b.getAttribute('data-plan-quitar'); S.editPlan = null; render(); return; }
+    if ((b = t.closest('[data-plan-quitar-si]'))) {
+      var qp = b.getAttribute('data-plan-quitar-si'), lp = planesL().filter(function (x) { return x.id !== qp; }); S.confirmPlan = null;
+      planCon(function (pl) { pl.planes = clone(lp); if (pl.cajita) delete pl.cajita.moto; }); toast('Plan quitado'); return;
+    }
+    if (t.closest('[data-plan-guardar]')) {
+      var pn = String(($('plNombre') || {}).value || '').trim(), pmo = num(($('plMonto') || {}).value), pab = num(($('plAbono') || {}).value), pat = String(($('plAbonoTxt') || {}).value || '').trim(), pfe = ($('plFecha') || {}).value || '', pcj = ($('plCaj') || {}).value || '';
+      if (!pn) { toast('Escriba qué plan es.'); return; }
+      if (pmo <= 0) { toast('Escriba cuánto cuesta.'); return; }
+      if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+      var ep = S.editPlan, lista = clone(planesL()), xp = ep === 'nuevo' ? { id: slug(pn) } : (lista.filter(function (x) { return x.id === ep; })[0] || { id: ep });
+      xp.nombre = pn; xp.monto = pmo; xp.abono = Math.min(pab, pmo);
+      if (pat) xp.abonoTexto = pat; else delete xp.abonoTexto;
+      if (pfe) xp.fecha = pfe; else delete xp.fecha;
+      if (pcj) xp.cajita = pcj; else delete xp.cajita;
+      if (ep === 'nuevo') lista.push(xp); else lista = lista.map(function (x) { return x.id === xp.id ? xp : x; });
+      S.editPlan = null; planCon(function (pl) { pl.planes = lista; if (pl.cajita) delete pl.cajita.moto; }); toast('Plan guardado'); return;
+    }
+    if (t.closest('[data-fecha-nueva]')) { S.nuevaFecha = true; render(); setTimeout(function () { var i = $('nfTexto'); if (i) i.focus(); }, 50); return; }
+    if (t.closest('[data-fecha-cancelar]')) { S.nuevaFecha = false; render(); return; }
+    if ((b = t.closest('[data-fecha-quitar]'))) { S.confirmFecha = b.getAttribute('data-fecha-quitar'); render(); return; }
+    if (t.closest('[data-fecha-no]')) { S.confirmFecha = null; render(); return; }
+    if ((b = t.closest('[data-fecha-quitar-si]'))) {
+      var fk = b.getAttribute('data-fecha-quitar-si'), quitada = false; S.confirmFecha = null;
+      planCon(function (pl) { pl.fechas = (pl.fechas || []).filter(function (f) { if (!quitada && f.fecha + '|' + f.texto === fk) { quitada = true; return false; } return true; }); });
+      toast('Fecha quitada'); return;
+    }
+    if (t.closest('[data-fecha-guardar]')) {
+      var nf = ($('nfFecha') || {}).value, nt = String(($('nfTexto') || {}).value || '').trim();
+      if (!nf) { toast('Elija la fecha.'); return; }
+      if (!nt) { toast('Escriba qué pasa ese día.'); return; }
+      if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+      S.nuevaFecha = false; planCon(function (pl) { pl.fechas = (pl.fechas || []).concat([{ fecha: nf, texto: nt }]); }); toast('Fecha agregada'); return;
     }
     if ((b = t.closest('[data-proteccion]'))) {
       var acc = b.getAttribute('data-proteccion');
@@ -3773,6 +4204,9 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
       var xs = num(($('rx-s-' + xid) || {}).value), xp = num(($('rx-p-' + xid) || {}).value), xf = (($('rx-f-' + xid) || {}).value || '');
       var dif = xs - saldoDeuda(xd), nx = Object.assign({}, xd, { saldoBase: xs, fechaBase: hoy(), revisado: corteDe(xd) || hoy() });
       if (xp > 0) nx.cuota = xp;
+      var xiEl = $('rx-i-' + xid), xmEl = $('rx-m-' + xid);
+      if (xiEl && String(xiEl.value).trim() !== '') nx.interesMes = num(xiEl.value); else delete nx.interesMes;
+      if (xmEl && String(xmEl.value).trim() !== '') { var xm = num(xmEl.value); if (xm) nx.manejo = xm; else delete nx.manejo; }
       if (/^\d{4}-\d{2}-\d{2}$/.test(xf)) nx.diaPago = Number(xf.slice(8, 10));
       S.revisarDeuda = null;
       guardar('deudas', xid, nx);
@@ -3785,6 +4219,7 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
       var nd = Object.assign({}, d, { saldoBase: saldo, fechaBase: hoy(), cuota: cuota });
       if (tasaTxt && isFinite(tasa) && tasa >= 0 && tasa < 15) nd.tasa = Math.round(tasa * 100) / 100; else delete nd.tasa;
       if (manejo) nd.manejo = manejo; else delete nd.manejo;
+      var cupoEl = $('dq-' + id); if (cupoEl) { var cupo = num(cupoEl.value); if (cupo) nd.cupo = cupo; else delete nd.cupo; }
       S.editDeuda = null;
       guardar('deudas', id, nd);
       toast('Deuda actualizada'); return;
@@ -3842,6 +4277,10 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
   function cubrirOn() { return lsGet(LS.cubrir, true) !== false; }
   function cubrir(si) { var c = $('cubierta'); if (c) c.hidden = !(si && CONN && cubrirOn()); }
   window.addEventListener('blur', function () { cubrir(true); });
+  // v13: el iPhone toma la foto del selector de apps muy rápido; se tapa también con cualquier aviso de salida que llegue antes.
+  window.addEventListener('pagehide', function () { cubrir(true); });
+  document.addEventListener('freeze', function () { cubrir(true); });
+  document.addEventListener('resume', function () { cubrir(false); });
   window.addEventListener('focus', function () { cubrir(false); });
   window.addEventListener('pageshow', function () { cubrir(false); });
   $('cubierta').addEventListener('pointerdown', function () { cubrir(false); });
@@ -3863,8 +4302,11 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
     var t = e.target, b;
     if ((b = t.closest('[data-agregar]'))) {
       var tipo = b.getAttribute('data-agregar'), n = 'n' + Date.now();
-      if (tipo === 'cat') $('edCats').insertAdjacentHTML('beforeend', filaCat({ id: '', nombre: '', presupuesto: 0 }, n));
-      else $(tipo === 'ing' ? 'edIng' : 'edFij').insertAdjacentHTML('beforeend', filaItem(tipo, { id: '', nombre: '', monto: 0, dia: 30 }, n));
+      var agregar = function (cont, html) { var o = cont.querySelector(':scope > details.otros'); if (o) o.insertAdjacentHTML('beforebegin', html); else cont.insertAdjacentHTML('beforeend', html); };
+      if (tipo === 'cat-dia') agregar($('edDia'), filaCat({ id: '', nombre: '', presupuesto: 0 }, n, true, 'dia'));
+      else if (tipo === 'cat-guarda') agregar($('edGuarda'), filaCat({ id: '', nombre: '', presupuesto: 0 }, n, true, 'apartado'));
+      else agregar($(tipo === 'ing' ? 'edIng' : 'edFij'), filaItem(tipo, { id: '', nombre: '', monto: 0, dia: 30 }, n, true));
+      setTimeout(function () { var el = document.getElementById((tipo.indexOf('cat') === 0 ? 'bc' : tipo) + '-n-' + n); if (el) el.focus(); }, 30);
       return;
     }
     if (t.closest('[data-quitar-fila]')) { t.closest('.ed-fila').remove(); return; }
@@ -3875,7 +4317,7 @@ body.discreto input[inputmode="numeric"]:not(:focus) { -webkit-text-security: di
   window.addEventListener('online', function () { sincronizar(); });
   window.addEventListener('offline', function () { estadoSync = 'sin-conexion'; pintarEstado(); });
   document.addEventListener('visibilitychange', function () {
-    if (document.visibilityState === 'hidden') { ocultaDesde = Date.now(); cubrir(true); return; }
+    if (document.visibilityState === 'hidden') { ocultaDesde = Date.now(); cubrir(true); if (S.movVer) { cerrarMovs(); if (CONN && D && S.tab === 'hoy') renderMovs(S.per); } return; }
     cubrir(false);
     if (document.visibilityState !== 'visible' || !CONN) return;
     if (ocultaDesde && Date.now() - ocultaDesde > 60000) bloquear();
